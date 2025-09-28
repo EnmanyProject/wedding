@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&B 미팅 앱 - 사진 기반 퀴즈로 만나는 특별한 인연</title>
+    <meta name="description" content="A&B 취향 퀴즈와 사진 기반 예측으로 완벽한 인연을 찾아보세요">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ff6b9d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="A&B 미팅">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/styles/main.css">
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>A&B 미팅 로딩중...</p>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">A&B 미팅</h1>
+                <div class="header-stats">
+                    <div class="points-display">
+                        <span class="points-icon">💰</span>
+                        <span id="user-points">0</span>P
+                    </div>
+                    <div class="notifications">
+                        <span class="notification-icon">🔔</span>
+                        <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Home View -->
+            <div id="home-view" class="view active">
+                <div class="welcome-section">
+                    <h2>안녕하세요! 👋</h2>
+                    <p>퀴즈를 통해 완벽한 인연을 찾아보세요</p>
+                </div>
+
+                <!-- Quiz Suggestion Card -->
+                <div class="quiz-suggestion-card">
+                    <div class="matching-manager">
+                        <div class="manager-avatar">🤖</div>
+                        <div class="manager-message">
+                            <p>"새로운 퀴즈로 더 많은 인연을 발견해보세요!"</p>
+                            <button id="start-quiz-btn" class="btn btn-primary">
+                                퀴즈 시작하기 (1P)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Rankings -->
+                <section class="rankings-section">
+                    <h3>내 호감도 랭킹 🏆</h3>
+                    <div id="rankings-list" class="rankings-list">
+                        <div class="ranking-placeholder">
+                            <p>퀴즈를 시작하면 랭킹이 표시됩니다</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Available Meetings -->
+                <section class="meetings-section">
+                    <h3>만남 가능한 인연 💕</h3>
+                    <div id="meetings-list" class="meetings-list">
+                        <div class="meeting-placeholder">
+                            <p>호감도가 충분히 높아지면 만남이 가능합니다</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Photos View -->
+            <div id="photos-view" class="view">
+                <div class="view-header">
+                    <h2>내 사진 관리 📸</h2>
+                    <button id="add-photo-btn" class="btn btn-secondary">사진 추가</button>
+                </div>
+
+                <div class="photos-grid" id="user-photos-grid">
+                    <div class="photo-placeholder">
+                        <div class="placeholder-icon">📷</div>
+                        <p>첫 번째 사진을 추가해보세요</p>
+                    </div>
+                </div>
+
+                <!-- Photo Upload Modal -->
+                <div id="photo-upload-modal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>사진 업로드</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="upload-area" id="photo-upload-area">
+                                <div class="upload-icon">📁</div>
+                                <p>사진을 선택하거나 여기로 드래그하세요</p>
+                                <input type="file" id="photo-file-input" accept="image/*" style="display: none;">
+                                <button id="select-photo-btn" class="btn btn-primary">사진 선택</button>
+                            </div>
+                            <div id="upload-progress" class="upload-progress" style="display: none;">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="upload-progress-fill"></div>
+                                </div>
+                                <p id="upload-status">업로드 중...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rankings View -->
+            <div id="rankings-view" class="view">
+                <div class="view-header">
+                    <h2>호감도 랭킹 🏆</h2>
+                    <button id="refresh-rankings-btn" class="btn btn-secondary">새로고침</button>
+                </div>
+
+                <div id="detailed-rankings" class="detailed-rankings">
+                    <!-- Rankings will be populated here -->
+                </div>
+            </div>
+
+            <!-- Meetings View -->
+            <div id="meetings-view" class="view">
+                <div class="view-header">
+                    <h2>만남 & 채팅 💬</h2>
+                </div>
+
+                <div class="meetings-tabs">
+                    <button class="tab-btn active" data-tab="available">만남 가능</button>
+                    <button class="tab-btn" data-tab="active">진행 중</button>
+                </div>
+
+                <div id="available-meetings" class="tab-content active">
+                    <!-- Available meetings -->
+                </div>
+
+                <div id="active-meetings" class="tab-content">
+                    <!-- Active chats -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Quiz Modal -->
+        <div id="quiz-modal" class="modal quiz-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>💝 호감도 퀴즈</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="quiz-content">
+                        <div class="matching-manager-quiz">
+                            <div class="manager-avatar">🤖</div>
+                            <div class="manager-speech">
+                                <p id="quiz-question">이 분은 어떤 것을 선호할까요?</p>
+                            </div>
+                        </div>
+
+                        <div class="quiz-options">
+                            <div class="quiz-option" id="quiz-option-left">
+                                <div class="option-image">
+                                    <img id="quiz-left-image" alt="왼쪽 선택지">
+                                </div>
+                                <div class="option-label" id="quiz-left-label">선택 A</div>
+                            </div>
+
+                            <div class="vs-divider">VS</div>
+
+                            <div class="quiz-option" id="quiz-option-right">
+                                <div class="option-image">
+                                    <img id="quiz-right-image" alt="오른쪽 선택지">
+                                </div>
+                                <div class="option-label" id="quiz-right-label">선택 B</div>
+                            </div>
+                        </div>
+
+                        <div class="quiz-info">
+                            <p>💰 퀴즈 도전 시 1P가 차감됩니다</p>
+                            <p>❌ 틀릴 경우 추가로 1P가 차감됩니다</p>
+                        </div>
+
+                        <div class="quiz-target-info" id="quiz-target-info">
+                            <!-- Target user info will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Modal -->
+        <div id="result-modal" class="modal result-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="result-title">퀴즈 결과</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="result-content">
+                        <div class="result-icon" id="result-icon">🎉</div>
+                        <div class="result-message" id="result-message">정답입니다!</div>
+                        <div class="result-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">호감도 변화:</span>
+                                <span class="stat-value" id="affinity-change">+3</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">현재 호감도:</span>
+                                <span class="stat-value" id="current-affinity">25</span>
+                            </div>
+                            <div class="stat-item" id="unlock-message" style="display: none;">
+                                <span class="unlock-text">🎊 새로운 사진이 해금되었습니다!</span>
+                            </div>
+                        </div>
+                        <button id="continue-quiz-btn" class="btn btn-primary">계속 퀴즈하기</button>
+                        <button id="finish-quiz-btn" class="btn btn-secondary">완료</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-view="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">홈</span>
+            </button>
+            <button class="nav-item" data-view="photos">
+                <span class="nav-icon">💖</span>
+                <span class="nav-label">내 취향</span>
+            </button>
+            <button class="nav-item" data-view="rankings">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-label">랭킹</span>
+            </button>
+            <button class="nav-item" data-view="meetings">
+                <span class="nav-icon">💕</span>
+                <span class="nav-label">만남</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/ui.js"></script>
+    <script src="/js/quiz.js"></script>
+    <script src="/js/photos.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
