@@ -30,7 +30,8 @@
       "Bash(move vitest.config.ts legacy_src/)",
       "Bash(move:*)",
       "Bash(npx:*)",
-      "Bash(npm cache clean:*)"
+      "Bash(npm cache clean:*)",
+      "Bash(start https://wedding-la5kmluj7-enmanys-projects.vercel.app/setup)"
     ],
     "deny": [],
     "ask": []
