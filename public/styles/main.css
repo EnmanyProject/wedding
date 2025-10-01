@@ -312,8 +312,10 @@ body {
 
 /* Main Content */
 .main-content {
-  padding: 0 20px 100px;
+  padding: 0 20px 120px; /* 하단 패딩을 120px로 증가하여 네비게이션 바와 충분한 여백 확보 */
   min-height: calc(100vh - 200px);
+  /* 모바일 안전 영역 고려 */
+  padding-bottom: max(120px, calc(100px + env(safe-area-inset-bottom, 0px)));
 }
 
 /* Views */
@@ -1009,6 +1011,8 @@ body {
   backdrop-filter: blur(24px);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
+  /* 안전 영역 고려하여 하단 패딩 추가 */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   justify-content: space-evenly;
   align-items: center;
   padding: 12px 20px;
@@ -1070,9 +1074,15 @@ body {
 
 /* 모바일 최적화 및 반응형 디자인 */
 @media (max-width: 480px) {
+  .main-content {
+    padding-bottom: max(140px, calc(120px + env(safe-area-inset-bottom, 0px))); /* 모바일에서 더 충분한 하단 여백 */
+  }
+
   .bottom-nav {
     padding: 8px 15px;
     border-radius: 15px 15px 0 0;
+    /* 모바일에서 안전 영역까지 고려한 패딩 */
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   }
 
   .nav-item {
