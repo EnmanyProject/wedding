@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
 
     // Test simple database connection
     console.log('Attempting database connection...');
-    const result = await sql`SELECT 1 as test_value, NOW() as current_time`;
+    const client = createClient();
+    const result = await client.sql`SELECT 1 as test_value, NOW() as current_time`;
     console.log('Database connection successful');
 
     return NextResponse.json({

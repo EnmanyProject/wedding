@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -29,12 +29,15 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Creating UUID extension...');
+    // Create database client
+    const client = createClient();
+
     // Enable UUID extension
-    await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
     console.log('Creating users table...');
     // Create users table
-    await sql`
+    await client.sql`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         name VARCHAR(100) NOT NULL,
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating ab_quizzes table...');
     // Create ab_quizzes table
-    await sql`
+    await client.sql`
       CREATE TABLE IF NOT EXISTS ab_quizzes (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         category VARCHAR(50),
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating quiz_responses table...');
     // Create quiz_responses table
-    await sql`
+    await client.sql`
       CREATE TABLE IF NOT EXISTS quiz_responses (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         quiz_id UUID NOT NULL REFERENCES ab_quizzes(id),
@@ -82,12 +85,12 @@ export async function POST(request: NextRequest) {
 
     console.log('Creating indexes...');
     // Create indexes
-    await sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_user_id ON quiz_responses(user_id)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_quiz_id ON quiz_responses(quiz_id)`;
+    await client.sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_user_id ON quiz_responses(user_id)`;
+    await client.sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_quiz_id ON quiz_responses(quiz_id)`;
 
     console.log('Inserting admin user...');
     // Insert admin user with default password (should be changed in production)
-    await sql`
+    await client.sql`
       INSERT INTO users (name, email, display_name)
       VALUES ('Admin', 'admin@wedding.com', 'Admin')
       ON CONFLICT (email) DO NOTHING
