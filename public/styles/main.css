@@ -1416,7 +1416,11 @@ body {
 }
 
 .partner-card.loading {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: transparent !important; /* 베티용 로딩 카드는 완전 투명 */
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important; /* 마진도 제거 */
 }
 
 .partner-card .card-content {
@@ -1838,8 +1842,16 @@ body {
 }
 
 .partner-card.loading .loading-content {
-  background: transparent; /* 로딩 콘텐츠 배경도 투명하게 */
-  padding: 20px; /* 패딩 줄여서 더 자연스럽게 */
+  background: transparent !important; /* 로딩 콘텐츠 배경도 완전 투명 */
+  padding: 0 !important; /* 패딩도 완전 제거 */
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* 베티 로딩 텍스트 숨기기 */
+.partner-card.loading .loading-text {
+  display: none !important; /* 로딩 텍스트 완전 숨김 */
 }
 
 .loading-content {
