@@ -23,7 +23,12 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Bash(git remote remove:*)",
-      "Bash(move src legacy_src)"
+      "Bash(move src legacy_src)",
+      "Bash(npx vercel:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout 60 npm run build)",
+      "Bash(move vitest.config.ts legacy_src/)",
+      "Bash(move:*)"
     ],
     "deny": [],
     "ask": []
