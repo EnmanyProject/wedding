@@ -5,35 +5,46 @@ import { useState } from 'react';
 export default function SetupPage() {
   const [testResult, setTestResult] = useState<string>('');
   const [setupResult, setSetupResult] = useState<string>('');
-  const [loading, setLoading] = useState(false);
+  const [testLoading, setTestLoading] = useState(false);
+  const [setupLoading, setSetupLoading] = useState(false);
 
   const testDatabase = async () => {
-    setLoading(true);
+    console.log('Testing database connection...');
+    setTestLoading(true);
+    setTestResult('');
     try {
-      const response = await fetch('/api/test-db');
+      const response = await fetch('/api/test-db?x-vercel-protection-bypass=a7f9k2m8p3q6r1s5t9w4x7z2b6c8d5e1');
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
       setTestResult(JSON.stringify(data, null, 2));
     } catch (error) {
+      console.error('Test error:', error);
       setTestResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    setLoading(false);
+    setTestLoading(false);
   };
 
   const setupDatabase = async () => {
-    setLoading(true);
+    console.log('Setting up database schema...');
+    setSetupLoading(true);
+    setSetupResult('');
     try {
-      const response = await fetch('/api/setup-db', {
+      const response = await fetch('/api/setup-db?x-vercel-protection-bypass=a7f9k2m8p3q6r1s5t9w4x7z2b6c8d5e1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         }
       });
+      console.log('Setup response status:', response.status);
       const data = await response.json();
+      console.log('Setup response data:', data);
       setSetupResult(JSON.stringify(data, null, 2));
     } catch (error) {
+      console.error('Setup error:', error);
       setSetupResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    setLoading(false);
+    setSetupLoading(false);
   };
 
   return (
@@ -52,10 +63,10 @@ export default function SetupPage() {
               </h2>
               <button
                 onClick={testDatabase}
-                disabled={loading}
+                disabled={testLoading}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
               >
-                {loading ? '테스트 중...' : '연결 테스트'}
+                {testLoading ? '테스트 중...' : '연결 테스트'}
               </button>
 
               {testResult && (
@@ -75,10 +86,10 @@ export default function SetupPage() {
               </h2>
               <button
                 onClick={setupDatabase}
-                disabled={loading}
+                disabled={setupLoading}
                 className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
               >
-                {loading ? '설정 중...' : '스키마 설정'}
+                {setupLoading ? '설정 중...' : '스키마 설정'}
               </button>
 
               {setupResult && (
