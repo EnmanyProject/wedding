@@ -18,7 +18,12 @@
       "Bash(git add:*)",
       "Bash(powershell:*)",
       "Bash(git commit:*)",
-      "Bash(gh repo create:*)"
+      "Bash(gh repo create:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git remote remove:*)",
+      "Bash(move src legacy_src)"
     ],
     "deny": [],
     "ask": []
