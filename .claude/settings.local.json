@@ -29,7 +29,8 @@
       "Bash(timeout 60 npm run build)",
       "Bash(move vitest.config.ts legacy_src/)",
       "Bash(move:*)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(npm cache clean:*)"
     ],
     "deny": [],
     "ask": []
