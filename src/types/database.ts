@@ -166,3 +166,28 @@ export interface DevFlag {
   value?: string;
   updated_at: Date;
 }
+
+export interface ABQuiz {
+  id: string;
+  category: string;
+  title: string;
+  description?: string;
+  option_a_title: string;
+  option_a_description?: string;
+  option_a_image?: string;
+  option_b_title: string;
+  option_b_description?: string;
+  option_b_image?: string;
+  is_active: boolean;
+  created_by: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface QuizResponse {
+  id: string;
+  quiz_id: string;
+  user_id: string;
+  selected_option: 'A' | 'B';
+  created_at: Date;
+}

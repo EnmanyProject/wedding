@@ -7,15 +7,17 @@
     <meta name="description" content="A&B 취향 퀴즈와 사진 기반 예측으로 완벽한 인연을 찾아보세요">
 
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#ff6b9d">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="A&B 미팅">
+    <link rel="manifest" href="/manifest.json">
 
     <!-- Icons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,77 +26,96 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/dark-theme.css">
+    <link rel="stylesheet" href="/styles/mobile-compact.css">
+    <link rel="stylesheet" href="/styles/viewport-fit.css">
+    <link rel="stylesheet" href="/styles/readability-fix.css">
+    <link rel="stylesheet" href="/styles/beautiful-simple-ui.css">
+    <link rel="stylesheet" href="/styles/responsive-improvements.css">
+    <link rel="stylesheet" href="/styles/accessibility-improvements.css">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
 <body>
+    <!-- Skip to main content link -->
+    <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
+
     <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner"></div>
+    <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+        <div class="loading-character">
+            <img src="/images/Bety1.png" alt="베티 캐릭터가 로딩 중입니다" class="bety-character loading-bounce">
+        </div>
+        <div class="loading-spinner" aria-hidden="true"></div>
         <p>A&B 미팅 로딩중...</p>
     </div>
 
     <!-- Main App Container -->
     <div id="app" class="app-container" style="display: none;">
         <!-- Header -->
-        <header class="app-header">
+        <header class="app-header" role="banner">
             <div class="header-content">
                 <h1 class="app-title">A&B 미팅</h1>
-                <div class="header-stats">
-                    <div class="points-display">
-                        <span class="points-icon">💰</span>
-                        <span id="user-points">0</span>P
+                <div class="header-stats" role="region" aria-label="사용자 상태 정보">
+                    <div class="points-display" aria-label="보유 포인트">
+                        <span class="points-icon" aria-hidden="true">💰</span>
+                        <span id="user-points" aria-live="polite">0</span>P
+                        <span class="sr-only">포인트</span>
                     </div>
-                    <div class="notifications">
-                        <span class="notification-icon">🔔</span>
-                        <span id="notification-badge" class="notification-badge" style="display: none;">0</span>
+                    <button class="notifications" aria-label="알림" aria-expanded="false">
+                        <span class="notification-icon" aria-hidden="true">🔔</span>
+                        <span id="notification-badge" class="notification-badge" style="display: none;" aria-live="polite">0</span>
+                        <span class="sr-only">개의 새 알림</span>
+                    </button>
+                    <div id="admin-link" style="display: none;">
+                        <a href="/admin-login.html" style="color: white; text-decoration: none; margin-left: 1rem;" aria-label="관리자 페이지로 이동">⚙️ 관리자</a>
                     </div>
                 </div>
             </div>
         </header>
 
         <!-- Main Content Area -->
-        <main class="main-content">
+        <main id="main-content" class="main-content" role="main">
             <!-- Home View -->
             <div id="home-view" class="view active">
                 <div class="welcome-section">
-                    <h2>안녕하세요! 👋</h2>
-                    <p>퀴즈를 통해 완벽한 인연을 찾아보세요</p>
-                </div>
-
-                <!-- Quiz Suggestion Card -->
-                <div class="quiz-suggestion-card">
-                    <div class="matching-manager">
-                        <div class="manager-avatar">🤖</div>
-                        <div class="manager-message">
-                            <p>"새로운 퀴즈로 더 많은 인연을 발견해보세요!"</p>
-                            <button id="start-quiz-btn" class="btn btn-primary">
-                                퀴즈 시작하기 (1P)
-                            </button>
+                    <div class="welcome-content">
+                        <div class="welcome-text">
+                            <h2>안녕하세요! 👋</h2>
+                            <p>당신의 반려자를 찾으세요</p>
+                        </div>
+                        <div class="welcome-bety">
+                            <img src="/images/Bety1.png" alt="베티" class="bety-character bety-expressions" id="welcome-bety">
                         </div>
                     </div>
                 </div>
 
-                <!-- My Rankings -->
-                <section class="rankings-section">
-                    <h3>내 호감도 랭킹 🏆</h3>
-                    <div id="rankings-list" class="rankings-list">
-                        <div class="ranking-placeholder">
-                            <p>퀴즈를 시작하면 랭킹이 표시됩니다</p>
+                <!-- User Avatars Section -->
+                <section class="user-avatars-section" aria-labelledby="user-avatars-title">
+                    <div class="section-header">
+                        <h3 id="user-avatars-title">미래의 반려자 찾기 💖</h3>
+                        <p>카드를 스와이프해서 당신의 운명의 반려자를 찾아보세요!</p>
+                    </div>
+                    <div class="mobile-partner-swiper" id="mobile-partner-swiper">
+                        <div class="swiper-pagination" id="partner-swiper-pagination"></div>
+                        <div class="partner-cards-container" id="partner-cards-container">
+                            <div class="partner-card loading">
+                                <div class="loading-content">
+                                    <div class="loading-character">
+                                        <img src="/images/Bety6.png" alt="Loading Bety" class="bety-character character-wiggle">
+                                    </div>
+                                    <p class="loading-text">반려자 데이터를 불러오는 중...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-controls" id="partner-swiper-controls">
+                            <button class="swiper-nav-btn" id="prev-partner-btn" disabled>‹</button>
+                            <span class="swiper-counter" id="partner-counter">1 / 1</span>
+                            <button class="swiper-nav-btn" id="next-partner-btn" disabled>›</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Available Meetings -->
-                <section class="meetings-section">
-                    <h3>만남 가능한 인연 💕</h3>
-                    <div id="meetings-list" class="meetings-list">
-                        <div class="meeting-placeholder">
-                            <p>호감도가 충분히 높아지면 만남이 가능합니다</p>
-                        </div>
-                    </div>
-                </section>
             </div>
 
             <!-- Photos View -->
@@ -106,27 +127,30 @@
 
                 <div class="photos-grid" id="user-photos-grid">
                     <div class="photo-placeholder">
-                        <div class="placeholder-icon">📷</div>
+                        <img src="/images/Bety5.png" alt="Bety" class="bety-character character-dance character-clickable" style="width: 80px; height: 80px; margin-bottom: 1rem;">
                         <p>첫 번째 사진을 추가해보세요</p>
                     </div>
                 </div>
 
                 <!-- Photo Upload Modal -->
-                <div id="photo-upload-modal" class="modal">
+                <div id="photo-upload-modal" class="modal" role="dialog" aria-labelledby="upload-modal-title" aria-modal="true" aria-hidden="true">
+                    <div class="modal-overlay" aria-hidden="true"></div>
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>사진 업로드</h3>
-                            <button class="modal-close">&times;</button>
+                            <h3 id="upload-modal-title">사진 업로드</h3>
+                            <button class="modal-close" aria-label="업로드 창 닫기">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <div class="upload-area" id="photo-upload-area">
-                                <div class="upload-icon">📁</div>
-                                <p>사진을 선택하거나 여기로 드래그하세요</p>
-                                <input type="file" id="photo-file-input" accept="image/*" style="display: none;">
+                            <div class="upload-area" id="photo-upload-area" role="button" tabindex="0" aria-label="사진 업로드 영역" aria-describedby="upload-instructions">
+                                <div class="upload-icon" aria-hidden="true">📁</div>
+                                <p id="upload-instructions">사진을 선택하거나 여기로 드래그하세요</p>
+                                <label for="photo-file-input" class="file-input-label sr-only">업로드할 사진 파일 선택</label>
+                                <input type="file" id="photo-file-input" accept="image/*" aria-describedby="file-input-help" style="display: none;">
+                                <div id="file-input-help" class="sr-only">JPG, PNG, GIF 형식의 이미지 파일만 업로드 가능합니다</div>
                                 <button id="select-photo-btn" class="btn btn-primary">사진 선택</button>
                             </div>
-                            <div id="upload-progress" class="upload-progress" style="display: none;">
-                                <div class="progress-bar">
+                            <div id="upload-progress" class="upload-progress" style="display: none;" role="status" aria-live="polite">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-labelledby="upload-status">
                                     <div class="progress-fill" id="upload-progress-fill"></div>
                                 </div>
                                 <p id="upload-status">업로드 중...</p>
@@ -143,8 +167,43 @@
                     <button id="refresh-rankings-btn" class="btn btn-secondary">새로고침</button>
                 </div>
 
-                <div id="detailed-rankings" class="detailed-rankings">
-                    <!-- Rankings will be populated here -->
+                <!-- Rankings List Section -->
+                <section class="rankings-section">
+                    <h3>내 호감도 랭킹</h3>
+                    <div id="rankings-list" class="rankings-list">
+                        <div class="ranking-placeholder">
+                            <img src="/images/Bety3.png" alt="Bety" class="bety-character character-float character-clickable character-glow" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                            <p>퀴즈를 시작하면 랭킹이 표시됩니다</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mobile User Swiper -->
+                <div class="mobile-user-swiper" id="mobile-user-swiper">
+                    <!-- Pagination Dots -->
+                    <div class="swiper-pagination" id="swiper-pagination">
+                        <!-- Dots will be populated here -->
+                    </div>
+
+                    <!-- User Cards Container -->
+                    <div class="user-cards-container" id="user-cards-container">
+                        <!-- Loading Card -->
+                        <div class="user-card loading">
+                            <div class="loading-content">
+                                <div class="loading-character">
+                                    <img src="/images/Bety2.png" alt="Loading Bety" class="bety-character character-pulse" style="width: 60px; height: 60px;">
+                                </div>
+                                <p class="loading-text">사용자 데이터를 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Swiper Controls -->
+                    <div class="swiper-controls" id="swiper-controls">
+                        <button class="swiper-nav-btn" id="prev-user-btn" disabled>‹</button>
+                        <span class="swiper-counter" id="user-counter">1 / 1</span>
+                        <button class="swiper-nav-btn" id="next-user-btn" disabled>›</button>
+                    </div>
                 </div>
             </div>
 
@@ -153,6 +212,17 @@
                 <div class="view-header">
                     <h2>만남 & 채팅 💬</h2>
                 </div>
+
+                <!-- Available Meetings Section -->
+                <section class="meetings-section">
+                    <h3>만남 가능한 인연 💕</h3>
+                    <div id="meetings-list" class="meetings-list">
+                        <div class="meeting-placeholder">
+                            <img src="/images/Bety4.png" alt="Bety" class="bety-character character-pulse character-clickable" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                            <p>호감도가 충분히 높아지면 만남이 가능합니다</p>
+                        </div>
+                    </div>
+                </section>
 
                 <div class="meetings-tabs">
                     <button class="tab-btn active" data-tab="available">만남 가능</button>
@@ -169,38 +239,57 @@
             </div>
         </main>
 
-        <!-- Quiz Modal -->
-        <div id="quiz-modal" class="modal quiz-modal">
+        <!-- Character Selection Modal -->
+        <div id="character-selection-modal" class="modal character-selection-modal" role="dialog" aria-labelledby="character-selection-title" aria-modal="true" aria-hidden="true">
+            <div class="modal-overlay" aria-hidden="true"></div>
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>💝 호감도 퀴즈</h3>
-                    <button class="modal-close">&times;</button>
+                    <h3 id="character-selection-title">🎭 퀴즈 캐릭터 선택</h3>
+                    <button class="modal-close" aria-label="캐릭터 선택 닫기">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="character-selection-content">
+                        <!-- Character selection content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Modal -->
+        <div id="quiz-modal" class="modal quiz-modal" role="dialog" aria-labelledby="quiz-modal-title" aria-modal="true" aria-hidden="true">
+            <div class="modal-overlay" aria-hidden="true"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="quiz-modal-title">💝 호감도 퀴즈</h3>
+                    <button class="modal-close" aria-label="퀴즈 닫기">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="quiz-content">
                         <div class="matching-manager-quiz">
-                            <div class="manager-avatar">🤖</div>
+                            <div class="manager-avatar">
+                                <img src="/images/Bety7.png" alt="Quiz Master Bety" class="bety-character character-excited" style="width: 45px; height: 45px;">
+                            </div>
                             <div class="manager-speech">
                                 <p id="quiz-question">이 분은 어떤 것을 선호할까요?</p>
                             </div>
                         </div>
 
-                        <div class="quiz-options">
-                            <div class="quiz-option" id="quiz-option-left">
+                        <div class="quiz-options" role="group" aria-labelledby="quiz-question">
+                            <button class="quiz-option" id="quiz-option-left" role="button" aria-describedby="quiz-left-label">
                                 <div class="option-image">
-                                    <img id="quiz-left-image" alt="왼쪽 선택지">
+                                    <img id="quiz-left-image" alt="">
                                 </div>
                                 <div class="option-label" id="quiz-left-label">선택 A</div>
-                            </div>
+                            </button>
 
-                            <div class="vs-divider">VS</div>
+                            <div class="vs-divider" aria-hidden="true">VS</div>
 
-                            <div class="quiz-option" id="quiz-option-right">
+                            <button class="quiz-option" id="quiz-option-right" role="button" aria-describedby="quiz-right-label">
                                 <div class="option-image">
-                                    <img id="quiz-right-image" alt="오른쪽 선택지">
+                                    <img id="quiz-right-image" alt="">
                                 </div>
                                 <div class="option-label" id="quiz-right-label">선택 B</div>
-                            </div>
+                            </button>
                         </div>
 
                         <div class="quiz-info">
@@ -247,34 +336,39 @@
         </div>
 
         <!-- Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-view="home">
-                <span class="nav-icon">🏠</span>
+        <nav class="bottom-nav" role="navigation" aria-label="주요 메뉴">
+            <button class="nav-item active" data-view="home" aria-current="page" aria-label="홈 페이지">
+                <span class="nav-icon" aria-hidden="true">🏠</span>
                 <span class="nav-label">홈</span>
             </button>
-            <button class="nav-item" data-view="photos">
-                <span class="nav-icon">💖</span>
+            <button class="nav-item" data-view="photos" aria-label="내 취향 관리 페이지">
+                <span class="nav-icon" aria-hidden="true">💖</span>
                 <span class="nav-label">내 취향</span>
             </button>
-            <button class="nav-item" data-view="rankings">
-                <span class="nav-icon">🏆</span>
+            <button class="nav-item" data-view="rankings" aria-label="호감도 랭킹 페이지">
+                <span class="nav-icon" aria-hidden="true">🏆</span>
                 <span class="nav-label">랭킹</span>
             </button>
-            <button class="nav-item" data-view="meetings">
-                <span class="nav-icon">💕</span>
+            <button class="nav-item" data-view="meetings" aria-label="만남 및 채팅 페이지">
+                <span class="nav-icon" aria-hidden="true">💕</span>
                 <span class="nav-label">만남</span>
             </button>
         </nav>
     </div>
 
     <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
+    <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="알림 메시지"></div>
+
+    <!-- Live Region for Screen Reader Announcements -->
+    <div id="sr-announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
     <!-- Scripts -->
+    <script src="/js/security.js"></script>
     <script src="/js/api.js"></script>
     <script src="/js/ui.js"></script>
     <script src="/js/quiz.js"></script>
     <script src="/js/photos.js"></script>
     <script src="/js/app.js"></script>
+    <!-- <script src="/test_button_clicks.js"></script> -->
 </body>
 </html>

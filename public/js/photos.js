@@ -179,12 +179,12 @@ class PhotoManager {
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve(xhr.response);
         } else {
-          reject(new Error(`Upload failed: ${xhr.status}`));
+          reject(new Error(`업로드 실패: ${xhr.status}`));
         }
       });
 
       xhr.addEventListener('error', () => {
-        reject(new Error('Upload failed'));
+        reject(new Error('업로드 실패'));
       });
 
       xhr.open('PUT', uploadUrl);
@@ -355,7 +355,7 @@ class PhotoManager {
         results.push({
           file: file.name,
           success: false,
-          error: 'Invalid file'
+          error: '잘못된 파일'
         });
         continue;
       }

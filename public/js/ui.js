@@ -3,6 +3,15 @@ class UIManager {
   constructor() {
     this.currentView = 'home';
     this.socket = null;
+    this.currentRankings = [];
+    this.currentCardIndex = 0;
+    this.swiperInitialized = false;
+    this.currentPartners = [];
+    this.currentPartnerIndex = 0;
+    this.partnerSwiperInitialized = false;
+    this.isPartnerSwiping = false;
+    this.hintTimeout = null;
+    this.isHintVisible = false;
     this.init();
   }
 
@@ -10,7 +19,9 @@ class UIManager {
     this.setupNavigation();
     this.setupModals();
     this.setupToasts();
-    this.loadUserData();
+
+    // loadUserData는 App에서 호출하도록 변경 (토큰 설정 후)
+    // this.loadUserData();
 
     // Hide loading screen after initialization
     setTimeout(() => {
@@ -28,19 +39,79 @@ class UIManager {
         this.switchView(view);
       });
     });
+
+    // 베티 표정 변화 애니메이션 설정
+    this.setupBetyExpressions();
   }
 
-  // Switch between views
+  // 베티 캐릭터 표정 변화 설정
+  setupBetyExpressions() {
+    const welcomeBety = document.getElementById('welcome-bety');
+    if (!welcomeBety) return;
+
+    // 베티 이미지 배열 (다양한 표정)
+    const betyImages = [
+      '/images/Bety1.png',  // 기본 표정
+      '/images/Bety2.png',  // 웃는 표정
+      '/images/Bety3.png',  // 행복한 표정
+      '/images/Bety4.png',  // 놀란 표정
+      '/images/Bety5.png',  // 신나는 표정
+      '/images/Bety6.png',  // 윙크 표정
+      '/images/Bety7.png'   // 설레는 표정
+    ];
+
+    let currentImageIndex = 0;
+
+    // 이미지 preload로 로딩 실패 방지
+    betyImages.forEach(src => {
+      const img = new Image();
+      img.onload = () => console.log(`✅ [Betty] Preloaded: ${src}`);
+      img.onerror = () => console.warn(`❌ [Betty] Failed to preload: ${src}`);
+      img.src = src;
+    });
+
+    // 3초마다 베티 표정 변경 (부드러운 페이드 효과)
+    setInterval(() => {
+      // 페이드 아웃
+      welcomeBety.style.opacity = '0.3';
+      welcomeBety.style.transform = 'scale(0.9)';
+
+      setTimeout(() => {
+        // 이미지 변경
+        currentImageIndex = (currentImageIndex + 1) % betyImages.length;
+        const newSrc = betyImages[currentImageIndex];
+        // 이미지 로드 확인 후 변경
+        const testImg = new Image();
+        testImg.onload = () => welcomeBety.src = newSrc;
+        testImg.onerror = () => console.warn(`⚠️ [Betty] Failed to load: ${newSrc}`);
+        testImg.src = newSrc;
+
+        // 페이드 인 + 살짝 튀는 효과
+        welcomeBety.style.opacity = '1';
+        welcomeBety.style.transform = 'scale(1.1)';
+
+        setTimeout(() => {
+          welcomeBety.style.transform = 'scale(1)';
+        }, 300);
+      }, 200);
+    }, 3000);
+  }
+
+  // Switch between views with enhanced animations
   switchView(viewName) {
     // Hide all views
     document.querySelectorAll('.view').forEach(view => {
-      view.classList.remove('active');
+      view.classList.remove('active', 'show');
     });
 
-    // Show target view
+    // Show target view with animation
     const targetView = document.getElementById(`${viewName}-view`);
     if (targetView) {
       targetView.classList.add('active');
+      // Add animation class after a small delay
+      setTimeout(() => {
+        targetView.classList.add('show');
+      }, 50);
     }
 
     // Update navigation
@@ -80,23 +151,142 @@ class UIManager {
     }
   }
 
-  // Load home view data
+  // Load home view data with enhanced error handling and circuit breaker
   async loadHomeData() {
     try {
-      // Load points
-      const pointsData = await api.getMyPoints();
-      this.updatePointsDisplay(pointsData.data.balance);
+      // 🛡️ 강화된 Circuit Breaker 패턴으로 무한 호출 방지
+      const now = Date.now();
+      const lastLoad = localStorage.getItem('lastHomeDataLoad');
+      const failureCount = parseInt(localStorage.getItem('homeDataFailureCount') || '0');
+      const lastFailure = parseInt(localStorage.getItem('lastHomeDataFailure') || '0');
 
-      // Load basic rankings for home
-      const rankingsData = await api.getMyRanking();
-      this.updateHomeRankings(rankingsData.data.rankings.slice(0, 3));
+      const MIN_INTERVAL = 10000; // 10초 최소 간격
+      const MAX_FAILURES = 5; // 최대 실패 횟수
+      const CIRCUIT_BREAKER_TIMEOUT = 60000; // 1분 Circuit Breaker 타임아웃
 
-      // Load meeting state
-      const meetingData = await api.getMeetingState();
-      this.updateHomeMeetings(meetingData.data.available_meetings.slice(0, 3));
+      // Circuit Breaker: 연속 실패가 많으면 일정 시간 차단
+      if (failureCount >= MAX_FAILURES && (now - lastFailure) < CIRCUIT_BREAKER_TIMEOUT) {
+        console.log(`🚨 [UI] Circuit Breaker 활성화 - ${Math.ceil((CIRCUIT_BREAKER_TIMEOUT - (now - lastFailure)) / 1000)}초 후 재시도 가능`);
+
+        // 사용자에게 Circuit Breaker 상태 표시
+        this.showToast('일시적으로 연결 문제가 있습니다. 잠시 후 다시 시도해주세요.', 'warning');
+        return;
+      }
+
+      // Rate Limiting 체크
+      if (lastLoad && (now - parseInt(lastLoad)) < MIN_INTERVAL) {
+        console.log('🚫 [UI] loadHomeData 호출이 너무 빠름 - 무시됨');
+        return;
+      }
+
+      localStorage.setItem('lastHomeDataLoad', now.toString());
+      console.log('✅ [UI] loadHomeData 시작 - Rate limiting 통과');
+
+      let loadErrors = [];
+
+      // 🛡️ 각 API 호출을 개별적으로 try-catch 처리하여 부분 실패 허용
+
+      // 포인트 데이터 로드
+      try {
+        console.log('Loading points data...');
+        const pointsData = await api.getMyPoints();
+        this.updatePointsDisplay(pointsData.data.balance);
+        console.log('✅ Points data loaded successfully');
+      } catch (pointsError) {
+        console.warn('⚠️ Points loading failed:', pointsError);
+        loadErrors.push('points');
+        this.updatePointsDisplay(0); // 기본값으로 대체
+      }
+
+      // 더 긴 대기 시간으로 안정성 확보
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 사용자 아바타 로드
+      try {
+        console.log('Loading user avatars...');
+        await this.loadUserAvatars();
+        console.log('✅ User avatars loaded successfully');
+      } catch (avatarsError) {
+        console.warn('⚠️ User avatars loading failed:', avatarsError);
+        loadErrors.push('avatars');
+        // 빈 아바타 목록으로 대체
+        this.updateUserAvatars([]);
+      }
+
+      // 더 긴 대기 시간으로 안정성 확보
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 랭킹 데이터 로드 (가장 중요한 데이터)
+      try {
+        console.log('Loading rankings data...');
+        const rankingsData = await api.getMyRanking();
+        this.updateHomeRankings(rankingsData.data.rankings.slice(0, 3));
+        console.log('✅ Rankings data loaded successfully');
+      } catch (rankingsError) {
+        console.warn('⚠️ Rankings loading failed:', rankingsError);
+        loadErrors.push('rankings');
+        // 빈 랭킹으로 대체
+        this.updateHomeRankings([]);
+      }
+
+      // 더 긴 대기 시간으로 안정성 확보
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 미팅 데이터 로드
+      try {
+        console.log('Loading meeting data...');
+        const meetingData = await api.getMeetingState();
+        this.updateHomeMeetings(meetingData.data.available_meetings.slice(0, 3));
+        console.log('✅ Meeting data loaded successfully');
+      } catch (meetingError) {
+        console.warn('⚠️ Meeting data loading failed:', meetingError);
+        loadErrors.push('meetings');
+        // 빈 미팅 목록으로 대체
+        this.updateHomeMeetings([]);
+      }
+
+      // 🛡️ 성공 시 실패 카운터 리셋
+      if (loadErrors.length === 0) {
+        localStorage.removeItem('homeDataFailureCount');
+        localStorage.removeItem('lastHomeDataFailure');
+        console.log('🎉 [UI] 모든 홈 데이터 로딩 성공');
+      } else if (loadErrors.length < 4) {
+        // 부분 실패는 경고 메시지만 표시
+        console.log(`⚠️ [UI] 일부 데이터 로딩 실패: ${loadErrors.join(', ')}`);
+        this.showToast('일부 데이터를 불러오지 못했습니다', 'warning');
+
+        // 부분 실패도 실패 카운터에 포함하지만 덜 가중
+        const currentFailures = Math.min(failureCount + 1, MAX_FAILURES - 1);
+        localStorage.setItem('homeDataFailureCount', currentFailures.toString());
+        localStorage.setItem('lastHomeDataFailure', now.toString());
+      } else {
+        // 전체 실패
+        throw new Error(`전체 데이터 로딩 실패: ${loadErrors.join(', ')}`);
+      }
+
     } catch (error) {
-      console.error('Error loading home data:', error);
+      console.error('🚨 [UI] 홈 데이터 로딩 전체 실패:', error);
+
+      // 🛡️ 실패 카운터 증가
+      const failureCount = parseInt(localStorage.getItem('homeDataFailureCount') || '0');
+      localStorage.setItem('homeDataFailureCount', (failureCount + 1).toString());
+      localStorage.setItem('lastHomeDataFailure', Date.now().toString());
+
+      // 사용자에게 실패 알림
+      this.showToast('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error');
+
+      // 기본값으로 UI 초기화
+      this.initializeDefaultHomeData();
     }
+  }
+
+  // 🛡️ 기본값으로 홈 화면 초기화
+  initializeDefaultHomeData() {
+    console.log('🔄 [UI] 기본값으로 홈 화면 초기화');
+    this.updatePointsDisplay(0);
+    this.updateUserAvatars([]);
+    this.updateHomeRankings([]);
+    this.updateHomeMeetings([]);
   }
 
   // Load photos data
@@ -141,6 +331,14 @@ class UIManager {
     }
   }
 
+  // Update user avatars display with fallback
+  updateUserAvatars(avatars) {
+    console.log('🔄 [UI] updateUserAvatars called with:', avatars.length, 'avatars');
+    // This function provides a fallback when user avatars fail to load
+    // In a real implementation, this would update the user avatar display
+    // For now, we'll just log the fallback
+  }
+
   // Update home rankings
   updateHomeRankings(rankings) {
     const rankingsList = document.getElementById('rankings-list');
@@ -149,6 +347,7 @@ class UIManager {
     if (rankings.length === 0) {
       rankingsList.innerHTML = `
         <div class="ranking-placeholder">
+          <img src="/images/Bety3.png" alt="Bety" class="bety-character character-float character-clickable character-glow" style="width: 60px; height: 60px; margin-bottom: 1rem;">
           <p>퀴즈를 시작하면 랭킹이 표시됩니다</p>
         </div>
       `;
@@ -177,6 +376,7 @@ class UIManager {
     if (meetings.length === 0) {
       meetingsList.innerHTML = `
         <div class="meeting-placeholder">
+          <img src="/images/Bety4.png" alt="Bety" class="bety-character character-pulse character-clickable" style="width: 60px; height: 60px; margin-bottom: 1rem;">
           <p>호감도가 충분히 높아지면 만남이 가능합니다</p>
         </div>
       `;
@@ -216,7 +416,7 @@ class UIManager {
 
     photosGrid.innerHTML = photos.map(photo => {
       const thumbAsset = photo.assets.find(asset => asset.variant === 'THUMB');
-      const imageUrl = thumbAsset?.url || '';
+      const imageUrl = thumbAsset?.storage_key ? `/api/assets/${thumbAsset.storage_key}` : '';
 
       return `
         <div class="photo-item" data-photo-id="${photo.id}">
@@ -240,6 +440,7 @@ class UIManager {
     if (rankings.length === 0) {
       rankingsContainer.innerHTML = `
         <div class="ranking-placeholder">
+          <img src="/images/Bety3.png" alt="Bety" class="bety-character character-float character-clickable character-glow" style="width: 60px; height: 60px; margin-bottom: 1rem;">
           <p>아직 호감도 데이터가 없습니다</p>
         </div>
       `;
@@ -275,6 +476,295 @@ class UIManager {
     `).join('');
   }
 
+  // Render empty swiper
+  renderEmptySwiper() {
+    const cardsContainer = document.getElementById('user-cards-container');
+    const pagination = document.getElementById('swiper-pagination');
+    const controls = document.getElementById('swiper-controls');
+
+    if (cardsContainer) {
+      cardsContainer.innerHTML = `
+        <div class="user-card empty">
+          <div class="card-content">
+            <div class="empty-state">
+              <img src="/images/Bety3.png" alt="Bety" class="bety-character character-float character-clickable character-glow">
+              <h3>아직 호감도 데이터가 없습니다</h3>
+              <p>퀴즈를 시작하여 다른 사용자들과 친밀도를 쌓아보세요!</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (pagination) pagination.innerHTML = '';
+    if (controls) {
+      const counter = controls.querySelector('#user-counter');
+      if (counter) counter.textContent = '0 / 0';
+      this.updateNavigationButtons(false, false);
+    }
+  }
+
+  // Render mobile cards
+  renderMobileCards(rankings) {
+    const cardsContainer = document.getElementById('user-cards-container');
+    if (!cardsContainer) return;
+
+    const cardsHTML = rankings.map((ranking, index) => {
+      const avatarIcon = this.getAnimalIcon(ranking.targetName);
+      const affinityLevel = this.getAffinityLevel(ranking.affinityScore);
+
+      return `
+        <div class="user-card" data-target-id="${ranking.targetId}" data-index="${index}">
+          <div class="card-content">
+            <div class="user-avatar-large">
+              <div class="avatar-icon">${avatarIcon}</div>
+              <div class="rank-badge">#${index + 1}</div>
+            </div>
+            <div class="user-info">
+              <h3 class="user-name">${ranking.targetName}</h3>
+              <div class="affinity-info">
+                <div class="affinity-score">
+                  <span class="score-value">${ranking.affinityScore}</span>
+                  <span class="score-label">호감도</span>
+                </div>
+                <div class="affinity-level ${affinityLevel.class}">
+                  ${affinityLevel.text}
+                </div>
+              </div>
+            </div>
+            <div class="user-stats">
+              <div class="stat-item">
+                <span class="stat-icon">📷</span>
+                <span class="stat-value">${ranking.photosUnlocked}</span>
+                <span class="stat-label">해금된 사진</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">${ranking.canMeet ? '💕' : '🔒'}</span>
+                <span class="stat-value">${ranking.canMeet ? '가능' : '불가'}</span>
+                <span class="stat-label">만남</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="action-btn primary" onclick="quiz.startQuizWithTarget('${ranking.targetId}')">
+                <span class="btn-icon">🎯</span>
+                <span class="btn-text">퀴즈하기</span>
+              </button>
+              ${ranking.canMeet ? `
+                <button class="action-btn secondary" onclick="ui.enterMeeting('${ranking.targetId}')">
+                  <span class="btn-icon">💬</span>
+                  <span class="btn-text">만나기</span>
+                </button>
+              ` : `
+                <button class="action-btn disabled" disabled>
+                  <span class="btn-icon">🔒</span>
+                  <span class="btn-text">호감도 부족</span>
+                </button>
+              `}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    cardsContainer.innerHTML = cardsHTML;
+    this.updatePagination(rankings.length);
+    this.updateCounter(0, rankings.length);
+  }
+
+  // Initialize mobile swiper functionality
+  initializeMobileSwiper() {
+    if (this.swiperInitialized) return;
+
+    const cardsContainer = document.getElementById('user-cards-container');
+    const prevBtn = document.getElementById('prev-user-btn');
+    const nextBtn = document.getElementById('next-user-btn');
+
+    if (!cardsContainer || !prevBtn || !nextBtn) return;
+
+    // Touch/swipe event handlers
+    this.setupSwipeEvents(cardsContainer);
+
+    // Navigation button handlers
+    prevBtn.addEventListener('click', () => this.navigateCard('prev'));
+    nextBtn.addEventListener('click', () => this.navigateCard('next'));
+
+    // Initial state
+    this.updateNavigationButtons(false, this.currentRankings.length > 1);
+    this.updateCardPosition();
+
+    this.swiperInitialized = true;
+  }
+
+  // Setup swipe events
+  setupSwipeEvents(container) {
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let startTime = 0;
+
+    const handleStart = (e) => {
+      isDragging = true;
+      startTime = Date.now();
+      startX = e.touches ? e.touches[0].clientX : e.clientX;
+      currentX = startX;
+      container.style.transition = 'none';
+    };
+
+    const handleMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+
+      currentX = e.touches ? e.touches[0].clientX : e.clientX;
+      const diffX = currentX - startX;
+      const currentTransform = -this.currentCardIndex * 100;
+      container.style.transform = `translateX(${currentTransform + (diffX / container.offsetWidth) * 100}%)`;
+    };
+
+    const handleEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      const diffX = currentX - startX;
+      const threshold = 50;
+      const timeThreshold = 300;
+      const timeDiff = Date.now() - startTime;
+
+      container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+
+      if (Math.abs(diffX) > threshold || (Math.abs(diffX) > 20 && timeDiff < timeThreshold)) {
+        if (diffX > 0 && this.currentCardIndex > 0) {
+          this.navigateCard('prev');
+        } else if (diffX < 0 && this.currentCardIndex < this.currentRankings.length - 1) {
+          this.navigateCard('next');
+        } else {
+          this.updateCardPosition();
+        }
+      } else {
+        this.updateCardPosition();
+      }
+    };
+
+    // Mouse events
+    container.addEventListener('mousedown', handleStart);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+
+    // Touch events
+    container.addEventListener('touchstart', handleStart, { passive: false });
+    container.addEventListener('touchmove', handleMove, { passive: false });
+    container.addEventListener('touchend', handleEnd);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (this.currentView !== 'rankings') return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.navigateCard('prev');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.navigateCard('next');
+      }
+    });
+  }
+
+  // Navigate to specific card
+  navigateCard(direction) {
+    if (!this.currentRankings || this.currentRankings.length === 0) return;
+
+    const maxIndex = this.currentRankings.length - 1;
+
+    if (direction === 'prev' && this.currentCardIndex > 0) {
+      this.currentCardIndex--;
+    } else if (direction === 'next' && this.currentCardIndex < maxIndex) {
+      this.currentCardIndex++;
+    } else {
+      return; // No change needed
+    }
+
+    this.updateCardPosition();
+    this.updateNavigationButtons(
+      this.currentCardIndex > 0,
+      this.currentCardIndex < maxIndex
+    );
+    this.updateCounter(this.currentCardIndex, this.currentRankings.length);
+    this.updatePaginationActive(this.currentCardIndex);
+  }
+
+  // Update card position
+  updateCardPosition() {
+    const cardsContainer = document.getElementById('user-cards-container');
+    if (cardsContainer) {
+      cardsContainer.style.transform = `translateX(-${this.currentCardIndex * 100}%)`;
+    }
+  }
+
+  // Update navigation buttons
+  updateNavigationButtons(canGoPrev, canGoNext) {
+    const prevBtn = document.getElementById('prev-user-btn');
+    const nextBtn = document.getElementById('next-user-btn');
+
+    if (prevBtn) {
+      prevBtn.disabled = !canGoPrev;
+      prevBtn.classList.toggle('disabled', !canGoPrev);
+    }
+    if (nextBtn) {
+      nextBtn.disabled = !canGoNext;
+      nextBtn.classList.toggle('disabled', !canGoNext);
+    }
+  }
+
+  // Update pagination dots
+  updatePagination(totalCards) {
+    const pagination = document.getElementById('swiper-pagination');
+    if (!pagination) return;
+
+    const dotsHTML = Array.from({ length: totalCards }, (_, i) =>
+      `<span class="pagination-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
+    ).join('');
+
+    pagination.innerHTML = dotsHTML;
+
+    // Add click handlers to dots
+    pagination.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        this.currentCardIndex = index;
+        this.updateCardPosition();
+        this.updateNavigationButtons(
+          index > 0,
+          index < totalCards - 1
+        );
+        this.updateCounter(index, totalCards);
+        this.updatePaginationActive(index);
+      });
+    });
+  }
+
+  // Update active pagination dot
+  updatePaginationActive(activeIndex) {
+    const dots = document.querySelectorAll('.pagination-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === activeIndex);
+    });
+  }
+
+  // Update counter
+  updateCounter(current, total) {
+    const counter = document.getElementById('user-counter');
+    if (counter) {
+      counter.textContent = `${current + 1} / ${total}`;
+    }
+  }
+
+  // Get affinity level information
+  getAffinityLevel(score) {
+    if (score >= 80) return { class: 'level-high', text: '최고 친밀' };
+    if (score >= 60) return { class: 'level-good', text: '높은 친밀' };
+    if (score >= 40) return { class: 'level-medium', text: '보통 친밀' };
+    if (score >= 20) return { class: 'level-low', text: '낮은 친밀' };
+    return { class: 'level-very-low', text: '친밀도 부족' };
+  }
+
   // Modal management
   setupModals() {
     const modals = document.querySelectorAll('.modal');
@@ -290,13 +780,30 @@ class UIManager {
         }
       });
     });
+
+    // ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const openModal = document.querySelector('.modal.active, .modal[aria-hidden="false"]');
+        if (openModal) {
+          this.closeModal(openModal.id);
+        }
+      }
+    });
   }
 
   openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+
+      // Focus on modal for accessibility
+      const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        setTimeout(() => firstFocusable.focus(), 100);
+      }
     }
   }
 
@@ -304,7 +811,14 @@ class UIManager {
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+
+      // Return focus to the element that opened the modal
+      const openButton = document.getElementById('start-quiz-btn');
+      if (openButton && modalId === 'quiz-modal') {
+        openButton.focus();
+      }
     }
   }
 
@@ -411,6 +925,812 @@ class UIManager {
       return (num / 1000).toFixed(1) + 'K';
     }
     return num.toString();
+  }
+
+  // Load user avatars for quiz selection
+  async loadUserAvatars() {
+    try {
+      console.log('🎭 [UI] 사용자 아바타 로딩 중...');
+      const targetsData = await api.getAvailableQuizTargets();
+      const targets = targetsData.data.targets;
+
+      console.log('👥 [UI] 로드된 사용자 수:', targets.length);
+      this.renderUserAvatars(targets);
+    } catch (error) {
+      console.error('Error loading user avatars:', error);
+      const grid = document.getElementById('user-avatars-grid');
+      if (grid) {
+        grid.innerHTML = `
+          <div class="avatars-loading">
+            <img src="/images/Bety6.png" alt="베티 매니저" class="bety-character character-wiggle" style="width: 50px; height: 50px;">
+            <p>사용자 로딩 실패</p>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Render user avatars as partner swiper cards
+  renderUserAvatars(targets) {
+    const partnerSwiper = document.getElementById('mobile-partner-swiper');
+    if (!partnerSwiper) return;
+
+    if (targets.length === 0) {
+      this.renderEmptyPartnerSwiper();
+      return;
+    }
+
+    this.currentPartners = targets;
+    this.currentPartnerIndex = 0;
+    this.renderPartnerCards(targets);
+    this.initializePartnerSwiper();
+  }
+
+  // Render empty partner swiper
+  renderEmptyPartnerSwiper() {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    const pagination = document.getElementById('partner-swiper-pagination');
+    const controls = document.getElementById('partner-swiper-controls');
+
+    if (cardsContainer) {
+      cardsContainer.innerHTML = `
+        <div class="partner-card empty">
+          <div class="card-content">
+            <div class="loading-character">
+              <img src="/images/Bety6.png" alt="베티 매니저" class="bety-character character-wiggle">
+            </div>
+            <h3>퀴즈를 답한 사용자가 없습니다</h3>
+            <p>나중에 다시 확인해주세요!</p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (pagination) pagination.innerHTML = '';
+    if (controls) {
+      const counter = controls.querySelector('#partner-counter');
+      if (counter) counter.textContent = '0 / 0';
+      this.updatePartnerNavigationButtons(false, false);
+    }
+  }
+
+  // Render partner cards
+  renderPartnerCards(targets) {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    if (!cardsContainer) return;
+
+    const cardsHTML = targets.map((target, index) => {
+      const displayName = target.display_name_for_ui || target.display_name || target.name;
+      const avatarIcon = this.getAnimalIcon(target.display_name || target.name);
+
+      // 여성 특화 프로필 이미지 생성 (더 현실적인 스타일)
+      const femaleImageStyles = [
+        'lorelei-neutral', 'avataaars-neutral', 'adventurer-neutral',
+        'fun-emoji', 'miniavs', 'notionists-neutral', 'personas'
+      ];
+      const styleIndex = target.name.charCodeAt(0) % femaleImageStyles.length;
+      const selectedStyle = femaleImageStyles[styleIndex];
+
+      // 각 사용자별로 고유한 색상 조합
+      const colorSchemes = [
+        'ffd1dc,ffb3ba,fce4ec', // 핑크 톤
+        'e1f5fe,b3e5fc,81d4fa', // 블루 톤
+        'f3e5f5,e1bee7,ce93d8', // 퍼플 톤
+        'fff3e0,ffcc80,ffb74d', // 오렌지 톤
+        'f1f8e9,c8e6c9,a5d6a7', // 그린 톤
+        'fce4ec,f8bbd9,f48fb1', // 로즈 톤
+        'e8f5e8,c8e6c9,a5d6a7'  // 민트 톤
+      ];
+      const colorIndex = target.name.charCodeAt(1) % colorSchemes.length;
+      const backgroundColor = colorSchemes[colorIndex];
+
+      const profileImageUrl = target.profile_image_url ||
+        `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(target.name + 'female')}&backgroundColor=${backgroundColor}&scale=120&radius=50&backgroundType=gradientLinear&flip=false`;
+
+      return `
+        <div class="partner-card" data-user-id="${target.id}" data-user-name="${target.name}" data-index="${index}">
+          <div class="card-content">
+            <div class="partner-avatar-large">
+              <img src="${profileImageUrl}" alt="${displayName}" class="profile-image">
+            </div>
+            <div class="partner-info">
+              <h3>${displayName}</h3>
+            </div>
+            <div class="partner-quiz-stats">
+              <div class="partner-stat-item">
+                <span class="partner-stat-icon">🎯</span>
+                <span class="partner-stat-value">${target.quiz_count}</span>
+                <span class="partner-stat-label">퀴즈 참여</span>
+              </div>
+              <div class="partner-stat-item">
+                <span class="partner-stat-icon">💕</span>
+                <span class="partner-stat-value">${target.affinity_score || 0}</span>
+                <span class="partner-stat-label">친밀도</span>
+              </div>
+            </div>
+            <div class="partner-actions">
+              <div class="partner-action-hint" id="hint-${index}" style="display: none;">
+                <span class="hint-icon">👆</span>
+                <span class="hint-text">카드를 눌러 퀴즈 시작</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    cardsContainer.innerHTML = cardsHTML;
+    this.updatePartnerPagination(targets.length);
+    this.updatePartnerCounter(0, targets.length);
+
+    // 카드 클릭 이벤트 추가
+    const partnerCards = cardsContainer.querySelectorAll('.partner-card');
+    partnerCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        // 스와이프 중이 아닐 때만 클릭 처리
+        if (!this.isPartnerSwiping) {
+          // 카드 클릭 시 사용자 상호작용 감지
+          this.onUserInteraction();
+
+          const userId = card.getAttribute('data-user-id');
+          const userName = card.getAttribute('data-user-name');
+          this.selectUserForQuiz(userId, userName);
+        }
+      });
+    });
+
+    // 5초 후 힌트 표시 시작
+    this.startHintTimer();
+  }
+
+  // Initialize partner swiper functionality
+  initializePartnerSwiper() {
+    if (this.partnerSwiperInitialized) return;
+
+    const cardsContainer = document.getElementById('partner-cards-container');
+    const prevBtn = document.getElementById('prev-partner-btn');
+    const nextBtn = document.getElementById('next-partner-btn');
+
+    if (!cardsContainer || !prevBtn || !nextBtn) return;
+
+    // Touch/swipe event handlers
+    this.setupPartnerSwipeEvents(cardsContainer);
+
+    // Navigation button handlers
+    prevBtn.addEventListener('click', () => {
+      console.log('🔼 [Button] 이전 버튼 클릭');
+      this.navigatePartnerCard('prev', false, true); // 버튼 클릭임을 표시
+    });
+    nextBtn.addEventListener('click', () => {
+      console.log('🔽 [Button] 다음 버튼 클릭');
+      this.navigatePartnerCard('next', false, true); // 버튼 클릭임을 표시
+    });
+
+    // Initial state - 애니메이션 없이 즉시 정렬
+    this.currentPartnerIndex = 0; // 인덱스 초기화
+    this.updatePartnerNavigationButtons(false, this.currentPartners.length > 1);
+    this.snapToPartnerCard(false); // 애니메이션 없이 초기 위치 설정
+
+    console.log('🎬 [Init] 파트너 카드 초기화 완료:', {
+      index: this.currentPartnerIndex,
+      totalCards: this.currentPartners.length,
+      animated: false
+    });
+
+    // 레이아웃 안정화를 위한 지연된 재정렬
+    setTimeout(() => {
+      console.log('🔄 [Stabilize] 레이아웃 안정화 재정렬 실행');
+      this.snapToPartnerCard(false); // 레이아웃 완전 로드 후 위치 확정
+    }, 100);
+
+    // 힌트 타이머 시작
+    this.startHintTimer();
+
+    // 화면 크기 변경 감지 및 재정렬
+    this.setupPartnerResizeHandler();
+
+    this.partnerSwiperInitialized = true;
+  }
+
+  // Setup partner swipe events
+  setupPartnerSwipeEvents(container) {
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let startTime = 0;
+
+    const handleStart = (e) => {
+      isDragging = true;
+      this.isPartnerSwiping = true;
+      startTime = Date.now();
+      startX = e.touches ? e.touches[0].clientX : e.clientX;
+      currentX = startX;
+      container.style.transition = 'none';
+
+      // 사용자 상호작용 감지
+      this.onUserInteraction();
+    };
+
+    const handleMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+
+      currentX = e.touches ? e.touches[0].clientX : e.clientX;
+      const diffX = currentX - startX;
+
+      // 픽셀 단위로 정확한 이동 계산 - 부모 컨테이너 기준으로 일관성 확보
+      const swiperContainer = document.getElementById('mobile-partner-swiper');
+      const containerWidth = swiperContainer ? swiperContainer.offsetWidth : container.offsetWidth;
+      const currentPosition = -this.currentPartnerIndex * containerWidth;
+      const newPosition = currentPosition + diffX;
+
+      container.style.transform = `translateX(${newPosition}px)`;
+    };
+
+    const handleEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      const diffX = currentX - startX;
+      const threshold = 50;
+      const timeThreshold = 300;
+      const timeDiff = Date.now() - startTime;
+
+      // 스와이프 거리 비율 계산 - 부모 컨테이너 기준
+      const swiperContainer = document.getElementById('mobile-partner-swiper');
+      const containerWidth = swiperContainer ? swiperContainer.offsetWidth : container.offsetWidth;
+      const swipeRatio = Math.abs(diffX) / containerWidth;
+
+      // 스와이프 속도 계산
+      const swipeSpeed = Math.abs(diffX) / timeDiff; // px/ms
+      const isFastSwipe = swipeSpeed > 0.5; // 빠른 스와이프 감지
+
+      console.log('📱 [Swipe] 스와이프 감지:', {
+        diffX,
+        containerWidth,
+        swipeRatio,
+        timeDiff,
+        swipeSpeed: swipeSpeed.toFixed(2) + 'px/ms',
+        isFastSwipe,
+        threshold: '20% 또는 30px + 300ms 또는 빠른 스와이프'
+      });
+
+      // 더 민감한 스와이프 감지: 빠른 스와이프도 고려
+      if (swipeRatio > 0.15 || (Math.abs(diffX) > 25 && timeDiff < timeThreshold) || isFastSwipe) {
+        // 스와이프 동작 감지
+        this.onUserInteraction();
+
+        if (diffX > 0 && this.currentPartnerIndex > 0) {
+          this.navigatePartnerCard('prev', isFastSwipe);
+        } else if (diffX < 0 && this.currentPartnerIndex < this.currentPartners.length - 1) {
+          this.navigatePartnerCard('next', isFastSwipe);
+        } else {
+          this.snapToPartnerCard(true, isFastSwipe);
+        }
+      } else {
+        this.snapToPartnerCard();
+      }
+
+      // 스와이프 상태 해제 (약간의 딜레이를 두어 클릭 이벤트 방지)
+      setTimeout(() => {
+        this.isPartnerSwiping = false;
+      }, 150);
+    };
+
+    // Mouse events
+    container.addEventListener('mousedown', handleStart);
+    document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', handleEnd);
+
+    // Touch events
+    container.addEventListener('touchstart', handleStart, { passive: false });
+    container.addEventListener('touchmove', handleMove, { passive: false });
+    container.addEventListener('touchend', handleEnd);
+  }
+
+  // Setup resize handler for partner swiper
+  setupPartnerResizeHandler() {
+    let resizeTimeout;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        console.log('📱 [Resize] 화면 크기 변경 감지, 카드 위치 재조정');
+        this.snapToPartnerCard(false); // 리사이즈 시에는 애니메이션 없이 즉시 이동
+      }, 150); // 150ms 디바운스
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+      // 방향 전환 시 약간의 딜레이 후 재조정
+      setTimeout(() => {
+        console.log('📱 [Orientation] 화면 방향 변경 감지, 카드 위치 재조정');
+        this.snapToPartnerCard(false); // 방향 전환 시에는 애니메이션 없이 즉시 이동
+      }, 300);
+    });
+  }
+
+  // Navigate partner cards
+  navigatePartnerCard(direction, isFastSwipe = false, isButtonClick = false) {
+    if (!this.currentPartners || this.currentPartners.length === 0) return;
+
+    // 사용자 상호작용 감지
+    this.onUserInteraction();
+
+    const maxIndex = this.currentPartners.length - 1;
+    const oldIndex = this.currentPartnerIndex;
+
+    if (direction === 'prev' && this.currentPartnerIndex > 0) {
+      this.currentPartnerIndex--;
+    } else if (direction === 'next' && this.currentPartnerIndex < maxIndex) {
+      this.currentPartnerIndex++;
+    } else {
+      console.log(`⚠️ [Navigation] 이동 불가: ${direction}, 현재 인덱스: ${this.currentPartnerIndex}, 최대: ${maxIndex}`);
+      return;
+    }
+
+    console.log(`🎯 [Navigation] 카드 이동: ${oldIndex} → ${this.currentPartnerIndex} (${direction}${isButtonClick ? ', 버튼 클릭' : ''})`);
+
+    // 버튼 클릭의 경우 더 정밀한 정렬을 위해 부드러운 애니메이션 사용
+    if (isButtonClick) {
+      this.snapToPartnerCard(true, false); // 항상 부드러운 애니메이션
+
+      // 정렬 검증을 위한 딜레이 후 재검사
+      setTimeout(() => {
+        this.verifyAndFixAlignment();
+      }, 450); // 애니메이션 완료 후
+    } else {
+      this.snapToPartnerCard(true, isFastSwipe);
+    }
+    this.updatePartnerNavigationButtons(
+      this.currentPartnerIndex > 0,
+      this.currentPartnerIndex < maxIndex
+    );
+    this.updatePartnerCounter(this.currentPartnerIndex, this.currentPartners.length);
+    this.updatePartnerPaginationActive(this.currentPartnerIndex);
+  }
+
+  // Snap to exact card position with smooth transition
+  snapToPartnerCard(animate = true, isFastSwipe = false) {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    if (!cardsContainer) return;
+
+    // 정확한 스냅 포지션 계산 - 부모 컨테이너 기준
+    const swiperContainer = document.getElementById('mobile-partner-swiper');
+    if (!swiperContainer) return;
+
+    const containerWidth = swiperContainer.offsetWidth;
+    const targetPosition = -(this.currentPartnerIndex * containerWidth);
+
+    // 스와이프 속도에 따른 애니메이션 타이밍 조정
+    const fastDuration = 200; // 빠른 스와이프용 (0.2초)
+    const normalDuration = 400; // 일반 스와이프용 (0.4초)
+    const duration = isFastSwipe ? fastDuration : normalDuration;
+    const easing = isFastSwipe ? 'cubic-bezier(0.4, 0.0, 0.2, 1)' : 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+    // 컨테이너 크기 검증 및 강제 동기화
+    const partnerCards = cardsContainer.querySelectorAll('.partner-card');
+    partnerCards.forEach((card, index) => {
+      if (Math.abs(card.offsetWidth - containerWidth) > 2) { // 2px 허용 오차
+        if (this.lastCardSizeWarning !== Date.now()) {
+          console.warn('⚠️ [Snap] 카드 크기 동기화:', {
+            cardIndex: index,
+            expected: containerWidth,
+            actual: card.offsetWidth,
+            diff: Math.abs(card.offsetWidth - containerWidth)
+          });
+          this.lastCardSizeWarning = Date.now();
+        }
+        card.style.width = containerWidth + 'px';
+      }
+    });
+
+    console.log('📍 [Snap] 카드 스냅:', {
+      currentIndex: this.currentPartnerIndex,
+      containerWidth,
+      targetPosition,
+      animate,
+      isFastSwipe,
+      duration: duration + 'ms',
+      easing: isFastSwipe ? 'fast' : 'smooth',
+      swiperWidth: swiperContainer.offsetWidth,
+      cardsWidth: cardsContainer.offsetWidth,
+      cardCount: partnerCards.length,
+      firstCardWidth: partnerCards[0]?.offsetWidth
+    });
+
+    if (animate) {
+      // 스와이프 속도에 따른 부드러운 전환
+      cardsContainer.style.transition = `transform ${duration}ms ${easing}`;
+      cardsContainer.style.transform = `translateX(${targetPosition}px)`;
+
+      // 전환 완료 후 transition 제거 및 위치 재검증
+      setTimeout(() => {
+        cardsContainer.style.transition = 'none';
+
+        // 정확한 위치 재검증 및 강제 수정
+        const finalPosition = -(this.currentPartnerIndex * containerWidth);
+        const currentTransform = cardsContainer.style.transform;
+
+        if (!currentTransform.includes(`translateX(${finalPosition}px)`)) {
+          console.warn('⚠️ [Snap] 애니메이션 후 위치 오차 감지 - 즉시 수정');
+          cardsContainer.style.transform = `translateX(${finalPosition}px)`;
+        }
+      }, duration);
+    } else {
+      // 즉시 이동 (리사이즈 등의 경우)
+      cardsContainer.style.transition = 'none';
+      cardsContainer.style.transform = `translateX(${targetPosition}px)`;
+    }
+  }
+
+  // Update partner card position (즉시 업데이트용)
+  updatePartnerCardPosition() {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    if (!cardsContainer) return;
+
+    // 부모 컨테이너 기준으로 일관된 계산
+    const swiperContainer = document.getElementById('mobile-partner-swiper');
+    const containerWidth = swiperContainer ? swiperContainer.offsetWidth : cardsContainer.offsetWidth;
+    const targetPosition = -(this.currentPartnerIndex * containerWidth);
+
+    console.log('🔄 [Update] 카드 위치 업데이트:', {
+      currentIndex: this.currentPartnerIndex,
+      containerWidth,
+      targetPosition
+    });
+
+    cardsContainer.style.transition = 'none';
+    cardsContainer.style.transform = `translateX(${targetPosition}px)`;
+  }
+
+  // Update partner navigation buttons
+  updatePartnerNavigationButtons(canGoPrev, canGoNext) {
+    const prevBtn = document.getElementById('prev-partner-btn');
+    const nextBtn = document.getElementById('next-partner-btn');
+
+    if (prevBtn) {
+      prevBtn.disabled = !canGoPrev;
+      prevBtn.classList.toggle('disabled', !canGoPrev);
+    }
+    if (nextBtn) {
+      nextBtn.disabled = !canGoNext;
+      nextBtn.classList.toggle('disabled', !canGoNext);
+    }
+  }
+
+  // Update partner pagination
+  updatePartnerPagination(totalCards) {
+    const pagination = document.getElementById('partner-swiper-pagination');
+    if (!pagination) return;
+
+    const dotsHTML = Array.from({ length: totalCards }, (_, i) =>
+      `<span class="pagination-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
+    ).join('');
+
+    pagination.innerHTML = dotsHTML;
+
+    // Add click handlers to dots
+    pagination.querySelectorAll('.pagination-dot').forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        // 페이지네이션 클릭 감지
+        this.onUserInteraction();
+
+        this.currentPartnerIndex = index;
+        this.snapToPartnerCard();
+        this.updatePartnerNavigationButtons(
+          index > 0,
+          index < totalCards - 1
+        );
+        this.updatePartnerCounter(index, totalCards);
+        this.updatePartnerPaginationActive(index);
+      });
+    });
+  }
+
+  // Update active partner pagination dot
+  updatePartnerPaginationActive(activeIndex) {
+    const dots = document.querySelectorAll('#partner-swiper-pagination .pagination-dot');
+    dots.forEach((dot, index) => {
+      dot.classList.toggle('active', index === activeIndex);
+    });
+  }
+
+  // Update partner counter
+  updatePartnerCounter(current, total) {
+    const counter = document.getElementById('partner-counter');
+    if (counter) {
+      counter.textContent = `${current + 1} / ${total}`;
+    }
+  }
+
+  // 힌트 타이머 시작
+  startHintTimer() {
+    this.clearHintTimer();
+    this.hintTimeout = setTimeout(() => {
+      this.showCurrentHint();
+    }, 5000);
+  }
+
+  // 힌트 타이머 클리어
+  clearHintTimer() {
+    if (this.hintTimeout) {
+      clearTimeout(this.hintTimeout);
+      this.hintTimeout = null;
+    }
+  }
+
+  // 현재 카드의 힌트 표시
+  showCurrentHint() {
+    this.hideAllHints();
+    const currentHint = document.getElementById(`hint-${this.currentPartnerIndex}`);
+    if (currentHint) {
+      currentHint.style.display = 'flex';
+      this.isHintVisible = true;
+    }
+  }
+
+  // 모든 힌트 숨기기
+  hideAllHints() {
+    const hints = document.querySelectorAll('.partner-action-hint');
+    hints.forEach(hint => {
+      hint.style.display = 'none';
+    });
+    this.isHintVisible = false;
+  }
+
+  // 움직임이 감지되었을 때 힌트 숨기기
+  onUserInteraction() {
+    this.hideAllHints();
+    this.clearHintTimer();
+    this.startHintTimer();
+  }
+
+  // Handle user selection for quiz
+  async selectUserForQuiz(userId, userName) {
+    try {
+      console.log('🎯 [UI] 사용자 선택:', { userId, userName });
+      console.log('🎯 [UI] quiz 객체 확인:', window.quiz);
+
+      // Start quiz with selected user
+      if (window.quiz && typeof window.quiz.startQuizWithTarget === 'function') {
+        console.log('🎯 [UI] quiz.startQuizWithTarget 호출 시작');
+        await quiz.startQuizWithTarget(userId);
+        console.log('🎯 [UI] quiz.startQuizWithTarget 호출 완료');
+      } else {
+        console.error('🎯 [UI] quiz 객체 또는 startQuizWithTarget 메서드를 찾을 수 없음');
+        this.showToast('퀴즈 시스템을 초기화할 수 없습니다', 'error');
+      }
+    } catch (error) {
+      console.error('Error starting quiz with user:', error);
+      this.showToast('퀴즈 시작 실패: ' + error.message, 'error');
+    }
+  }
+
+  // 동물 이름에 따른 이모지 아이콘 반환
+  getAnimalIcon(displayName) {
+    const animalIcons = {
+      '코알라': '🐨',
+      '팬더': '🐼',
+      '햄스터': '🐹',
+      '토끼': '🐰',
+      '사자': '🦁',
+      '여우': '🦊',
+      '고양이': '🐱',
+      '백조': '🦢',
+      '다람쥐': '🐿️',
+      '곰': '🐻',
+      '펭귄': '🐧',
+      '양': '🐑',
+      '독수리': '🦅',
+      '물개': '🦭',
+      '늑대': '🐺',
+      '별': '⭐',
+      '돌고래': '🐬',
+      '사슴': '🦌',
+      '나비': '🦋',
+      '벌': '🐝',
+      '강아지': '🐶'
+    };
+
+    // 가상 아이디에서 동물 이름 추출하여 아이콘 반환
+    for (const [animal, icon] of Object.entries(animalIcons)) {
+      if (displayName.includes(animal)) {
+        return icon;
+      }
+    }
+
+    // 기본 아이콘
+    return '👤';
+  }
+
+  // 🧪 스와이프 테스트 함수들
+  simulateSwipe(direction, speed = 'normal', distance = 150) {
+    console.log(`🧪 [Test] 스와이프 시뮬레이션 시작: ${direction}, ${speed}, ${distance}px`);
+
+    const swiper = document.getElementById('mobile-partner-swiper');
+    if (!swiper) {
+      console.error('❌ [Test] 모바일 스와이퍼를 찾을 수 없습니다');
+      return false;
+    }
+
+    const swiperBox = swiper.getBoundingClientRect();
+    const startX = direction === 'left' ? swiperBox.width * 0.8 : swiperBox.width * 0.2;
+    const endX = direction === 'left' ? swiperBox.width * 0.2 : swiperBox.width * 0.8;
+    const centerY = swiperBox.height / 2;
+
+    // 속도별 타이밍 설정
+    const timings = {
+      'slow': 800,
+      'normal': 300,
+      'fast': 150,
+      'veryfast': 50
+    };
+
+    const duration = timings[speed] || 300;
+
+    console.log(`🧪 [Test] 시뮬레이션 파라미터:`, {
+      startX, endX, centerY, duration,
+      swiperWidth: swiperBox.width,
+      direction, speed
+    });
+
+    // Touch 이벤트 시뮬레이션
+    const startEvent = new TouchEvent('touchstart', {
+      touches: [{
+        clientX: startX,
+        clientY: centerY,
+        identifier: 0
+      }],
+      bubbles: true,
+      cancelable: true
+    });
+
+    const moveEvent = new TouchEvent('touchmove', {
+      touches: [{
+        clientX: endX,
+        clientY: centerY,
+        identifier: 0
+      }],
+      bubbles: true,
+      cancelable: true
+    });
+
+    const endEvent = new TouchEvent('touchend', {
+      changedTouches: [{
+        clientX: endX,
+        clientY: centerY,
+        identifier: 0
+      }],
+      bubbles: true,
+      cancelable: true
+    });
+
+    // 이벤트 순차 실행
+    swiper.dispatchEvent(startEvent);
+    console.log('🧪 [Test] touchstart 이벤트 발생');
+
+    setTimeout(() => {
+      swiper.dispatchEvent(moveEvent);
+      console.log('🧪 [Test] touchmove 이벤트 발생');
+
+      setTimeout(() => {
+        swiper.dispatchEvent(endEvent);
+        console.log('🧪 [Test] touchend 이벤트 발생');
+        console.log('✅ [Test] 스와이프 시뮬레이션 완료');
+      }, 50);
+    }, duration);
+
+    return true;
+  }
+
+  testAllSwipeSpeeds() {
+    console.log('🚀 [Test] 전체 스와이프 속도 테스트 시작');
+
+    const tests = [
+      { direction: 'left', speed: 'slow', delay: 0 },
+      { direction: 'right', speed: 'normal', delay: 2000 },
+      { direction: 'left', speed: 'fast', delay: 4000 },
+      { direction: 'right', speed: 'veryfast', delay: 6000 }
+    ];
+
+    tests.forEach((test, index) => {
+      setTimeout(() => {
+        console.log(`\n🧪 [Test] ${index + 1}/${tests.length}: ${test.speed} 스와이프 (${test.direction})`);
+        this.simulateSwipe(test.direction, test.speed);
+      }, test.delay);
+    });
+
+    setTimeout(() => {
+      console.log('\n📊 [Test] 전체 테스트 완료 - 정렬 상태 확인');
+      this.checkAlignment();
+    }, 8000);
+  }
+
+  checkAlignment() {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    const swiperContainer = document.getElementById('mobile-partner-swiper');
+
+    if (!cardsContainer || !swiperContainer) {
+      console.error('❌ [Test] 컨테이너를 찾을 수 없습니다');
+      return false;
+    }
+
+    const containerWidth = swiperContainer.offsetWidth;
+    const expectedPosition = -(this.currentPartnerIndex * containerWidth);
+    const currentTransform = cardsContainer.style.transform;
+
+    console.log('📊 [Test] 정렬 상태 분석:', {
+      currentIndex: this.currentPartnerIndex,
+      containerWidth,
+      expectedPosition: expectedPosition + 'px',
+      actualTransform: currentTransform,
+      swiperWidth: swiperContainer.offsetWidth,
+      cardsWidth: cardsContainer.offsetWidth
+    });
+
+    const isAligned = currentTransform.includes(`translateX(${expectedPosition}px)`);
+
+    if (isAligned) {
+      console.log('✅ [Test] 카드가 정확히 정렬되어 있습니다');
+    } else {
+      console.warn('⚠️ [Test] 카드 정렬에 오차가 있습니다');
+    }
+
+    return isAligned;
+  }
+
+  // 정렬 검증 및 수정
+  verifyAndFixAlignment() {
+    const cardsContainer = document.getElementById('partner-cards-container');
+    const swiperContainer = document.getElementById('mobile-partner-swiper');
+
+    if (!cardsContainer || !swiperContainer) {
+      console.error('❌ [Verify] 컨테이너를 찾을 수 없습니다');
+      return;
+    }
+
+    const containerWidth = swiperContainer.offsetWidth;
+    const expectedPosition = -(this.currentPartnerIndex * containerWidth);
+    const currentTransform = cardsContainer.style.transform;
+
+    console.log('🔍 [Verify] 정렬 검증 시작:', {
+      currentIndex: this.currentPartnerIndex,
+      containerWidth,
+      expectedPosition: expectedPosition + 'px',
+      actualTransform: currentTransform
+    });
+
+    // 현재 transform에서 translateX 값 추출
+    const transformMatch = currentTransform.match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+    const actualPosition = transformMatch ? parseFloat(transformMatch[1]) : 0;
+
+    const positionDiff = Math.abs(actualPosition - expectedPosition);
+    const tolerance = 1; // 1px 허용 오차
+
+    console.log('📊 [Verify] 위치 분석:', {
+      expectedPosition,
+      actualPosition,
+      positionDiff,
+      tolerance,
+      needsCorrection: positionDiff > tolerance
+    });
+
+    if (positionDiff > tolerance) {
+      console.warn('⚠️ [Verify] 위치 오차 감지 - 재정렬 실행');
+
+      // 즉시 정확한 위치로 수정
+      cardsContainer.style.transition = 'transform 0.2s ease-out';
+      cardsContainer.style.transform = `translateX(${expectedPosition}px)`;
+
+      // transition 정리
+      setTimeout(() => {
+        cardsContainer.style.transition = 'none';
+        console.log('✅ [Verify] 재정렬 완료:', expectedPosition + 'px');
+      }, 200);
+    } else {
+      console.log('✅ [Verify] 정렬 상태 정상');
+    }
   }
 }
 

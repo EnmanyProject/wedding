@@ -22,13 +22,13 @@ const sessionSchema = z.object({
 });
 
 const answerSchema = z.object({
-  pair_id: z.string().uuid(),
+  quiz_id: z.string().uuid(), // Changed from pair_id to quiz_id for ab_quizzes
   guess: z.enum(['LEFT', 'RIGHT']),
-  selected_photo_id: z.string().uuid().optional()
+  selected_photo_id: z.string().uuid().optional().nullable()
 });
 
 const templateSchema = z.object({
-  pair_id: z.string().uuid().optional(),
+  quiz_id: z.string().uuid().optional(), // Changed from pair_id to quiz_id for ab_quizzes
   target_id: z.string().uuid().optional()
 });
 
@@ -40,18 +40,34 @@ router.post('/session', authenticateToken, asyncHandler(async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  console.log('🚀 [QuizRoute] POST /quiz/session 요청 시작');
+  console.log('📝 [QuizRoute] 요청 바디:', req.body);
+  console.log('👤 [QuizRoute] 인증된 사용자 ID:', req.userId);
+
   const body = sessionSchema.parse(req.body) as QuizSessionRequest;
   const userId = req.userId!;
 
+  console.log('✅ [QuizRoute] 요청 데이터 검증 완료:', body);
+
   if (userId === body.target_id) {
-    throw createError('Cannot quiz yourself', 400, 'SELF_QUIZ_FORBIDDEN');
+    console.error('❌ [QuizRoute] 자기 자신과 퀴즈 시도:', { userId, targetId: body.target_id });
+    throw createError('자기 자신과는 퀴즈를 할 수 없습니다', 400, 'SELF_QUIZ_FORBIDDEN');
   }
 
+  console.log('✅ [QuizRoute] 타겟 유저 검증 완료');
+
   try {
+    console.log('🔧 [QuizRoute] quizService.startQuizSession 호출');
     const result = await quizService.startQuizSession({
       askerId: userId,
       targetId: body.target_id,
       mode: body.mode
+    });
+
+    console.log('✅ [QuizRoute] 퀴즈 세션 생성 성공:', {
+      sessionId: result.session.id,
+      pointsRemaining: result.pointsRemaining,
+      mode: result.session.mode
     });
 
     const response: ApiResponse<QuizSessionResponse> = {
@@ -63,10 +79,17 @@ router.post('/session', authenticateToken, asyncHandler(async (
       timestamp: new Date().toISOString()
     };
 
+    console.log('🎉 [QuizRoute] 세션 생성 응답 전송 완료');
     res.json(response);
   } catch (error: any) {
-    if (error.message === 'Insufficient points to start quiz') {
-      throw createError(error.message, 400, 'INSUFFICIENT_POINTS');
+    console.error('❌ [QuizRoute] 퀴즈 세션 생성 오류:', {
+      message: error.message,
+      stack: error.stack,
+      requestData: { userId, body }
+    });
+
+    if (error.message.includes('포인트가 부족') || error.message === 'Insufficient points to start quiz') {
+      throw createError('퀴즈를 시작하기에 포인트가 부족합니다', 400, 'INSUFFICIENT_POINTS');
     }
     throw error;
   }
@@ -84,22 +107,49 @@ router.post('/:sessionId/answer', authenticateToken, asyncHandler(async (
   const body = answerSchema.parse(req.body) as QuizAnswerRequest;
   const userId = req.userId!;
 
+  console.log('🎮 [QuizRoute] POST /quiz/:sessionId/answer 요청 시작');
+  console.log('📝 [QuizRoute] 요청 데이터:', {
+    sessionId,
+    userId,
+    body
+  });
+
   // Validate session belongs to user (additional security check)
-  const session = await quizService.db.queryOne(
+  console.log('🔍 [QuizRoute] 세션 소유권 확인 중...');
+  const session = await quizService.database.queryOne(
     'SELECT asker_id FROM quiz_sessions WHERE id = $1',
     [sessionId]
   );
 
+  console.log('📊 [QuizRoute] 세션 검색 결과:', session);
+
   if (!session || session.asker_id !== userId) {
-    throw createError('Quiz session not found or unauthorized', 404, 'SESSION_NOT_FOUND');
+    console.error('❌ [QuizRoute] 세션 소유권 검증 실패:', {
+      session_exists: !!session,
+      session_asker: session?.asker_id,
+      current_user: userId
+    });
+    throw createError('퀴즈 세션을 찾을 수 없거나 권한이 없습니다', 404, 'SESSION_NOT_FOUND');
   }
 
+  console.log('✅ [QuizRoute] 세션 소유권 확인 완료');
+
   try {
+    console.log('🔧 [QuizRoute] quizService.submitAnswer 호출');
     const result = await quizService.submitAnswer({
       sessionId,
-      pairId: body.pair_id,
+      pairId: body.quiz_id, // quiz_id is now used as pairId for compatibility
       guess: body.guess,
       selectedPhotoId: body.selected_photo_id
+    });
+
+    console.log('✅ [QuizRoute] 답안 제출 성공:', {
+      correct: result.correct,
+      targetChoice: result.targetChoice,
+      deltaAffinity: result.deltaAffinity,
+      deltaPoints: result.deltaPoints,
+      affinityScore: result.affinityScore,
+      stagesUnlocked: result.stagesUnlocked
     });
 
     const response: ApiResponse<QuizAnswerResponse> = {
@@ -116,10 +166,17 @@ router.post('/:sessionId/answer', authenticateToken, asyncHandler(async (
       timestamp: new Date().toISOString()
     };
 
+    console.log('🎉 [QuizRoute] 응답 전송 완료');
     res.json(response);
   } catch (error: any) {
-    if (error.message === 'Target has not answered this trait question') {
-      throw createError(error.message, 400, 'TARGET_NO_TRAIT_ANSWER');
+    console.error('❌ [QuizRoute] 답안 제출 오류:', {
+      message: error.message,
+      stack: error.stack,
+      requestData: { sessionId, body }
+    });
+
+    if (error.message.includes('상대방이 아직') || error.message === 'Target has not answered this quiz question') {
+      throw createError('상대방이 아직 이 퀴즈에 답하지 않았습니다', 400, 'TARGET_NO_QUIZ_ANSWER');
     }
     throw error;
   }
@@ -133,10 +190,17 @@ router.get('/template', authenticateToken, asyncHandler(async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  console.log('🎯 [QuizRoute] GET /quiz/template 요청 시작');
+  console.log('📝 [QuizRoute] 요청 파라미터:', req.query);
+  console.log('👤 [QuizRoute] 인증된 사용자 ID:', req.userId);
+
   const query = templateSchema.parse(req.query) as QuizTemplateRequest;
+  console.log('✅ [QuizRoute] 파라미터 검증 완료:', query);
 
   try {
-    const template = await quizService.getQuizTemplate(query.pair_id, query.target_id);
+    console.log('🔧 [QuizRoute] quizService.getQuizTemplate 호출');
+    const template = await quizService.getQuizTemplate(query.quiz_id, query.target_id);
+    console.log('✅ [QuizRoute] 템플릿 생성 성공');
 
     const response: ApiResponse<QuizTemplateResponse> = {
       success: true,
@@ -144,10 +208,23 @@ router.get('/template', authenticateToken, asyncHandler(async (
       timestamp: new Date().toISOString()
     };
 
+    console.log('🎉 [QuizRoute] 응답 전송:', {
+      success: response.success,
+      has_quiz: !!template.quiz,
+      has_target: !!template.targetInfo,
+      quiz_options: template.quiz ? `${template.quiz.option_a_title} vs ${template.quiz.option_b_title}` : 'N/A'
+    });
+
     res.json(response);
   } catch (error: any) {
-    if (error.message === 'Trait pair not found' || error.message === 'No active trait pairs found') {
-      throw createError(error.message, 404, 'TRAIT_PAIR_NOT_FOUND');
+    console.error('❌ [QuizRoute] 템플릿 생성 오류:', {
+      message: error.message,
+      stack: error.stack,
+      query: query
+    });
+
+    if (error.message.includes('퀴즈') || error.message === 'Quiz not found' || error.message === 'No active quizzes found') {
+      throw createError(error.message, 404, 'QUIZ_NOT_FOUND');
     }
     throw error;
   }
@@ -165,13 +242,13 @@ router.post('/:sessionId/end', authenticateToken, asyncHandler(async (
   const userId = req.userId!;
 
   // Validate session belongs to user
-  const session = await quizService.db.queryOne(
+  const session = await quizService.database.queryOne(
     'SELECT asker_id FROM quiz_sessions WHERE id = $1',
     [sessionId]
   );
 
   if (!session || session.asker_id !== userId) {
-    throw createError('Quiz session not found or unauthorized', 404, 'SESSION_NOT_FOUND');
+    throw createError('퀴즈 세션을 찾을 수 없거나 권한이 없습니다', 404, 'SESSION_NOT_FOUND');
   }
 
   await quizService.endQuizSession(sessionId);
@@ -197,7 +274,7 @@ router.get('/sessions/me', authenticateToken, asyncHandler(async (
   const perPage = Math.min(parseInt(req.query.per_page as string) || 10, 50);
   const offset = (page - 1) * perPage;
 
-  const sessions = await quizService.db.query(
+  const sessions = await quizService.database.query(
     `SELECT
        qs.*,
        u.name as target_name,
@@ -213,7 +290,7 @@ router.get('/sessions/me', authenticateToken, asyncHandler(async (
     [userId, perPage, offset]
   );
 
-  const [total] = await quizService.db.query(
+  const [total] = await quizService.database.query(
     'SELECT COUNT(*) as count FROM quiz_sessions WHERE asker_id = $1',
     [userId]
   );
@@ -229,6 +306,52 @@ router.get('/sessions/me', authenticateToken, asyncHandler(async (
         has_next: offset + perPage < (total?.count || 0),
         has_prev: page > 1
       }
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
+/**
+ * GET /quiz/targets
+ * Get available quiz targets (users who have answered quizzes)
+ */
+router.get('/targets', authenticateToken, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const userId = req.userId!;
+
+  const targets = await quizService.getAvailableQuizTargets(userId);
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      targets
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
+/**
+ * GET /quiz/targets/:targetId/quizzes
+ * Get available quizzes for a specific target
+ */
+router.get('/targets/:targetId/quizzes', authenticateToken, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const targetId = req.params.targetId;
+
+  const quizzes = await quizService.getAvailableQuizzesForTarget(targetId);
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      quizzes
     },
     timestamp: new Date().toISOString()
   };

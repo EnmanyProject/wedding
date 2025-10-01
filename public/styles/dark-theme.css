@@ -1,0 +1,585 @@
+/* Dark Theme for Mobile Wedding App */
+/* 검은색 기반 다크 테마 - 휴대폰 화면 최적화 */
+
+:root {
+  /* 🌙 다크 테마 색상 팔레트 */
+  --primary-color: #ff6b9d;
+  --secondary-color: #667eea;
+  --accent-color: #ffa726;
+  --success-color: #66bb6a;
+  --warning-color: #ffb74d;
+  --error-color: #ef5350;
+
+  /* 🖤 검은색 기반 배경 */
+  --background-color: #000000;
+  --surface-color: #1a1a1a;
+  --card-color: #2d2d2d;
+  --elevated-surface: #3d3d3d;
+
+  /* 💬 텍스트 색상 */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+  --text-accent: #ff6b9d;
+
+  /* 🔲 경계선 및 구분선 */
+  --border-color: #404040;
+  --border-hover: #606060;
+  --divider-color: #2a2a2a;
+
+  /* 🌫️ 그림자 및 효과 */
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.7);
+  --shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.8);
+  --glow-primary: 0 0 20px rgba(255, 107, 157, 0.3);
+  --glow-secondary: 0 0 20px rgba(102, 126, 234, 0.3);
+
+  /* 🎨 그라데이션 */
+  --gradient-primary: linear-gradient(135deg, #ff6b9d 0%, #ff8a80 100%);
+  --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-card: linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 100%);
+  --gradient-surface: linear-gradient(145deg, #3d3d3d 0%, #2d2d2d 100%);
+  --gradient-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+
+  /* 📱 모바일 최적화 */
+  --border-radius: 16px;
+  --border-radius-small: 8px;
+  --border-radius-large: 24px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+
+  /* 🔥 네온 효과 */
+  --neon-pink: #ff0080;
+  --neon-blue: #00d4ff;
+  --neon-green: #00ff88;
+  --neon-purple: #8b00ff;
+}
+
+/* 📱 전체 앱 스타일링 */
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--background-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* 🖤 컨테이너 스타일 */
+.app-container {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--background-color);
+  position: relative;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--border-color);
+}
+
+/* 🌟 헤더 다크 테마 */
+.app-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 28px 20px 36px;
+  border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+  margin-bottom: 20px;
+  box-shadow: var(--glow-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-glass);
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+}
+
+.app-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.points-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 16px;
+  border-radius: 25px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow);
+}
+
+/* 🔥 메인 콘텐츠 다크 테마 */
+.main-content {
+  padding: 0 20px 120px;
+  min-height: calc(100vh - 200px);
+}
+
+/* 💎 카드 스타일 다크 테마 */
+.quiz-suggestion-card,
+.rankings-section,
+.meetings-section,
+.user-avatars-section {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.quiz-suggestion-card::before,
+.rankings-section::before,
+.meetings-section::before,
+.user-avatars-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* 🎮 사용자 아바타 다크 테마 */
+.user-avatar-card {
+  background: var(--gradient-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: var(--glow-primary);
+  background: var(--gradient-glass);
+}
+
+.avatar-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  box-shadow: var(--glow-primary);
+  margin: 0 auto;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+}
+
+.user-avatar-card:hover .avatar-image {
+  transform: scale(1.15);
+  box-shadow: var(--glow-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.user-avatar-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-top: 8px;
+}
+
+/* 🔥 네온 효과 배지 */
+.user-quiz-badge,
+.real-name-badge,
+.quiz-count-badge {
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: var(--glow-primary);
+  border: 2px solid var(--background-color);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.real-name-badge {
+  background: var(--gradient-secondary);
+  box-shadow: var(--glow-secondary);
+}
+
+/* 🌟 버튼 다크 테마 */
+.btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--glow-primary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--glow-primary);
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  background: var(--gradient-surface);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--glow-primary);
+}
+
+/* 🌙 모달 다크 테마 */
+.modal {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.modal-content {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius-large);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-elevated);
+  backdrop-filter: blur(20px);
+}
+
+.modal-header h3 {
+  color: var(--text-primary);
+}
+
+.modal-close {
+  color: var(--text-secondary);
+  border-radius: 50%;
+  background: var(--surface-color);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  color: var(--primary-color);
+  background: var(--elevated-surface);
+  transform: scale(1.1);
+}
+
+/* 🎮 퀴즈 모달 다크 테마 */
+.quiz-option {
+  background: var(--gradient-surface);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 18px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.quiz-option:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
+  box-shadow: var(--glow-primary);
+}
+
+.quiz-option.selected {
+  border-color: var(--primary-color);
+  background: var(--gradient-glass);
+  box-shadow: var(--glow-primary);
+}
+
+.option-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.vs-divider {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 20px;
+  text-shadow: var(--glow-primary);
+}
+
+/* 🔥 하단 네비게이션 다크 테마 */
+.bottom-nav {
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.nav-item {
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-small);
+  transition: var(--transition);
+}
+
+.nav-item.active {
+  color: var(--primary-color);
+  background: var(--gradient-glass);
+  box-shadow: var(--glow-primary);
+  text-shadow: 0 0 10px var(--primary-color);
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+  background: var(--surface-color);
+}
+
+/* 🌟 토스트 알림 다크 테마 */
+.toast {
+  background: var(--gradient-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-elevated);
+  backdrop-filter: blur(10px);
+}
+
+.toast.success {
+  border-left: 4px solid var(--success-color);
+  box-shadow: 0 0 20px rgba(102, 187, 106, 0.3);
+}
+
+.toast.error {
+  border-left: 4px solid var(--error-color);
+  box-shadow: 0 0 20px rgba(239, 83, 80, 0.3);
+}
+
+.toast.warning {
+  border-left: 4px solid var(--warning-color);
+  box-shadow: 0 0 20px rgba(255, 183, 77, 0.3);
+}
+
+/* 📱 모바일 스와이퍼 다크 테마 */
+.mobile-user-swiper,
+.mobile-partner-swiper {
+  background: var(--gradient-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-elevated);
+}
+
+.user-card,
+.partner-card {
+  background: var(--gradient-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.user-card-header {
+  background: var(--gradient-primary);
+  box-shadow: var(--glow-primary);
+}
+
+.user-stat-item {
+  background: var(--gradient-glass);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+/* 🎯 스와이퍼 컨트롤 다크 테마 */
+.swiper-controls {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-elevated);
+}
+
+.swiper-nav-btn {
+  background: var(--gradient-primary);
+  box-shadow: var(--glow-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.swiper-nav-btn:hover:not(:disabled) {
+  background: var(--gradient-secondary);
+  box-shadow: var(--glow-secondary);
+  transform: scale(1.1);
+}
+
+.swiper-nav-btn:disabled {
+  background: var(--surface-color);
+  color: var(--text-muted);
+  border-color: var(--border-color);
+}
+
+/* 🌙 로딩 화면 다크 테마 */
+.loading-screen {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid white;
+  box-shadow: var(--glow-primary);
+}
+
+/* 🔥 특수 효과 */
+.character-glow::before {
+  background: var(--gradient-primary);
+  opacity: 0.3;
+  filter: blur(15px);
+}
+
+.affinity-indicator {
+  background: var(--gradient-glass);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  color: var(--text-secondary);
+}
+
+/* 📱 플레이스홀더 다크 테마 */
+.ranking-placeholder,
+.meeting-placeholder,
+.photo-placeholder {
+  background: var(--gradient-surface);
+  border: 2px dashed var(--border-color);
+  color: var(--text-secondary);
+}
+
+.empty-state {
+  background: var(--gradient-surface);
+  color: var(--text-secondary);
+}
+
+.empty-title {
+  color: var(--text-primary);
+}
+
+/* 🌟 스크롤바 다크 테마 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary);
+  border-radius: 4px;
+  box-shadow: var(--glow-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gradient-secondary);
+  box-shadow: var(--glow-secondary);
+}
+
+/* 💎 선택 하이라이트 다크 테마 */
+::selection {
+  background: var(--primary-color);
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* 🎮 포커스 스타일 다크 테마 */
+button:focus,
+input:focus,
+.nav-item:focus,
+.user-avatar-card:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  box-shadow: var(--glow-primary);
+}
+
+/* 📱 모바일 터치 피드백 */
+@media (hover: none) and (pointer: coarse) {
+  .user-avatar-card:active,
+  .btn:active,
+  .quiz-option:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  .nav-item:active {
+    background: var(--primary-color);
+    color: white;
+  }
+}
+
+/* 🌟 애니메이션 최적화 */
+.user-avatar-card,
+.btn,
+.quiz-option,
+.nav-item {
+  will-change: transform;
+}
+
+/* 🔥 다크 테마 글로우 효과 */
+@keyframes neonGlow {
+  0%, 100% {
+    box-shadow: var(--glow-primary);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 107, 157, 0.5);
+  }
+}
+
+.user-avatar-card:hover,
+.btn-primary:hover {
+  animation: neonGlow 2s ease-in-out infinite;
+}
+
+/* 🌙 배터리 절약 모드 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 📱 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #ffffff;
+    --text-secondary: #ffffff;
+    --shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+  }
+}

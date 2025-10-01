@@ -1,9 +1,22 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/Users/dosik/**)",
-      "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT COUNT(*) as active_users FROM users WHERE is_active = true;\")",
+      "Bash(timeout 5 curl -s http://localhost:3000/)",
+      "Bash(tasklist)",
+      "Bash(cmd /c:*)",
+      "Bash(PORT=3001 npm run dev)",
+      "Bash(start http://localhost:3001)",
+      "Bash(del:*)",
+      "Bash(if exist nul del nul)",
+      "Bash(if exist test_mobile_swiper.js del test_mobile_swiper.js)",
+      "Bash(if exist test_swipe.js del test_swipe.js)",
+      "Bash(if exist direct_swiper_test.js del direct_swiper_test.js)",
+      "Bash(if exist create_quizzes.js del create_quizzes.js)",
+      "Bash(if exist run_swiper_tests.html del run_swiper_tests.html)",
+      "Bash(if exist:*)",
+      "Bash(git add:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []

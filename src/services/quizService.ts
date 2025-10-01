@@ -7,7 +7,9 @@ import {
   UserTrait,
   Affinity,
   UserPhoto,
-  PhotoMaskState
+  PhotoMaskState,
+  ABQuiz,
+  QuizResponse
 } from '../types/database';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -41,19 +43,25 @@ export class QuizService {
     this.db = Database.getInstance();
   }
 
+  // Expose database for route access
+  public get database(): Database {
+    return this.db;
+  }
+
   /**
    * Start a new quiz session
    */
   async startQuizSession(request: QuizStartRequest): Promise<{ session: QuizSession; pointsRemaining: number }> {
     return await this.db.transaction(async (client) => {
       // Check if user has enough points
-      const [balance] = await client.query(
+      const balanceResult = await client.query(
         'SELECT balance FROM user_point_balances WHERE user_id = $1',
         [request.askerId]
       );
+      const balance = balanceResult.rows?.[0];
 
       if (!balance || balance.balance < config.QUIZ_ENTER_COST) {
-        throw new Error('Insufficient points to start quiz');
+        throw new Error('퀴즈를 시작하기에 포인트가 부족합니다');
       }
 
       // Deduct points
@@ -71,12 +79,13 @@ export class QuizService {
 
       // Create quiz session
       const sessionId = uuidv4();
-      const [session] = await client.query<QuizSession>(
+      const sessionResult = await client.query<QuizSession>(
         `INSERT INTO quiz_sessions (id, asker_id, target_id, mode, points_spent, started_at)
          VALUES ($1, $2, $3, $4, $5, NOW())
          RETURNING *`,
         [sessionId, request.askerId, request.targetId, request.mode || 'TRAIT_PHOTO', config.QUIZ_ENTER_COST]
       );
+      const session = sessionResult.rows?.[0];
 
       const pointsRemaining = balance.balance - config.QUIZ_ENTER_COST;
 
@@ -88,33 +97,83 @@ export class QuizService {
    * Submit quiz answer and calculate results
    */
   async submitAnswer(request: QuizAnswerRequest): Promise<QuizResult> {
+    console.log('🎮 [QuizService] submitAnswer 시작:', {
+      sessionId: request.sessionId,
+      pairId: request.pairId,
+      guess: request.guess,
+      selectedPhotoId: request.selectedPhotoId
+    });
+
     return await this.db.transaction(async (client) => {
       // Get session info
-      const [session] = await client.query<QuizSession>(
+      console.log('🔍 [QuizService] 퀴즈 세션 검색:', request.sessionId);
+      const sessionResult = await client.query<QuizSession>(
         'SELECT * FROM quiz_sessions WHERE id = $1',
         [request.sessionId]
       );
+      console.log('📊 [QuizService] 세션 검색 결과:', sessionResult.rows?.length || 0);
+      const session = sessionResult.rows?.[0];
 
       if (!session) {
-        throw new Error('Quiz session not found');
+        console.error('❌ [QuizService] 퀴즈 세션을 찾을 수 없음:', request.sessionId);
+        throw new Error('퀴즈 세션을 찾을 수 없습니다');
       }
 
-      // Get target's actual choice for this trait
-      const [targetTrait] = await client.query<UserTrait>(
-        'SELECT choice FROM user_traits WHERE user_id = $1 AND pair_id = $2',
+      console.log('✅ [QuizService] 찾은 세션:', {
+        id: session.id,
+        asker_id: session.asker_id,
+        target_id: session.target_id,
+        mode: session.mode
+      });
+
+      // Get target's actual choice for this quiz (from virtual character responses)
+      console.log('🎯 [QuizService] 타겟의 퀴즈 응답 검색:', {
+        target_id: session.target_id,
+        quiz_id: request.pairId // pairId is now quiz_id for ab_quizzes
+      });
+      const targetResponseResult = await client.query<QuizResponse>(
+        'SELECT selected_option FROM quiz_responses WHERE user_id = $1 AND quiz_id = $2',
         [session.target_id, request.pairId]
       );
+      console.log('📊 [QuizService] 타겟 응답 검색 결과:', targetResponseResult.rows?.length || 0);
+      const targetResponse = targetResponseResult.rows?.[0];
 
-      if (!targetTrait) {
-        throw new Error('Target has not answered this trait question');
+      if (!targetResponse) {
+        console.error('❌ [QuizService] 타겟이 이 퀴즈에 답하지 않음:', {
+          target_id: session.target_id,
+          quiz_id: request.pairId
+        });
+        throw new Error('상대방이 아직 이 퀴즈에 답하지 않았습니다');
       }
 
-      const targetChoice = targetTrait.choice.toUpperCase() as 'LEFT' | 'RIGHT';
+      console.log('✅ [QuizService] 타겟의 선택:', {
+        selected_option: targetResponse.selected_option,
+        user_id: session.target_id,
+        quiz_id: request.pairId
+      });
+
+      // Convert A/B to LEFT/RIGHT for compatibility
+      const targetChoice = targetResponse.selected_option === 'A' ? 'LEFT' : 'RIGHT';
       const correct = request.guess === targetChoice;
+
+      console.log('🎯 [QuizService] 답안 분석:', {
+        user_guess: request.guess,
+        target_actual: targetChoice,
+        correct: correct
+      });
 
       // Calculate deltas
       const deltaAffinity = correct ? config.AFFINITY_ALPHA : -config.AFFINITY_BETA;
       const deltaPoints = correct ? 0 : -config.QUIZ_WRONG_PENALTY;
+
+      console.log('📊 [QuizService] 점수 계산:', {
+        correct,
+        deltaAffinity,
+        deltaPoints,
+        AFFINITY_ALPHA: config.AFFINITY_ALPHA,
+        AFFINITY_BETA: config.AFFINITY_BETA,
+        QUIZ_WRONG_PENALTY: config.QUIZ_WRONG_PENALTY
+      });
 
       // Get photo assets for logging
       let photoAssets: any = null;
@@ -130,16 +189,18 @@ export class QuizService {
 
       // Create quiz item record
       const quizItemId = uuidv4();
-      const [quizItem] = await client.query<QuizItem>(
+
+      // Currently we're using ab_quizzes system, so use quiz_id column
+      const quizItemResult = await client.query<QuizItem>(
         `INSERT INTO quiz_items (
-          id, session_id, pair_id, option_type, asker_guess, correct,
+          id, session_id, quiz_id, option_type, asker_guess, correct,
           delta_affinity, delta_points, selected_photo_id, assets, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
         RETURNING *`,
         [
           quizItemId,
           request.sessionId,
-          request.pairId,
+          request.pairId, // This is actually quiz_id for ab_quizzes
           targetChoice,
           request.guess,
           correct,
@@ -149,6 +210,8 @@ export class QuizService {
           photoAssets ? JSON.stringify(photoAssets) : null
         ]
       );
+
+      const quizItem = quizItemResult.rows?.[0];
 
       // Apply points penalty if wrong
       if (deltaPoints < 0) {
@@ -165,20 +228,21 @@ export class QuizService {
       }
 
       // Update or create affinity
-      let affinity = await client.query<Affinity>(
+      const affinityResult = await client.query<Affinity>(
         'SELECT * FROM affinity WHERE viewer_id = $1 AND target_id = $2',
         [session.asker_id, session.target_id]
       );
+      const existingAffinity = affinityResult.rows || [];
 
       let affinityScore: number;
       let stagesUnlocked: string[] = [];
 
-      if (affinity.length > 0) {
+      if (existingAffinity.length > 0) {
         // Update existing affinity
-        affinityScore = Math.max(0, affinity[0].score + deltaAffinity);
+        affinityScore = Math.max(0, existingAffinity[0].score + deltaAffinity);
         await client.query(
           'UPDATE affinity SET score = $1, last_quiz_at = NOW(), updated_at = NOW() WHERE id = $2',
-          [affinityScore, affinity[0].id]
+          [affinityScore, existingAffinity[0].id]
         );
       } else {
         // Create new affinity
@@ -228,17 +292,19 @@ export class QuizService {
     const stagesUnlocked: string[] = [];
 
     // Get target's photos
-    const photos = await client.query<UserPhoto>(
+    const photosResult = await client.query<UserPhoto>(
       'SELECT id FROM user_photos WHERE user_id = $1 AND moderation_status = $2',
       [targetId, 'APPROVED']
     );
+    const photos = photosResult.rows || [];
 
     for (const photo of photos) {
       // Get current visibility state
-      let [maskState] = await client.query<PhotoMaskState>(
+      const maskStateResult = await client.query<PhotoMaskState>(
         'SELECT * FROM photo_mask_states WHERE user_id = $1 AND photo_id = $2',
         [viewerId, photo.id]
       );
+      let maskState = maskStateResult.rows?.[0];
 
       if (!maskState) {
         // Create initial mask state
@@ -298,10 +364,11 @@ export class QuizService {
    * Update user skill metrics
    */
   private async updateUserSkill(client: any, userId: string, correct: boolean): Promise<void> {
-    const [skill] = await client.query(
+    const skillResult = await client.query(
       'SELECT * FROM user_skills WHERE user_id = $1',
       [userId]
     );
+    const skill = skillResult.rows?.[0];
 
     if (skill) {
       const newAttempts = skill.total_attempts + 1;
@@ -322,45 +389,87 @@ export class QuizService {
   }
 
   /**
-   * Get quiz template with visual assets
+   * Get quiz template with admin-created quizzes
    */
-  async getQuizTemplate(pairId?: string, targetId?: string): Promise<any> {
-    // Get random trait pair if not specified
-    let pair: TraitPair;
-    if (pairId) {
-      const [foundPair] = await this.db.query<TraitPair>(
-        'SELECT * FROM trait_pairs WHERE id = $1 AND is_active = true',
-        [pairId]
-      );
-      if (!foundPair) {
-        throw new Error('Trait pair not found');
-      }
-      pair = foundPair;
-    } else {
-      const [randomPair] = await this.db.query<TraitPair>(
-        'SELECT * FROM trait_pairs WHERE is_active = true ORDER BY RANDOM() LIMIT 1'
-      );
-      if (!randomPair) {
-        throw new Error('No active trait pairs found');
-      }
-      pair = randomPair;
-    }
+  async getQuizTemplate(quizId?: string, targetId?: string): Promise<any> {
+    console.log('🎯 [QuizService] getQuizTemplate 시작:', { quizId, targetId });
 
-    // Get visual assets for the pair
-    const [visual] = await this.db.query(
-      'SELECT * FROM trait_visuals WHERE pair_id = $1 AND is_default = true',
-      [pair.id]
-    );
+    // Get random admin quiz if not specified
+    let quiz: ABQuiz;
+    if (quizId) {
+      console.log('🔍 [QuizService] 특정 quizId로 검색:', quizId);
+      const foundQuizResult = await this.db.query<ABQuiz>(
+        'SELECT * FROM ab_quizzes WHERE id = $1 AND is_active = true',
+        [quizId]
+      );
+      console.log('📊 [QuizService] quizId 검색 결과:', foundQuizResult.length);
+      const foundQuiz = foundQuizResult[0];
+      if (!foundQuiz) {
+        console.error('❌ [QuizService] 퀴즈를 찾을 수 없음:', quizId);
+        throw new Error('퀴즈를 찾을 수 없습니다');
+      }
+      quiz = foundQuiz;
+      console.log('✅ [QuizService] 찾은 퀴즈:', { id: quiz.id, title: quiz.title, option_a: quiz.option_a_title, option_b: quiz.option_b_title });
+    } else if (targetId) {
+      // If targetId is provided, get a random quiz that the target user has answered
+      console.log('🎯 [QuizService] 타겟 유저가 답변한 퀴즈 중 랜덤 선택:', targetId);
+      const targetQuizResult = await this.db.query<ABQuiz>(
+        `SELECT aq.* FROM ab_quizzes aq
+         INNER JOIN quiz_responses qr ON aq.id = qr.quiz_id
+         WHERE qr.user_id = $1 AND aq.is_active = true
+         ORDER BY RANDOM() LIMIT 1`,
+        [targetId]
+      );
+      console.log('📊 [QuizService] 타겟 유저가 답변한 퀴즈 수:', targetQuizResult.length);
+      const targetQuiz = targetQuizResult[0];
+      if (!targetQuiz) {
+        console.log('⚠️ [QuizService] 타겟 유저가 답변한 퀴즈가 없음, 랜덤 퀴즈로 대체');
+        // Fallback to random quiz if target hasn't answered any
+        const randomQuizResult = await this.db.query<ABQuiz>(
+          'SELECT * FROM ab_quizzes WHERE is_active = true ORDER BY RANDOM() LIMIT 1'
+        );
+        const randomQuiz = randomQuizResult[0];
+        if (!randomQuiz) {
+          console.error('❌ [QuizService] 활성화된 어드민 퀴즈가 없음');
+          throw new Error('활성화된 퀴즈가 없습니다');
+        }
+        quiz = randomQuiz;
+        console.log('✅ [QuizService] 대체 랜덤 퀴즈 선택:', { id: quiz.id, title: quiz.title, option_a: quiz.option_a_title, option_b: quiz.option_b_title });
+      } else {
+        quiz = targetQuiz;
+        console.log('✅ [QuizService] 타겟이 답변한 퀴즈 선택:', { id: quiz.id, title: quiz.title, option_a: quiz.option_a_title, option_b: quiz.option_b_title });
+      }
+    } else {
+      // No target specified, get completely random quiz
+      console.log('🎲 [QuizService] 랜덤 어드민 퀴즈 검색 중...');
+      const randomQuizResult = await this.db.query<ABQuiz>(
+        'SELECT * FROM ab_quizzes WHERE is_active = true ORDER BY RANDOM() LIMIT 1'
+      );
+      console.log('📊 [QuizService] 활성 어드민 퀴즈 수:', randomQuizResult.length);
+      const randomQuiz = randomQuizResult[0];
+      if (!randomQuiz) {
+        console.error('❌ [QuizService] 활성화된 어드민 퀴즈가 없음');
+        throw new Error('활성화된 퀴즈가 없습니다');
+      }
+      quiz = randomQuiz;
+      console.log('✅ [QuizService] 선택된 랜덤 퀴즈:', { id: quiz.id, title: quiz.title, option_a: quiz.option_a_title, option_b: quiz.option_b_title });
+    }
 
     // Get target info if specified
     let targetInfo = null;
     if (targetId) {
-      const [target] = await this.db.query(
-        'SELECT id, name FROM users WHERE id = $1 AND is_active = true',
+      console.log('👤 [QuizService] 타겟 유저 정보 검색:', targetId);
+      const targetResult = await this.db.query(
+        'SELECT id, name, display_name FROM users WHERE id = $1 AND is_active = true',
         [targetId]
       );
+      console.log('📊 [QuizService] 타겟 유저 검색 결과:', targetResult.length);
+      const target = targetResult[0];
 
       if (target) {
+        console.log('✅ [QuizService] 찾은 타겟 유저:', { id: target.id, name: target.name });
+        console.log('📸 [QuizService] 타겟 유저의 사진 검색 중...');
+
         const photos = await this.db.query(
           `SELECT up.id, pa.variant, pa.storage_key, pa.width, pa.height
            FROM user_photos up
@@ -369,21 +478,94 @@ export class QuizService {
            ORDER BY up.order_idx, pa.variant`,
           [targetId]
         );
+        console.log('📊 [QuizService] 타겟 유저 사진 수:', photos.length);
 
         targetInfo = {
           user_id: target.id,
           name: target.name,
+          display_name: target.display_name,
           photos: photos
         };
+        console.log('✅ [QuizService] 타겟 정보 구성 완료:', {
+          user_id: targetInfo.user_id,
+          name: targetInfo.name,
+          display_name: targetInfo.display_name,
+          photo_count: targetInfo.photos.length
+        });
+      } else {
+        console.warn('⚠️ [QuizService] 타겟 유저를 찾을 수 없음:', targetId);
       }
+    } else {
+      console.log('📝 [QuizService] targetId가 제공되지 않음, targetInfo는 null');
     }
 
-    return {
-      pair,
-      visual,
+    const result = {
+      quiz,
       targetInfo,
-      instructions: `Choose which option ${targetInfo ? targetInfo.name : 'the target user'} would prefer for "${pair.left_label}" vs "${pair.right_label}"`
+      instructions: `${targetInfo ? (targetInfo.display_name || targetInfo.name) : '상대방'}의 선택은?`
     };
+
+    console.log('🎉 [QuizService] getQuizTemplate 완료:', {
+      quiz_id: result.quiz.id,
+      quiz_title: result.quiz.title,
+      quiz_options: `${result.quiz.option_a_title} vs ${result.quiz.option_b_title}`,
+      has_target: !!result.targetInfo,
+      photo_count: result.targetInfo?.photos?.length || 0
+    });
+
+    return result;
+  }
+
+  /**
+   * Get available quiz targets (users who have answered at least one quiz)
+   */
+  async getAvailableQuizTargets(askerId: string): Promise<any[]> {
+    console.log('👥 [QuizService] getAvailableQuizTargets 시작:', { askerId });
+
+    const result = await this.db.query(
+      `SELECT u.id, u.name, u.display_name, COUNT(qr.id) as quiz_count,
+              COALESCE(a.score, 0) as affinity_score
+       FROM users u
+       INNER JOIN quiz_responses qr ON u.id = qr.user_id
+       LEFT JOIN affinity a ON a.viewer_id = $1 AND a.target_id = u.id
+       WHERE u.id != $1 AND u.is_active = true
+       GROUP BY u.id, u.name, u.display_name, a.score
+       HAVING COUNT(qr.id) > 0
+       ORDER BY u.display_name`,
+      [askerId]
+    );
+
+    // 친밀도에 따른 실명 공개 로직 (친밀도 50 이상이면 실명 공개)
+    const processedTargets = result.map(target => {
+      const shouldShowRealName = target.affinity_score >= 50;
+      return {
+        ...target,
+        display_name_for_ui: shouldShowRealName ? target.name : target.display_name,
+        real_name_unlocked: shouldShowRealName
+      };
+    });
+
+    console.log('📊 [QuizService] 사용 가능한 타겟 수:', processedTargets.length);
+    return processedTargets;
+  }
+
+  /**
+   * Get available quizzes for a specific target (quizzes they have answered)
+   */
+  async getAvailableQuizzesForTarget(targetId: string): Promise<any[]> {
+    console.log('🎯 [QuizService] getAvailableQuizzesForTarget 시작:', { targetId });
+
+    const result = await this.db.query(
+      `SELECT aq.id, aq.title, aq.category, aq.option_a_title, aq.option_b_title, qr.selected_option
+       FROM ab_quizzes aq
+       INNER JOIN quiz_responses qr ON aq.id = qr.quiz_id
+       WHERE qr.user_id = $1 AND aq.is_active = true
+       ORDER BY aq.title`,
+      [targetId]
+    );
+
+    console.log('📊 [QuizService] 타겟이 답한 퀴즈 수:', result.length);
+    return result;
   }
 
   /**

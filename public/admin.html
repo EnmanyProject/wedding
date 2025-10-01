@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&B 미팅 어드민 - 퀴즈 관리</title>
+    <meta name="description" content="A&B 미팅 앱 관리자 페이지">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="A&B 어드민">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .admin-header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .admin-header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-nav {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab.active {
+            color: #2c3e50;
+            border-bottom-color: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .trait-pairs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .trait-pairs-table th,
+        .trait-pairs-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .trait-pairs-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .trait-pairs-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Admin Character Styles */
+        .admin-mascot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.2));
+        }
+
+        .bety-character {
+            border-radius: 50%;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            vertical-align: middle;
+        }
+
+        .character-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .character-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .loading-bounce {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .admin-mascot {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* User Management Styles */
+        .section-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .search-input, .filter-select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .search-input {
+            min-width: 200px;
+        }
+        .data-table {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .user-display-name {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .user-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-size: 0.85rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="/images/d-bety.png" alt="Admin Bety" class="admin-mascot character-float">
+                <div>
+                    <h1>A&B 미팅 어드민</h1>
+                    <div class="subtitle">퀴즈 및 성향 질문 관리 시스템</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span id="admin-name" style="color: rgba(255,255,255,0.8);"></span>
+                <button id="logout-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
+                    로그아웃
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Navigation -->
+        <div class="admin-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="dashboard">대시보드</button>
+                <button class="nav-tab" data-tab="users">👥 유저 관리</button>
+                <button class="nav-tab" data-tab="trait-pairs">성향 질문</button>
+                <button class="nav-tab" data-tab="quiz-creation">A&B 퀴즈 생성</button>
+                <button class="nav-tab" data-tab="visuals">시각 자료</button>
+                <button class="nav-tab" data-tab="ai-prompts">🎨 AI 프롬프트</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard-tab">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="stat-trait-pairs">-</div>
+                    <div class="label">활성 성향 질문</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="stat-visuals">-</div>
+                    <div class="label">시각 자료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="stat-users">-</div>
+                    <div class="label">활성 사용자</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="stat-sessions">-</div>
+                    <div class="label">퀴즈 세션</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="stat-responses">-</div>
+                    <div class="label">성향 응답</div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">카테고리별 분포</h2>
+                </div>
+                <div id="categories-list">
+                    <div class="loading">
+                        <img src="/images/Bety2.png" alt="Loading Bety" class="bety-character character-pulse" style="width: 40px; height: 40px; margin-right: 0.5rem;">
+                        카테고리 데이터를 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management Tab -->
+        <div class="tab-content" id="users-tab">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">👥 유저 관리</h2>
+                    <div class="section-actions">
+                        <input type="text" id="user-search" placeholder="이름, 닉네임, 이메일 검색..." class="search-input">
+                        <select id="user-status-filter" class="filter-select">
+                            <option value="all">전체</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                        </select>
+                        <button class="btn btn-secondary" id="refresh-users-btn">새로고침</button>
+                    </div>
+                </div>
+
+                <!-- Users Stats -->
+                <div class="stats-grid" id="user-stats">
+                    <div class="stat-card">
+                        <div class="number" id="total-users">0</div>
+                        <div class="label">총 유저</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="active-users">0</div>
+                        <div class="label">활성 유저</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="users-with-photos">0</div>
+                        <div class="label">사진 등록</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="quiz-participants">0</div>
+                        <div class="label">퀴즈 참여</div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>유저</th>
+                                <th>활동 통계</th>
+                                <th>최고 호감도</th>
+                                <th>상태</th>
+                                <th>가입일</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <tr>
+                                <td colspan="6" class="loading">
+                                    <img src="/images/Bety2.png" alt="Loading Bety" class="bety-character character-pulse" style="width: 40px; height: 40px; margin-right: 0.5rem;">
+                                    유저 데이터를 불러오는 중...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="users-pagination" style="display: none;">
+                    <button class="btn btn-secondary" id="users-prev-btn" disabled>이전</button>
+                    <span class="pagination-info" id="users-page-info">페이지 1 / 1</span>
+                    <button class="btn btn-secondary" id="users-next-btn" disabled>다음</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Detail Modal -->
+        <div id="user-detail-modal" class="modal" style="display: none;">
+            <div class="modal-overlay"></div>
+            <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3 id="user-detail-title">유저 상세 정보</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="user-detail-content">
+                    <!-- User detail content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Trait Pairs Tab -->
+        <div class="tab-content" id="trait-pairs-tab">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">성향 질문 관리</h2>
+                    <button class="btn btn-primary" id="add-trait-pair-btn">새 질문 추가</button>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">카테고리 필터</label>
+                        <select class="form-control" id="category-filter">
+                            <option value="">전체 카테고리</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">상태 필터</label>
+                        <select class="form-control" id="status-filter">
+                            <option value="">전체 상태</option>
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="trait-pairs-list">
+                    <div class="loading">
+                        <img src="/images/Bety1.png" alt="Loading Bety" class="bety-character character-float" style="width: 40px; height: 40px; margin-right: 0.5rem;">
+                        성향 질문을 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Creation Tab -->
+        <div class="tab-content" id="quiz-creation-tab">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">A&B 퀴즈 생성</h2>
+                    <button class="btn btn-primary" id="add-quiz-btn">새 퀴즈 생성</button>
+                </div>
+
+                <div class="form-row" style="margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">카테고리 필터</label>
+                        <select class="form-control" id="quiz-category-filter">
+                            <option value="">전체 카테고리</option>
+                            <option value="lifestyle">라이프스타일</option>
+                            <option value="food">음식</option>
+                            <option value="entertainment">엔터테인먼트</option>
+                            <option value="fashion">패션</option>
+                            <option value="hobby">취미</option>
+                            <option value="human">인물</option>
+                            <option value="travel">여행</option>
+                            <option value="personality">성격</option>
+                            <option value="values">가치관</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">상태 필터</label>
+                        <select class="form-control" id="quiz-status-filter">
+                            <option value="">전체 상태</option>
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="quiz-list">
+                    <div class="loading">
+                        <img src="/images/Bety3.png" alt="Loading Bety" class="bety-character loading-bounce" style="width: 40px; height: 40px; margin-right: 0.5rem;">
+                        퀴즈 목록을 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visuals Tab -->
+        <div class="tab-content" id="visuals-tab">
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">시각 자료 관리</h2>
+                </div>
+                <div id="visuals-list">
+                    <div class="loading">
+                        <img src="/images/Bety4.png" alt="Loading Bety" class="bety-character character-pulse" style="width: 40px; height: 40px; margin-right: 0.5rem;">
+                        시각 자료를 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trait Pair Modal -->
+    <div id="trait-pair-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">새 성향 질문 추가</h3>
+                <button class="modal-close" id="close-trait-modal-btn">&times;</button>
+            </div>
+
+            <form id="trait-pair-form">
+                <div class="form-group">
+                    <label class="form-label">키 (영문, 고유값)</label>
+                    <input type="text" class="form-control" id="pair-key" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">왼쪽 선택지</label>
+                        <input type="text" class="form-control" id="pair-left" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">오른쪽 선택지</label>
+                        <input type="text" class="form-control" id="pair-right" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">카테고리</label>
+                    <input type="text" class="form-control" id="pair-category" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">설명 (선택사항)</label>
+                    <textarea class="form-control" id="pair-description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="pair-active" checked> 활성 상태
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" id="cancel-trait-modal-btn">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quiz Creation Modal -->
+    <div id="quiz-creation-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="quiz-modal-title">새 A&B 퀴즈 생성</h3>
+                <button class="modal-close" id="close-quiz-modal-btn">&times;</button>
+            </div>
+
+            <form id="quiz-creation-form">
+                <div class="form-group">
+                    <label class="form-label">카테고리</label>
+                    <select class="form-control" id="quiz-category" required>
+                        <option value="">카테고리 선택</option>
+                        <option value="lifestyle">라이프스타일</option>
+                        <option value="food">음식</option>
+                        <option value="entertainment">엔터테인먼트</option>
+                        <option value="fashion">패션</option>
+                        <option value="hobby">취미</option>
+                        <option value="human">인물</option>
+                        <option value="travel">여행</option>
+                        <option value="personality">성격</option>
+                        <option value="values">가치관</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">퀴즈 제목</label>
+                    <input type="text" class="form-control" id="quiz-title" placeholder="예: 이상적인 데이트 장소는?" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">설명 (선택사항)</label>
+                    <textarea class="form-control" id="quiz-description" rows="2" placeholder="퀴즈에 대한 간단한 설명"></textarea>
+                </div>
+
+                <!-- Option A -->
+                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: #2c3e50;">선택지 A</h4>
+
+                    <div class="form-group">
+                        <label class="form-label">제목</label>
+                        <input type="text" class="form-control" id="option-a-title" placeholder="예: 조용한 카페" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">설명</label>
+                        <input type="text" class="form-control" id="option-a-description" placeholder="예: 차분하고 대화하기 좋은 분위기">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">이미지</label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="file" class="form-control" id="option-a-image" accept="image/*">
+                            <button type="button" class="btn btn-secondary" id="generate-option-a-btn" style="white-space: nowrap;">
+                                🎨 AI 생성
+                            </button>
+                        </div>
+                        <div id="option-a-preview" style="margin-top: 0.5rem;"></div>
+                        <div id="option-a-generating" style="display: none; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 6px; margin-top: 0.5rem;">
+                            <img src="/images/Bety1.png" alt="Loading" class="bety-character character-excited" style="width: 30px; height: 30px; margin-right: 0.5rem;">
+                            이미지 생성 중... (30초 정도 소요됩니다)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Option B -->
+                <div style="border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: #2c3e50;">선택지 B</h4>
+
+                    <div class="form-group">
+                        <label class="form-label">제목</label>
+                        <input type="text" class="form-control" id="option-b-title" placeholder="예: 활기찬 펜딩" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">설명</label>
+                        <input type="text" class="form-control" id="option-b-description" placeholder="예: 신나고 에너지 넘치는 분위기">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">이미지</label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="file" class="form-control" id="option-b-image" accept="image/*">
+                            <button type="button" class="btn btn-secondary" id="generate-option-b-btn" style="white-space: nowrap;">
+                                🎨 AI 생성
+                            </button>
+                        </div>
+                        <div id="option-b-preview" style="margin-top: 0.5rem;"></div>
+                        <div id="option-b-generating" style="display: none; text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 6px; margin-top: 0.5rem;">
+                            <img src="/images/Bety2.png" alt="Loading" class="bety-character character-excited" style="width: 30px; height: 30px; margin-right: 0.5rem;">
+                            이미지 생성 중... (30초 정도 소요됩니다)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="quiz-active" checked> 활성 상태
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button type="button" class="btn btn-secondary" id="cancel-quiz-modal-btn">취소</button>
+                    <button type="submit" class="btn btn-primary" id="quiz-submit-btn">퀴즈 생성</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Prompts Tab -->
+    <div class="tab-content" id="ai-prompts-tab">
+        <div class="tab-header">
+            <h2>🎨 AI 이미지 생성 프롬프트 관리</h2>
+            <p>AI 이미지 생성에 사용되는 프롬프트를 한글로 관리할 수 있습니다.</p>
+        </div>
+
+        <div class="content-card">
+            <div class="card-header">
+                <h3>프롬프트 템플릿 목록</h3>
+                <button class="btn btn-primary" onclick="showAddPromptModal()">+ 새 프롬프트 추가</button>
+            </div>
+
+            <div id="prompt-templates-list" class="list-container">
+                <!-- Prompt templates will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Prompt Modal -->
+    <div id="prompt-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="prompt-modal-title">프롬프트 추가</h3>
+            </div>
+            <form id="prompt-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">제목 (한글)</label>
+                        <input type="text" id="prompt-title" class="form-input" placeholder="예: 짜장면" required>
+                        <small class="form-help">파일명으로 사용됩니다</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">설명 (한글)</label>
+                        <textarea id="prompt-description" class="form-input" rows="3" placeholder="예: 검은 간짜장 소스가 올라간 중국음식"></textarea>
+                        <small class="form-help">이미지 생성시 프롬프트에 추가됩니다</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">카테고리</label>
+                        <select id="prompt-category" class="form-input" required>
+                            <option value="">카테고리 선택</option>
+                            <option value="음식">음식</option>
+                            <option value="장소">장소</option>
+                            <option value="활동">활동</option>
+                            <option value="물건">물건</option>
+                            <option value="동물">동물</option>
+                            <option value="자연">자연</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">영어 프롬프트 (자동 생성)</label>
+                        <textarea id="prompt-english" class="form-input" rows="4" readonly style="background: #f8f9fa;"></textarea>
+                        <small class="form-help">위 내용을 바탕으로 자동 생성됩니다</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="prompt-active" checked> 활성 상태
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closePromptModal()">취소</button>
+                    <button type="submit" class="btn btn-primary">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Image Preview Modal -->
+    <div id="image-preview-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>🎨 AI 생성 이미지 미리보기</h3>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <div id="preview-image-container" style="margin: 1rem 0;">
+                    <img id="preview-image" src="" alt="Generated Image" style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+                <div id="preview-image-info" style="margin: 1rem 0; color: #666; font-size: 0.9rem;">
+                    <div><strong>프롬프트:</strong> <span id="preview-prompt"></span></div>
+                    <div><strong>크기:</strong> <span id="preview-size"></span></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; justify-content: center;">
+                <button type="button" class="btn btn-secondary" id="preview-reject-btn">
+                    ❌ 다시 생성
+                </button>
+                <button type="button" class="btn btn-primary" id="preview-accept-btn">
+                    ✅ 이 이미지 사용
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/api.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

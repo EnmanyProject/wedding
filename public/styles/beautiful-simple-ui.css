@@ -1,0 +1,738 @@
+/* Beautiful Simple UI - 베티 캐릭터 활용한 예쁘고 단순한 디자인 */
+/* 하단 검은 영역 제거 및 스크롤바 문제 해결 */
+
+:root {
+  /* 🎨 부드럽고 예쁜 색상 팔레트 */
+  --cute-pink: #ff6b9d;
+  --soft-purple: #9c88ff;
+  --gentle-blue: #64b5f6;
+  --warm-yellow: #ffb74d;
+  --fresh-green: #81c784;
+  --pure-white: #ffffff;
+  --soft-gray: #f5f5f5;
+  --light-gray: #e0e0e0;
+  --medium-gray: #9e9e9e;
+  --dark-gray: #424242;
+
+  /* 🌙 다크모드 부드러운 색상 */
+  --dark-bg: #1a1a1a;
+  --dark-surface: #2d2d2d;
+  --dark-card: #3a3a3a;
+  --dark-text: #ffffff;
+  --dark-text-secondary: #e0e0e0;
+  --dark-border: #4a4a4a;
+
+  /* 📐 레이아웃 변수 */
+  --app-max-width: 350px;
+  --header-height: 70px;
+  --nav-height: 65px;
+  --content-height: calc(100vh - 135px);
+  --border-radius: 12px;
+  --spacing: 12px;
+}
+
+/* 📱 전체 앱 레이아웃 완전 재설계 */
+.app-container {
+  max-width: var(--app-max-width) !important;
+  width: var(--app-max-width) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  margin: 0 auto !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background: var(--dark-bg) !important;
+  border: none !important;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* 🌟 헤더 - 베티와 함께하는 귀여운 헤더 */
+.app-header {
+  height: var(--header-height) !important;
+  min-height: var(--header-height) !important;
+  max-height: var(--header-height) !important;
+  padding: 12px 16px !important;
+  margin: 0 !important;
+  background: linear-gradient(135deg, var(--cute-pink), var(--soft-purple)) !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: url('/images/Bety1.png') no-repeat center;
+  background-size: 40px 40px;
+  opacity: 0.1;
+  animation: float 6s ease-in-out infinite;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: var(--pure-white) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.app-title::before {
+  content: '💕';
+  font-size: 20px;
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.points-display {
+  background: rgba(255, 255, 255, 0.2) !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--pure-white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+/* 💎 메인 콘텐츠 영역 - 완전 재설계 */
+.main-content {
+  flex: 1 !important;
+  height: var(--content-height) !important;
+  max-height: var(--content-height) !important;
+  padding: 16px 16px 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: var(--dark-bg) !important;
+  position: relative !important;
+  scroll-behavior: smooth !important;
+}
+
+/* 🎀 스크롤바 숨기기 */
+.main-content::-webkit-scrollbar {
+  display: none !important;
+}
+
+.main-content {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* 🌟 웰컴 섹션 - 베티와 함께 */
+.welcome-section {
+  margin-bottom: 20px !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, var(--dark-surface), var(--dark-card)) !important;
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--dark-border) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.welcome-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.welcome-text {
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.welcome-bety {
+  flex-shrink: 0 !important;
+}
+
+/* 🎭 베티 표정 애니메이션 */
+.bety-expressions {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+  animation: bety-mood-changes 8s ease-in-out infinite !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  opacity: 1 !important;
+  border: 3px solid rgba(255, 107, 157, 0.3) !important;
+}
+
+/* 👤 프로필 이미지 스타일 */
+.profile-image {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border: 3px solid rgba(255, 107, 157, 0.3) !important;
+  transition: all 0.3s ease !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+}
+
+.profile-image:hover {
+  transform: scale(1.05) !important;
+  border-color: var(--primary-color) !important;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3)) !important;
+}
+
+.partner-avatar-large {
+  position: relative !important;
+  width: 90px !important;
+  height: 90px !important;
+  margin: 0 auto 0.8rem !important;
+}
+
+.avatar-icon-fallback {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--gradient-primary) !important;
+  border-radius: 50% !important;
+  font-size: 3rem !important;
+  border: 3px solid rgba(255, 107, 157, 0.3) !important;
+}
+
+.bety-expressions:hover {
+  transform: scale(1.1) rotate(5deg) !important;
+}
+
+@keyframes bety-mood-changes {
+  0% {
+    transform: translateY(0px) scale(1);
+    filter: hue-rotate(0deg) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+  12.5% {
+    transform: translateY(-3px) scale(1.05);
+    filter: hue-rotate(30deg) drop-shadow(0 6px 12px rgba(255, 107, 157, 0.3));
+  }
+  25% {
+    transform: translateY(0px) scale(1) rotate(-2deg);
+    filter: hue-rotate(60deg) drop-shadow(0 4px 8px rgba(0, 255, 157, 0.2));
+  }
+  37.5% {
+    transform: translateY(-2px) scale(1.03) rotate(2deg);
+    filter: hue-rotate(120deg) drop-shadow(0 5px 10px rgba(157, 107, 255, 0.3));
+  }
+  50% {
+    transform: translateY(0px) scale(1);
+    filter: hue-rotate(180deg) drop-shadow(0 4px 8px rgba(255, 200, 107, 0.2));
+  }
+  62.5% {
+    transform: translateY(-4px) scale(1.08) rotate(-3deg);
+    filter: hue-rotate(240deg) drop-shadow(0 7px 14px rgba(107, 255, 200, 0.3));
+  }
+  75% {
+    transform: translateY(0px) scale(1) rotate(1deg);
+    filter: hue-rotate(300deg) drop-shadow(0 4px 8px rgba(200, 157, 255, 0.2));
+  }
+  87.5% {
+    transform: translateY(-1px) scale(1.02);
+    filter: hue-rotate(330deg) drop-shadow(0 5px 10px rgba(255, 157, 107, 0.3));
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+    filter: hue-rotate(360deg) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.welcome-text h2 {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--dark-text) !important;
+  margin-bottom: 8px !important;
+}
+
+.welcome-text p {
+  font-size: 14px !important;
+  color: var(--dark-text-secondary) !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+
+/* 🎭 사용자 아바타 섹션 - 베티 테마 */
+.user-avatars-section {
+  background: linear-gradient(135deg, var(--dark-surface), var(--dark-card)) !important;
+  border-radius: var(--border-radius) !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+  border: 1px solid var(--dark-border) !important;
+  position: relative !important;
+}
+
+.section-header {
+  text-align: center !important;
+  margin-bottom: 16px !important;
+  position: relative !important;
+}
+
+.section-header h3 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--cute-pink) !important;
+  margin: 0 0 8px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.section-header h3::before {
+  content: '';
+  width: 24px;
+  height: 24px;
+  background: url('/images/Bety3.png') no-repeat center;
+  background-size: contain;
+  animation: character-wiggle 4s ease-in-out infinite;
+}
+
+@keyframes character-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.section-header p {
+  font-size: 12px !important;
+  color: var(--dark-text-secondary) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+/* 🎮 사용자 아바타 그리드 - 더 예쁘게 */
+.user-avatars-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px !important;
+  padding: 0 !important;
+}
+
+.user-avatar-card {
+  background: linear-gradient(135deg, var(--dark-card), var(--dark-surface)) !important;
+  border: 2px solid var(--dark-border) !important;
+  border-radius: 16px !important;
+  padding: 12px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.user-avatar-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--cute-pink), var(--soft-purple), var(--gentle-blue));
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.user-avatar-card:hover {
+  transform: translateY(-4px) scale(1.05) !important;
+  border-color: var(--cute-pink) !important;
+  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3) !important;
+}
+
+.user-avatar-card:hover::before {
+  opacity: 1;
+}
+
+.avatar-image {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, var(--cute-pink), var(--soft-purple)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.8rem !important;
+  margin: 0 auto 8px !important;
+  border: 3px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.avatar-image::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: url('/images/Bety4.png') no-repeat center;
+  background-size: contain;
+  transform: translate(-50%, -50%);
+  opacity: 0.3;
+}
+
+.user-avatar-card:hover .avatar-image {
+  transform: scale(1.1) !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4) !important;
+}
+
+.user-avatar-name {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--dark-text) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+/* 🏆 랭킹 섹션 - 베티와 함께 */
+.rankings-section,
+.meetings-section {
+  background: linear-gradient(135deg, var(--dark-surface), var(--dark-card)) !important;
+  border-radius: var(--border-radius) !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+  border: 1px solid var(--dark-border) !important;
+  position: relative !important;
+}
+
+.rankings-section h3,
+.meetings-section h3 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--dark-text) !important;
+  margin: 0 0 12px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.rankings-section h3::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: url('/images/Bety5.png') no-repeat center;
+  background-size: contain;
+}
+
+.meetings-section h3::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  background: url('/images/Bety6.png') no-repeat center;
+  background-size: contain;
+}
+
+/* 🎪 플레이스홀더 - 베티 캐릭터 활용 */
+.ranking-placeholder,
+.meeting-placeholder,
+.photo-placeholder {
+  text-align: center !important;
+  padding: 24px 16px !important;
+  background: linear-gradient(135deg, var(--dark-card), var(--dark-surface)) !important;
+  border: 2px dashed var(--dark-border) !important;
+  border-radius: var(--border-radius) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.ranking-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  background: url('/images/Bety3.png') no-repeat center;
+  background-size: contain;
+  transform: translate(-50%, -50%);
+  opacity: 0.3;
+  animation: character-float 3s ease-in-out infinite;
+}
+
+.meeting-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  background: url('/images/Bety4.png') no-repeat center;
+  background-size: contain;
+  transform: translate(-50%, -50%);
+  opacity: 0.3;
+  animation: character-pulse 2s ease-in-out infinite;
+}
+
+@keyframes character-float {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+  50% { transform: translate(-50%, -50%) translateY(-10px); }
+}
+
+@keyframes character-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.ranking-placeholder p,
+.meeting-placeholder p,
+.photo-placeholder p {
+  font-size: 12px !important;
+  color: var(--dark-text-secondary) !important;
+  margin: 0 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 🔥 하단 네비게이션 - 완전 재설계 */
+.bottom-nav {
+  height: var(--nav-height) !important;
+  min-height: var(--nav-height) !important;
+  max-height: var(--nav-height) !important;
+  padding: 8px 0 !important;
+  background: linear-gradient(135deg, var(--dark-surface), var(--dark-card)) !important;
+  border-top: 1px solid var(--dark-border) !important;
+  position: relative !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-width: var(--app-max-width) !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  backdrop-filter: blur(10px) !important;
+  flex-shrink: 0 !important;
+  z-index: 100 !important;
+}
+
+.nav-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+  color: var(--medium-gray) !important;
+  background: none !important;
+  border: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--cute-pink), var(--soft-purple));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 12px;
+}
+
+.nav-item.active {
+  color: var(--pure-white) !important;
+  transform: scale(1.05) !important;
+}
+
+.nav-item.active::before {
+  opacity: 1;
+}
+
+.nav-icon {
+  font-size: 18px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.nav-label {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  color: inherit !important;
+}
+
+/* 🌟 버튼 스타일 - 베티 테마 */
+.btn {
+  padding: 10px 20px !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cute-pink), var(--soft-purple)) !important;
+  color: var(--pure-white) !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4) !important;
+}
+
+.btn-secondary {
+  background: var(--dark-surface) !important;
+  color: var(--dark-text) !important;
+  border: 2px solid var(--dark-border) !important;
+}
+
+.btn-secondary:hover {
+  border-color: var(--cute-pink) !important;
+  color: var(--cute-pink) !important;
+}
+
+/* 🎭 로딩 화면 - 베티 애니메이션 */
+.loading-screen {
+  background: linear-gradient(135deg, var(--cute-pink), var(--soft-purple)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--pure-white) !important;
+}
+
+.loading-character {
+  margin-bottom: 20px !important;
+}
+
+.bety-character {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+  animation: loading-bounce 2s ease-in-out infinite !important;
+}
+
+@keyframes loading-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.loading-spinner {
+  width: 40px !important;
+  height: 40px !important;
+  border: 3px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 3px solid var(--pure-white) !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin-bottom: 16px !important;
+}
+
+.loading-screen p {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+
+/* 📱 반응형 및 최적화 */
+@media (max-height: 600px) {
+  :root {
+    --header-height: 60px;
+    --nav-height: 55px;
+    --content-height: calc(100vh - 115px);
+  }
+
+  .welcome-section {
+    padding: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .user-avatars-section,
+  .rankings-section,
+  .meetings-section {
+    padding: 12px !important;
+    margin-bottom: 12px !important;
+  }
+}
+
+/* 🎪 애니메이션 최적화 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 🎯 탭 시스템 - 화면 전환 */
+.view {
+  display: none !important;
+  opacity: 0 !important;
+  transform: translateX(20px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.view.active {
+  display: block !important;
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
+/* 🎭 탭 콘텐츠 애니메이션 */
+.view.show {
+  animation: slideInFromRight 0.3s ease-out !important;
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

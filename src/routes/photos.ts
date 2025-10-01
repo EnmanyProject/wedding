@@ -98,7 +98,7 @@ router.post('/me/photos/commit', authenticateToken, asyncHandler(async (
   );
 
   if (!photo) {
-    throw createError('Photo not found', 404, 'PHOTO_NOT_FOUND');
+    throw createError('사진을 찾을 수 없습니다', 404, 'PHOTO_NOT_FOUND');
   }
 
   if (photo.moderation_status !== 'PENDING') {
@@ -321,7 +321,7 @@ router.delete('/me/photos/:photoId', authenticateToken, asyncHandler(async (
   );
 
   if (!photo) {
-    throw createError('Photo not found', 404, 'PHOTO_NOT_FOUND');
+    throw createError('사진을 찾을 수 없습니다', 404, 'PHOTO_NOT_FOUND');
   }
 
   const assets = await db.query(

@@ -36,9 +36,9 @@ export const config = {
   // Affinity Thresholds
   AFFINITY_ALPHA: parseInt(process.env.AFFINITY_ALPHA || '3'),
   AFFINITY_BETA: parseInt(process.env.AFFINITY_BETA || '1'),
-  AFFINITY_T1_THRESHOLD: parseInt(process.env.AFFINITY_T1_THRESHOLD || '20'),
-  AFFINITY_T2_THRESHOLD: parseInt(process.env.AFFINITY_T2_THRESHOLD || '40'),
-  AFFINITY_T3_THRESHOLD: parseInt(process.env.AFFINITY_T3_THRESHOLD || '60'),
+  AFFINITY_T1_THRESHOLD: parseInt(process.env.AFFINITY_T1_THRESHOLD || '10'), // Basic info disclosure
+  AFFINITY_T2_THRESHOLD: parseInt(process.env.AFFINITY_T2_THRESHOLD || '50'), // Detailed info disclosure
+  AFFINITY_T3_THRESHOLD: parseInt(process.env.AFFINITY_T3_THRESHOLD || '100'), // Private info disclosure
 
   // Photo Configuration
   PHOTO_THUMB_SIZE: parseInt(process.env.PHOTO_THUMB_SIZE || '256'),

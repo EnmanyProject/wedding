@@ -1,0 +1,549 @@
+/* Mobile Compact UI - 휴대폰 화면 최적화 */
+/* UI 요소들을 더 작고 컴팩트하게 조정 */
+
+:root {
+  /* 📱 모바일용 크기 변수 재정의 */
+  --mobile-header-padding: 16px 16px 20px;
+  --mobile-card-padding: 16px;
+  --mobile-spacing: 12px;
+  --mobile-border-radius: 12px;
+  --mobile-border-radius-small: 6px;
+  --mobile-font-size-large: 18px;
+  --mobile-font-size-medium: 14px;
+  --mobile-font-size-small: 12px;
+  --mobile-avatar-size: 48px;
+  --mobile-button-padding: 10px 16px;
+  --mobile-nav-height: 65px;
+}
+
+/* 📱 앱 컨테이너 크기 조정 */
+.app-container {
+  max-width: 375px; /* iPhone 크기로 축소 */
+  min-height: 100vh;
+}
+
+/* 🌟 헤더 크기 축소 */
+.app-header {
+  padding: var(--mobile-header-padding);
+  margin-bottom: 16px;
+  border-radius: 0 0 16px 16px;
+}
+
+.app-title {
+  font-size: var(--mobile-font-size-large);
+  font-weight: 600;
+}
+
+.points-display {
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-weight: 500;
+  font-size: var(--mobile-font-size-small);
+  gap: 4px;
+}
+
+.notification-badge {
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+}
+
+/* 💎 메인 콘텐츠 패딩 축소 */
+.main-content {
+  padding: 0 16px 80px;
+}
+
+/* 🎮 카드 스타일 컴팩트화 */
+.quiz-suggestion-card,
+.rankings-section,
+.meetings-section,
+.user-avatars-section {
+  padding: var(--mobile-card-padding);
+  margin-bottom: 16px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.quiz-suggestion-card h3,
+.rankings-section h3,
+.meetings-section h3,
+.user-avatars-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* 🎭 사용자 아바타 그리드 컴팩트화 */
+.user-avatars-grid {
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 12px;
+  padding: 4px;
+}
+
+.user-avatar-card {
+  padding: 12px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.avatar-image {
+  width: var(--mobile-avatar-size);
+  height: var(--mobile-avatar-size);
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.user-avatar-name {
+  font-size: var(--mobile-font-size-small);
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.1;
+}
+
+.user-quiz-badge,
+.real-name-badge,
+.quiz-count-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  min-width: 14px;
+}
+
+.affinity-indicator {
+  font-size: 10px;
+  padding: 3px 6px;
+  margin-top: 4px;
+  border-radius: 8px;
+}
+
+/* 🌟 버튼 크기 축소 */
+.btn {
+  padding: var(--mobile-button-padding);
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: var(--mobile-font-size-small);
+  gap: 4px;
+}
+
+.btn-primary,
+.btn-secondary {
+  min-height: 36px;
+}
+
+/* 🌙 모달 크기 조정 */
+.modal-content {
+  max-width: 90%;
+  margin: 20px;
+  border-radius: 16px;
+}
+
+.modal-header {
+  padding: 16px 16px 0;
+}
+
+.modal-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-close {
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+}
+
+/* 🎮 퀴즈 모달 컴팩트화 */
+.quiz-options {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.quiz-option {
+  padding: 12px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.option-image {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 8px;
+}
+
+.option-label {
+  font-size: var(--mobile-font-size-small);
+  font-weight: 500;
+}
+
+.vs-divider {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.quiz-info {
+  padding: 12px;
+  border-radius: var(--mobile-border-radius);
+  margin-bottom: 16px;
+}
+
+.quiz-info p {
+  font-size: var(--mobile-font-size-small);
+  margin: 3px 0;
+}
+
+/* 🔥 하단 네비게이션 컴팩트화 */
+.bottom-nav {
+  height: var(--mobile-nav-height);
+  padding: 8px 0;
+  max-width: 375px;
+}
+
+.nav-item {
+  padding: 6px 8px;
+  gap: 3px;
+  border-radius: var(--mobile-border-radius-small);
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* 🌟 토스트 알림 크기 축소 */
+.toast-container {
+  top: 16px;
+  right: 16px;
+  max-width: 280px;
+}
+
+.toast {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: var(--mobile-border-radius);
+  font-size: var(--mobile-font-size-small);
+}
+
+/* 📱 모바일 스와이퍼 크기 조정 */
+.mobile-user-swiper,
+.mobile-partner-swiper {
+  height: 420px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.user-card,
+.partner-card {
+  margin: 8px;
+  border-radius: 14px;
+  max-width: 300px;
+}
+
+.user-card-header {
+  padding: 16px 12px;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-display-name {
+  font-size: var(--mobile-font-size-medium);
+}
+
+.user-rank-badge {
+  padding: 6px 12px;
+  font-size: var(--mobile-font-size-small);
+  border-radius: 16px;
+}
+
+.user-card-body {
+  padding: 16px 12px;
+  gap: 12px;
+}
+
+.user-stats-grid {
+  gap: 12px;
+}
+
+.user-stat-item {
+  padding: 12px 10px;
+  border-radius: 10px;
+}
+
+.user-stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.user-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.user-affinity-score {
+  padding: 20px;
+  border-radius: 16px;
+  margin-top: 8px;
+}
+
+.affinity-label {
+  font-size: var(--mobile-font-size-small);
+  margin-bottom: 6px;
+}
+
+.affinity-value {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.affinity-max {
+  font-size: 10px;
+}
+
+.user-card-actions {
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.card-action-btn {
+  padding: 12px;
+  border-radius: 10px;
+  font-size: var(--mobile-font-size-small);
+  font-weight: 500;
+}
+
+/* 🎯 스와이퍼 컨트롤 크기 조정 */
+.swiper-controls {
+  bottom: 16px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  gap: 12px;
+}
+
+.swiper-nav-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+.swiper-counter {
+  font-size: var(--mobile-font-size-small);
+  font-weight: 500;
+  min-width: 50px;
+}
+
+.swiper-pagination {
+  top: 12px;
+  gap: 6px;
+}
+
+.pagination-dot {
+  width: 6px;
+  height: 6px;
+}
+
+/* 🎭 캐릭터 선택 모달 컴팩트화 */
+.character-grid {
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  padding: 4px;
+}
+
+.character-card {
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.character-avatar {
+  margin-bottom: 8px;
+}
+
+.avatar-icon {
+  font-size: 2rem;
+}
+
+.character-name {
+  font-size: var(--mobile-font-size-small);
+  font-weight: 500;
+}
+
+/* 🔥 결과 모달 크기 조정 */
+.result-modal .modal-content {
+  max-width: 320px;
+}
+
+.result-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.result-message {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.result-stats {
+  padding: 16px;
+  border-radius: var(--mobile-border-radius);
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  margin-bottom: 8px;
+  font-size: var(--mobile-font-size-small);
+}
+
+.stat-value {
+  font-size: var(--mobile-font-size-medium);
+  font-weight: 600;
+}
+
+/* 📷 사진 그리드 컴팩트화 */
+.photos-grid {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.photo-item {
+  border-radius: var(--mobile-border-radius);
+}
+
+/* 📤 업로드 영역 크기 조정 */
+.upload-area {
+  padding: 32px 16px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.upload-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.upload-area p {
+  font-size: var(--mobile-font-size-small);
+  margin-bottom: 12px;
+}
+
+/* 🔄 로딩 화면 조정 */
+.loading-character {
+  margin-bottom: 1rem;
+}
+
+.bety-character {
+  width: 60px;
+  height: 60px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+  margin-bottom: 16px;
+}
+
+.loading-screen p {
+  font-size: var(--mobile-font-size-medium);
+  margin-top: 8px;
+}
+
+/* 🎪 플레이스홀더 크기 조정 */
+.ranking-placeholder,
+.meeting-placeholder,
+.photo-placeholder,
+.empty-state {
+  padding: 24px 16px;
+  border-radius: var(--mobile-border-radius);
+}
+
+.placeholder-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.ranking-placeholder p,
+.meeting-placeholder p,
+.photo-placeholder p {
+  font-size: var(--mobile-font-size-small);
+  margin: 0;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-message {
+  font-size: var(--mobile-font-size-small);
+}
+
+/* 📱 매우 작은 화면 (iPhone SE 등) 대응 */
+@media (max-width: 375px) {
+  .app-container {
+    max-width: 100%;
+  }
+
+  .user-avatars-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .user-avatar-card {
+    padding: 8px;
+  }
+
+  .avatar-image {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .user-avatar-name {
+    font-size: 11px;
+  }
+}
+
+/* 📱 더 작은 화면 (320px 등) 대응 */
+@media (max-width: 320px) {
+  .main-content {
+    padding: 0 12px 70px;
+  }
+
+  .quiz-suggestion-card,
+  .rankings-section,
+  .meetings-section,
+  .user-avatars-section {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .user-avatars-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .modal-content {
+    margin: 16px;
+  }
+
+  .bottom-nav {
+    height: 60px;
+    padding: 6px 0;
+  }
+}

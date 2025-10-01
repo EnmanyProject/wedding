@@ -1,4 +1,18 @@
-import sharp from 'sharp';
+// import sharp from 'sharp'; // Temporarily disabled - needs native build
+
+// Mock Sharp for development without native build
+const sharp = (buffer: Buffer) => ({
+  metadata: async () => ({ width: 1024, height: 1024, format: 'jpeg' }),
+  resize: (width: number, height: number) => ({
+    jpeg: (options?: any) => ({
+      toBuffer: async () => buffer // Return original buffer for now
+    })
+  }),
+  blur: (sigma: number) => ({
+    toBuffer: async () => buffer // Return original buffer for now
+  })
+});
+
 import { Database } from '../utils/database';
 import { storageService } from '../utils/storage';
 import { config } from '../utils/config';

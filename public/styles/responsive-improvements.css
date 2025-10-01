@@ -1,0 +1,582 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN IMPROVEMENTS FOR WEDDING APP
+   ========================================================================== */
+
+/* Enhanced Breakpoint System */
+/* ==================== */
+
+/* Small Mobile Optimization (320px - 430px) */
+@media (max-width: 374px) {
+  .app-container {
+    width: 100%;
+    padding: 0 10px;
+  }
+
+  .app-header {
+    padding: 15px 15px 25px;
+  }
+
+  .app-title {
+    font-size: 20px;
+  }
+
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .quiz-options {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .vs-divider {
+    transform: rotate(90deg);
+    margin: 8px 0;
+  }
+}
+
+/* Tablet Portrait (431px - 768px) */
+@media (min-width: 431px) and (max-width: 768px) {
+  .app-container {
+    max-width: 100%;
+    padding: 0 30px;
+    box-shadow: none;
+  }
+
+  .app-header {
+    border-radius: 0;
+    padding: 25px 30px 35px;
+  }
+
+  .app-title {
+    font-size: 28px;
+  }
+
+  .header-stats {
+    gap: 20px;
+  }
+
+  .points-display {
+    padding: 10px 16px;
+    font-size: 16px;
+  }
+
+  .main-content {
+    padding: 0 30px 120px;
+  }
+
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+  }
+
+  .quiz-modal .modal-content {
+    max-width: 500px;
+  }
+
+  .quiz-options {
+    gap: 20px;
+  }
+
+  .option-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  .modal-content {
+    max-width: 600px;
+    margin: 40px auto;
+  }
+
+  /* Enhanced navigation for tablet */
+  .bottom-nav {
+    padding: 15px 0;
+  }
+
+  .nav-item {
+    padding: 12px 20px;
+    border-radius: 12px;
+  }
+
+  .nav-icon {
+    font-size: 24px;
+  }
+
+  .nav-label {
+    font-size: 14px;
+  }
+}
+
+/* Tablet Landscape (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .app-container {
+    max-width: 800px;
+    padding: 0 40px;
+  }
+
+  .app-header {
+    padding: 30px 40px 40px;
+  }
+
+  .app-title {
+    font-size: 32px;
+  }
+
+  .main-content {
+    padding: 0 40px 100px;
+  }
+
+  /* Navigation repositioning for landscape */
+  .bottom-nav {
+    position: relative;
+    border-radius: 15px;
+    margin: 30px auto 0;
+    width: 500px;
+    box-shadow: var(--shadow);
+    border-top: none;
+  }
+
+  .nav-item {
+    padding: 15px 25px;
+  }
+
+  /* Grid improvements */
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+  }
+
+  /* Enhanced modal sizing */
+  .modal-content {
+    max-width: 700px;
+    margin: 60px auto;
+  }
+
+  .quiz-modal .modal-content {
+    max-width: 600px;
+  }
+
+  /* Two-column layout for larger content */
+  .rankings-section, .meetings-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  .rankings-section h3, .meetings-section h3 {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+  .app-container {
+    max-width: 900px;
+    min-height: auto;
+    border-radius: 20px;
+    margin: 20px auto;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .app-header {
+    border-radius: 20px 20px 0 0;
+    padding: 35px 50px 45px;
+  }
+
+  .app-title {
+    font-size: 36px;
+  }
+
+  .main-content {
+    padding: 0 50px 100px;
+    min-height: auto;
+  }
+
+  /* Desktop grid layout */
+  .home-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+  }
+
+  .welcome-section {
+    grid-column: 1 / -1;
+  }
+
+  .quiz-suggestion-card {
+    grid-column: 1 / -1;
+  }
+
+  .rankings-section {
+    grid-column: 1;
+  }
+
+  .meetings-section {
+    grid-column: 2;
+  }
+
+  /* Enhanced photo grid for desktop */
+  .photos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+  }
+
+  /* Desktop navigation */
+  .bottom-nav {
+    position: relative;
+    border-radius: 15px;
+    margin: 40px auto 0;
+    width: 600px;
+    box-shadow: var(--shadow);
+    border-top: none;
+  }
+
+  .nav-item {
+    padding: 18px 30px;
+  }
+
+  .nav-icon {
+    font-size: 28px;
+  }
+
+  .nav-label {
+    font-size: 16px;
+  }
+
+  /* Desktop modal improvements */
+  .modal-content {
+    max-width: 800px;
+    margin: 80px auto;
+  }
+
+  .quiz-modal .modal-content {
+    max-width: 700px;
+  }
+}
+
+/* Enhanced Touch Target Sizes */
+/* ==================== */
+
+/* Minimum 44px touch targets for all interactive elements */
+.btn {
+  min-height: 44px;
+  padding: 14px 28px;
+  touch-action: manipulation; /* Prevent double-tap zoom */
+}
+
+.nav-item {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+.modal-close {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.quiz-option {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.tab-btn {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* Enhanced button feedback */
+.btn:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* Fluid Typography System */
+/* ==================== */
+
+.app-title {
+  font-size: clamp(20px, 5vw, 36px);
+}
+
+.welcome-section h2 {
+  font-size: clamp(24px, 6vw, 32px);
+}
+
+.view-header h2 {
+  font-size: clamp(20px, 5vw, 28px);
+}
+
+.nav-label {
+  font-size: clamp(11px, 2.5vw, 16px);
+}
+
+.manager-message p {
+  font-size: clamp(14px, 3.5vw, 18px);
+}
+
+/* Responsive Grid System */
+/* ==================== */
+
+.photos-grid {
+  grid-template-columns: repeat(auto-fill, minmax(
+    clamp(120px, 25vw, 220px), 1fr
+  ));
+  gap: clamp(10px, 3vw, 30px);
+}
+
+/* Enhanced Modal Responsiveness */
+/* ==================== */
+
+@media (max-width: 430px) {
+  .modal {
+    padding: 10px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 12px 12px 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 20px 20px 0;
+    position: sticky;
+    top: 0;
+    background: var(--surface-color);
+    z-index: 10;
+  }
+
+  .modal-body {
+    padding: 20px;
+    padding-bottom: 40px;
+  }
+}
+
+@media (min-width: 431px) and (max-width: 768px) {
+  .modal-content {
+    max-width: 90%;
+    margin: 30px auto;
+    border-radius: var(--border-radius);
+  }
+}
+
+@media (min-width: 769px) {
+  .modal-content {
+    border-radius: var(--border-radius);
+  }
+}
+
+/* Improved Animation Performance */
+/* ==================== */
+
+/* Use transform instead of changing layout properties */
+.btn:hover {
+  transform: translateY(-2px);
+  will-change: transform;
+}
+
+.photo-item:hover {
+  transform: scale(1.05);
+  will-change: transform;
+}
+
+.ranking-item:hover, .meeting-item:hover {
+  transform: translateY(-2px);
+  will-change: transform;
+}
+
+/* GPU acceleration for smooth animations */
+.bety-character,
+.modal-content,
+.quiz-option {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Accessibility Improvements */
+/* ==================== */
+
+/* Larger focus indicators */
+.btn:focus,
+.nav-item:focus,
+.quiz-option:focus {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* High contrast mode improvements */
+@media (prefers-contrast: high) {
+  .btn {
+    border: 2px solid currentColor;
+  }
+
+  .quiz-option {
+    border-width: 3px;
+  }
+
+  .nav-item.active {
+    outline: 2px solid var(--primary-color);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover {
+    transform: none;
+  }
+
+  .photo-item:hover {
+    transform: none;
+  }
+
+  .bety-character {
+    animation: none !important;
+  }
+
+  .modal-content {
+    animation: none !important;
+  }
+}
+
+/* Print Styles */
+/* ==================== */
+
+@media print {
+  .bottom-nav,
+  .modal,
+  .toast-container,
+  #dev-menu {
+    display: none !important;
+  }
+
+  .app-container {
+    max-width: none;
+    box-shadow: none;
+    margin: 0;
+  }
+
+  .app-header {
+    background: none !important;
+    color: black !important;
+  }
+}
+
+/* Loading State Improvements */
+/* ==================== */
+
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--border-color) 25%,
+    rgba(255, 255, 255, 0.5) 50%,
+    var(--border-color) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
+.skeleton-text.short {
+  width: 60%;
+}
+
+.skeleton-text.medium {
+  width: 80%;
+}
+
+.skeleton-text.long {
+  width: 95%;
+}
+
+/* Enhanced Interactive States */
+/* ==================== */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Enhanced Quiz Selection States */
+.quiz-option {
+  position: relative;
+  overflow: hidden;
+}
+
+.quiz-option::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 107, 157, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.quiz-option:hover::after {
+  left: 100%;
+}
+
+.quiz-option.selected {
+  animation: selected-pulse 0.3s ease;
+}
+
+@keyframes selected-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

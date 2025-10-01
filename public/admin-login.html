@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A&B 미팅 관리자 로그인</title>
+    <meta name="description" content="A&B 미팅 앱 관리자 로그인">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+            margin: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid;
+        }
+
+        .alert-error {
+            background: #fee;
+            border-color: #fcc;
+            color: #a00;
+        }
+
+        .alert-success {
+            background: #efe;
+            border-color: #cfc;
+            color: #060;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .login-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .login-info h4 {
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .login-info p {
+            margin: 0.25rem 0;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Admin Character Styles */
+        .admin-character {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .admin-bety {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .character-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            .admin-bety {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="admin-character">
+                <img src="/images/d-bety.png" alt="Admin Bety" class="admin-bety character-pulse">
+            </div>
+            <h1 class="login-title">관리자 로그인</h1>
+            <p class="login-subtitle">A&B 미팅 관리 시스템</p>
+        </div>
+
+        <form id="login-form">
+            <div class="form-group">
+                <label class="form-label">사용자명</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    required
+                    autocomplete="username"
+                    placeholder="사용자명을 입력하세요"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">비밀번호</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="비밀번호를 입력하세요"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="login-btn">
+                로그인
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                로그인 중...
+            </div>
+        </form>
+
+        <!-- Development Info -->
+        <div class="login-info">
+            <h4>개발 환경 계정</h4>
+            <p><strong>사용자명:</strong> admin</p>
+            <p><strong>비밀번호:</strong> admin123</p>
+        </div>
+
+        <div class="back-link">
+            <a href="/">← 메인 앱으로 돌아가기</a>
+        </div>
+    </div>
+
+    <script>
+        class AdminLogin {
+            constructor() {
+                this.form = document.getElementById('login-form');
+                this.usernameInput = document.getElementById('username');
+                this.passwordInput = document.getElementById('password');
+                this.loginBtn = document.getElementById('login-btn');
+                this.loading = document.getElementById('loading');
+
+                this.init();
+            }
+
+            init() {
+                this.form.addEventListener('submit', (e) => this.handleLogin(e));
+
+                // Check if already logged in
+                this.checkExistingAuth();
+            }
+
+            async checkExistingAuth() {
+                const token = localStorage.getItem('admin_token');
+                if (token) {
+                    try {
+                        const response = await fetch('/api/admin-auth/me', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            // Already logged in, redirect to admin
+                            window.location.href = '/admin.html';
+                            return;
+                        }
+                    } catch (error) {
+                        // Token invalid, remove it
+                        localStorage.removeItem('admin_token');
+                        localStorage.removeItem('admin_user');
+                    }
+                }
+            }
+
+            async handleLogin(e) {
+                e.preventDefault();
+
+                const username = this.usernameInput.value.trim();
+                const password = this.passwordInput.value;
+
+                if (!username || !password) {
+                    this.showAlert('사용자명과 비밀번호를 입력해주세요', 'error');
+                    return;
+                }
+
+                this.setLoading(true);
+
+                try {
+                    const response = await fetch('/api/admin-auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store admin token and info
+                        localStorage.setItem('admin_token', data.data.token);
+                        localStorage.setItem('admin_user', JSON.stringify(data.data.admin));
+
+                        this.showAlert('로그인 성공! 관리자 페이지로 이동합니다...', 'success');
+
+                        // Redirect to admin page
+                        setTimeout(() => {
+                            window.location.href = '/admin.html';
+                        }, 1000);
+
+                    } else {
+                        this.showAlert(data.error || '로그인에 실패했습니다', 'error');
+                    }
+
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showAlert('서버와의 연결에 실패했습니다', 'error');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+
+            setLoading(loading) {
+                this.loginBtn.disabled = loading;
+                this.loading.style.display = loading ? 'block' : 'none';
+
+                if (loading) {
+                    this.loginBtn.textContent = '로그인 중...';
+                } else {
+                    this.loginBtn.textContent = '로그인';
+                }
+            }
+
+            showAlert(message, type = 'info') {
+                // Remove existing alerts
+                const existingAlerts = document.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+
+                // Create new alert
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.textContent = message;
+
+                // Insert before form
+                this.form.parentNode.insertBefore(alert, this.form);
+
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // Initialize admin login when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new AdminLogin();
+        });
+    </script>
+</body>
+</html>

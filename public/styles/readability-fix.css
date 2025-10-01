@@ -1,0 +1,469 @@
+/* Readability Fix - 다크 테마 가독성 및 컨트래스트 개선 */
+/* 텍스트와 카드 영역을 명확하게 구분하고 가독성 향상 */
+
+:root {
+  /* 🔥 개선된 다크 테마 색상 팔레트 */
+  --text-primary: #ffffff !important;
+  --text-secondary: #e0e0e0 !important;
+  --text-muted: #b0b0b0 !important;
+  --text-accent: #ff6b9d !important;
+
+  /* 🎨 카드 및 표면 색상 개선 */
+  --background-color: #0a0a0a !important;
+  --surface-color: #1a1a1a !important;
+  --card-color: #2a2a2a !important;
+  --elevated-surface: #3a3a3a !important;
+
+  /* 🔲 경계선 및 구분선 강화 */
+  --border-color: #404040 !important;
+  --border-hover: #606060 !important;
+  --divider-color: #353535 !important;
+
+  /* 🌫️ 그림자 및 글로우 효과 */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.8) !important;
+
+  /* 🎨 그라데이션 개선 */
+  --gradient-card: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%) !important;
+  --gradient-surface: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+}
+
+/* 📱 전체 앱 텍스트 색상 강제 적용 */
+body {
+  color: var(--text-primary) !important;
+  background: var(--background-color) !important;
+}
+
+/* 🌟 헤더 텍스트 가독성 */
+.app-header {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+}
+
+.app-title {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.points-display {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* 💎 카드 영역 명확한 구분 */
+.quiz-suggestion-card,
+.rankings-section,
+.meetings-section,
+.user-avatars-section {
+  background: var(--gradient-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 📝 제목 및 라벨 텍스트 */
+.quiz-suggestion-card h3,
+.rankings-section h3,
+.meetings-section h3,
+.user-avatars-section h3,
+.section-header h3 {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.section-header p,
+.welcome-section p {
+  color: var(--text-secondary) !important;
+}
+
+.welcome-section h2 {
+  color: var(--text-primary) !important;
+}
+
+/* 🎭 사용자 아바타 카드 개선 */
+.user-avatar-card {
+  background: var(--gradient-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+.user-avatar-card:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: var(--shadow-hover) !important;
+  background: linear-gradient(145deg, #3a3a3a 0%, #2f2f2f 100%) !important;
+}
+
+.user-avatar-name {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.affinity-indicator {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 🌟 버튼 텍스트 명확화 */
+.btn {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.btn-primary {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-secondary {
+  background: var(--gradient-surface) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+.btn-secondary:hover {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+/* 🔥 하단 네비게이션 개선 */
+.bottom-nav {
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-top: 1px solid var(--border-color) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.nav-item {
+  color: var(--text-muted) !important;
+}
+
+.nav-item.active {
+  color: var(--primary-color) !important;
+  background: rgba(255, 107, 157, 0.2) !important;
+}
+
+.nav-item:hover {
+  color: var(--text-primary) !important;
+  background: var(--surface-color) !important;
+}
+
+.nav-label {
+  color: inherit !important;
+  font-weight: 500 !important;
+}
+
+/* 🌙 모달 가독성 개선 */
+.modal {
+  background: rgba(0, 0, 0, 0.85) !important;
+}
+
+.modal-content {
+  background: var(--gradient-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.modal-header h3 {
+  color: var(--text-primary) !important;
+}
+
+.modal-close {
+  color: var(--text-secondary) !important;
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.modal-close:hover {
+  color: var(--primary-color) !important;
+  background: var(--elevated-surface) !important;
+}
+
+/* 🎮 퀴즈 모달 개선 */
+.quiz-option {
+  background: var(--gradient-surface) !important;
+  border: 2px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.quiz-option:hover {
+  border-color: var(--primary-color) !important;
+  background: linear-gradient(145deg, #3a3a3a 0%, #2f2f2f 100%) !important;
+}
+
+.quiz-option.selected {
+  border-color: var(--primary-color) !important;
+  background: rgba(255, 107, 157, 0.2) !important;
+  color: var(--text-primary) !important;
+}
+
+.option-label {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.vs-divider {
+  color: var(--primary-color) !important;
+  text-shadow: 0 0 10px var(--primary-color) !important;
+}
+
+.quiz-info {
+  background: rgba(255, 107, 157, 0.15) !important;
+  border: 1px solid rgba(255, 107, 157, 0.3) !important;
+  color: var(--text-primary) !important;
+}
+
+.quiz-info p {
+  color: var(--text-secondary) !important;
+}
+
+/* 📱 스와이퍼 카드 개선 */
+.mobile-user-swiper,
+.mobile-partner-swiper {
+  background: var(--gradient-card) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.user-card,
+.partner-card {
+  background: var(--gradient-surface) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.user-card-header {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+}
+
+.user-name,
+.user-display-name {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.user-rank-badge {
+  background: rgba(0, 0, 0, 0.4) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.user-stat-item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.user-stat-value {
+  color: var(--primary-color) !important;
+  font-weight: 700 !important;
+}
+
+.user-stat-label {
+  color: var(--text-secondary) !important;
+}
+
+.user-affinity-score {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+}
+
+.affinity-label,
+.affinity-value,
+.affinity-max {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 🎯 스와이퍼 컨트롤 개선 */
+.swiper-controls {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.swiper-nav-btn {
+  background: var(--gradient-primary) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.swiper-nav-btn:disabled {
+  background: var(--surface-color) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-color) !important;
+}
+
+.swiper-counter {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* 🌟 토스트 알림 개선 */
+.toast {
+  background: var(--gradient-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.toast.success {
+  border-left: 4px solid var(--success-color) !important;
+  background: linear-gradient(145deg, #2a3a2a 0%, #1f2f1f 100%) !important;
+}
+
+.toast.error {
+  border-left: 4px solid var(--error-color) !important;
+  background: linear-gradient(145deg, #3a2a2a 0%, #2f1f1f 100%) !important;
+}
+
+.toast.warning {
+  border-left: 4px solid var(--warning-color) !important;
+  background: linear-gradient(145deg, #3a3a2a 0%, #2f2f1f 100%) !important;
+}
+
+/* 🎪 플레이스홀더 개선 */
+.ranking-placeholder,
+.meeting-placeholder,
+.photo-placeholder,
+.empty-state {
+  background: var(--gradient-surface) !important;
+  border: 2px dashed var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+.empty-title {
+  color: var(--text-primary) !important;
+}
+
+.empty-message {
+  color: var(--text-secondary) !important;
+}
+
+/* 📷 사진 관련 요소 */
+.photo-item {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.upload-area {
+  border: 2px dashed var(--border-color) !important;
+  background: var(--surface-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.upload-area:hover {
+  border-color: var(--primary-color) !important;
+  background: rgba(255, 107, 157, 0.1) !important;
+}
+
+.upload-area p {
+  color: var(--text-secondary) !important;
+}
+
+/* 🎭 캐릭터 선택 모달 */
+.character-card {
+  background: var(--gradient-surface) !important;
+  border: 2px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.character-card:hover {
+  border-color: var(--primary-color) !important;
+  background: linear-gradient(145deg, #3a3a3a 0%, #2f2f2f 100%) !important;
+}
+
+.character-name {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* 🔥 결과 모달 */
+.result-modal .modal-content {
+  color: var(--text-primary) !important;
+}
+
+.result-message {
+  color: var(--text-primary) !important;
+}
+
+.result-stats {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.stat-label {
+  color: var(--text-secondary) !important;
+}
+
+.stat-value {
+  color: var(--primary-color) !important;
+  font-weight: 700 !important;
+}
+
+.unlock-text {
+  color: var(--success-color) !important;
+  font-weight: 600 !important;
+}
+
+/* 🔧 강제 텍스트 색상 적용 */
+* {
+  border-color: var(--border-color) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary) !important;
+}
+
+p, span, div, label {
+  color: inherit !important;
+}
+
+/* 📱 입력 요소들 */
+input, textarea, select {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.2) !important;
+}
+
+/* 🌟 스크롤바 개선 */
+::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-color) !important;
+  border-radius: 2px !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color) !important;
+  border-radius: 2px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color) !important;
+}
+
+/* 🔥 고대비 모드 추가 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #ffffff !important;
+    --text-secondary: #ffffff !important;
+    --border-color: #666666 !important;
+    --shadow: 0 2px 8px rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* 📱 선택 하이라이트 개선 */
+::selection {
+  background: var(--primary-color) !important;
+  color: #ffffff !important;
+}

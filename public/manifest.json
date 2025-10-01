@@ -1,0 +1,34 @@
+{
+  "name": "A&B 미팅 앱",
+  "short_name": "A&B 미팅",
+  "description": "사진 기반 퀴즈로 만나는 특별한 인연",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b9d",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/Bety1.png",
+      "sizes": "400x600",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["social", "dating", "entertainment"],
+  "lang": "ko-KR"
+}

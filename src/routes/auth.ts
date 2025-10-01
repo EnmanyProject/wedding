@@ -1,0 +1,175 @@
+import { Router } from 'express';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { Database } from '../utils/database';
+import { config } from '../utils/config';
+
+const router = Router();
+
+// 개발용 간단 로그인 - 이메일만으로 로그인
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password = 'password123' } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const db = Database.getInstance();
+
+    // 사용자 조회
+    const [user] = await db.query(
+      'SELECT id, email, name, is_active FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (!user || !user.is_active) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      config.JWT_SECRET,
+      { expiresIn: config.JWT_EXPIRES_IN }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Login failed',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// 개발용 자동 로그인 - 첫 번째 사용자로 자동 로그인
+router.post('/dev-login', async (req, res) => {
+  try {
+    if (config.NODE_ENV !== 'development') {
+      return res.status(403).json({
+        success: false,
+        error: 'Development login only available in development mode',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const db = Database.getInstance();
+
+    // 첫 번째 활성 사용자 가져오기
+    const [user] = await db.query(
+      'SELECT id, email, name, is_active FROM users WHERE is_active = true ORDER BY created_at LIMIT 1'
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'No users found',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      config.JWT_SECRET,
+      { expiresIn: config.JWT_EXPIRES_IN }
+    );
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Dev login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Dev login failed',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// 현재 사용자 정보 조회
+router.get('/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: 'Access token required',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const decoded = jwt.verify(token, config.JWT_SECRET) as any;
+    const db = Database.getInstance();
+
+    const [user] = await db.query(
+      'SELECT id, email, name, is_active FROM users WHERE id = $1',
+      [decoded.userId]
+    );
+
+    if (!user || !user.is_active) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid token',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      error: 'Invalid token',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+export default router;

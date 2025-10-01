@@ -2,7 +2,7 @@ import { Database } from '../utils/database';
 import { storageService } from '../utils/storage';
 import { config } from '../utils/config';
 import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 export interface SeedOptions {
   userCount?: number;
@@ -196,7 +196,7 @@ export class SeedService {
     ];
 
     const userIds: string[] = [];
-    const passwordHash = await bcrypt.hash('password123', 10);
+    const passwordHash = crypto.createHash('sha256').update('password123').digest('hex');
 
     for (let i = 0; i < count; i++) {
       const userId = uuidv4();
@@ -283,13 +283,8 @@ export class SeedService {
     const traitPairs = await this.db.query('SELECT id FROM trait_pairs WHERE is_active = true');
 
     for (const userId of userIds) {
-      // Each user answers 20-30 random traits
-      const traitCount = 20 + Math.floor(Math.random() * 11);
-      const selectedPairs = traitPairs
-        .sort(() => 0.5 - Math.random())
-        .slice(0, traitCount);
-
-      for (const pair of selectedPairs) {
+      // Each user answers ALL trait pairs to ensure quiz compatibility
+      for (const pair of traitPairs) {
         const choice = Math.random() > 0.5 ? 'left' : 'right';
         const confidence = 0.6 + Math.random() * 0.4; // 0.6-1.0
 

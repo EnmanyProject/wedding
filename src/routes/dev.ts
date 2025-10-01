@@ -227,4 +227,32 @@ router.get('/health', checkDevMode, asyncHandler(async (
   res.json(response);
 }));
 
+/**
+ * GET /dev/users
+ * Get list of users for development/testing
+ */
+router.get('/users', checkDevMode, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const users = await seedService.db.query(
+    `SELECT id, name, email, created_at, is_active
+     FROM users
+     WHERE is_active = true
+     ORDER BY created_at
+     LIMIT 50`
+  );
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      users: users,
+      count: users.length
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
 export default router;

@@ -49,15 +49,34 @@ router.get('/me/ranking', authenticateToken, asyncHandler(async (
 ) => {
   const userId = req.userId!;
 
-  const ranking = await affinityService.getUserRanking(userId);
+  console.log('🏆 [AffinityRoute] GET /me/ranking 요청 시작');
+  console.log('👤 [AffinityRoute] 인증된 사용자 ID:', userId);
 
-  const response: ApiResponse<UserRankingResponse> = {
-    success: true,
-    data: ranking,
-    timestamp: new Date().toISOString()
-  };
+  try {
+    console.log('🔧 [AffinityRoute] affinityService.getUserRanking 호출');
+    const ranking = await affinityService.getUserRanking(userId);
 
-  res.json(response);
+    console.log('✅ [AffinityRoute] 랭킹 조회 성공:', {
+      rankingCount: ranking.rankings.length,
+      hasUserPosition: !!ranking.userPosition
+    });
+
+    const response: ApiResponse<UserRankingResponse> = {
+      success: true,
+      data: ranking,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('🎉 [AffinityRoute] 랭킹 응답 전송 완료');
+    res.json(response);
+  } catch (error: any) {
+    console.error('❌ [AffinityRoute] 랭킹 조회 오류:', {
+      message: error.message,
+      stack: error.stack,
+      userId
+    });
+    throw error;
+  }
 }));
 
 /**
@@ -70,14 +89,30 @@ router.post('/me/ranking/refresh', authenticateToken, asyncHandler(async (
 ) => {
   const userId = req.userId!;
 
-  await affinityService.updateRankingCache(userId);
+  console.log('🔄 [AffinityRoute] POST /me/ranking/refresh 요청 시작');
+  console.log('👤 [AffinityRoute] 인증된 사용자 ID:', userId);
 
-  const response: ApiResponse = {
-    success: true,
-    timestamp: new Date().toISOString()
-  };
+  try {
+    console.log('🔧 [AffinityRoute] affinityService.updateRankingCache 호출');
+    await affinityService.updateRankingCache(userId);
 
-  res.json(response);
+    console.log('✅ [AffinityRoute] 랭킹 캐시 갱신 완료');
+
+    const response: ApiResponse = {
+      success: true,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('🎉 [AffinityRoute] 캐시 갱신 응답 전송 완료');
+    res.json(response);
+  } catch (error: any) {
+    console.error('❌ [AffinityRoute] 랭킹 캐시 갱신 오류:', {
+      message: error.message,
+      stack: error.stack,
+      userId
+    });
+    throw error;
+  }
 }));
 
 export default router;

@@ -60,51 +60,45 @@ class QuizManager {
     });
   }
 
-  // Start quiz with random target
+  // Note: startRandomQuiz is no longer used for main UI
+  // User avatars in home view now handle quiz starting directly
   async startRandomQuiz() {
-    try {
-      // Get available targets from rankings
-      const rankingsData = await api.getMyRanking();
-      const availableTargets = rankingsData.data.rankings.filter(r =>
-        r.affinityScore < 60 // Can still quiz if not maxed out
-      );
-
-      if (availableTargets.length === 0) {
-        ui.showToast('퀴즈할 수 있는 상대가 없습니다', 'warning');
-        return;
-      }
-
-      // Select random target
-      const randomTarget = availableTargets[Math.floor(Math.random() * availableTargets.length)];
-      await this.startQuizWithTarget(randomTarget.targetId);
-    } catch (error) {
-      console.error('Error starting random quiz:', error);
-      ui.showToast('퀴즈 시작 실패', 'error');
-    }
+    ui.showToast('홈 화면에서 사용자 아바타를 선택해주세요', 'info');
   }
 
   // Start quiz with specific target
   async startQuizWithTarget(targetId) {
     try {
+      console.log('🎯 [Quiz] startQuizWithTarget 시작:', targetId);
       this.currentTargetId = targetId;
 
       // Start quiz session
+      console.log('🎯 [Quiz] API 호출 시작 - startQuizSession');
       const sessionData = await api.startQuizSession(targetId);
+      console.log('🎯 [Quiz] 세션 데이터 수신:', sessionData);
       this.currentSession = sessionData.data.session;
 
       // Update points display
+      console.log('🎯 [Quiz] 포인트 업데이트:', sessionData.data.points_remaining);
       ui.updatePointsDisplay(sessionData.data.points_remaining);
 
       // Get quiz template
+      console.log('🎯 [Quiz] 퀴즈 템플릿 로드 시작');
       await this.loadQuizTemplate();
+      console.log('🎯 [Quiz] 퀴즈 템플릿 로드 완료');
 
       // Show quiz modal
+      console.log('🎯 [Quiz] 모달 열기 시도');
+      const modal = document.getElementById('quiz-modal');
+      console.log('🎯 [Quiz] 모달 요소 확인:', modal);
+
       ui.openModal('quiz-modal');
+      console.log('🎯 [Quiz] 모달 열기 완료');
 
       ui.showToast('퀴즈가 시작되었습니다! (1P 차감)', 'info');
     } catch (error) {
-      console.error('Error starting quiz:', error);
-      if (error.message.includes('Insufficient points')) {
+      console.error('🎯 [Quiz] Error starting quiz:', error);
+      if (error.message.includes('Insufficient points') || error.message.includes('포인트가 부족')) {
         ui.showToast('포인트가 부족합니다', 'error');
       } else {
         ui.showToast(error.message || '퀴즈 시작 실패', 'error');
@@ -129,7 +123,7 @@ class QuizManager {
   renderQuizTemplate() {
     if (!this.currentTemplate) return;
 
-    const { pair, visual, targetInfo, instructions } = this.currentTemplate;
+    const { quiz, targetInfo, instructions } = this.currentTemplate;
 
     // Update question
     const questionElement = document.getElementById('quiz-question');
@@ -137,31 +131,37 @@ class QuizManager {
       questionElement.textContent = instructions;
     }
 
-    // Update left option
+    // Handle both old (trait_pairs) and new (ab_quizzes) data structures
+    const leftLabel = quiz.option_a_title || quiz.left_label || quiz.left;
+    const rightLabel = quiz.option_b_title || quiz.right_label || quiz.right;
+    const leftImage = quiz.option_a_image || quiz.left_image;
+    const rightImage = quiz.option_b_image || quiz.right_image;
+
+    // Update left option (Option A)
     const leftLabelElement = document.getElementById('quiz-left-label');
     const leftImageElement = document.getElementById('quiz-left-image');
 
     if (leftLabelElement) {
-      leftLabelElement.textContent = pair.left_label;
+      leftLabelElement.textContent = leftLabel;
     }
 
-    if (leftImageElement && visual?.left_asset_id) {
-      leftImageElement.src = `/assets/traits/${visual.left_asset_id}`;
+    if (leftImageElement && leftImage) {
+      leftImageElement.src = leftImage;
       leftImageElement.style.display = 'block';
     } else if (leftImageElement) {
       leftImageElement.style.display = 'none';
     }
 
-    // Update right option
+    // Update right option (Option B)
     const rightLabelElement = document.getElementById('quiz-right-label');
     const rightImageElement = document.getElementById('quiz-right-image');
 
     if (rightLabelElement) {
-      rightLabelElement.textContent = pair.right_label;
+      rightLabelElement.textContent = rightLabel;
     }
 
-    if (rightImageElement && visual?.right_asset_id) {
-      rightImageElement.src = `/assets/traits/${visual.right_asset_id}`;
+    if (rightImageElement && rightImage) {
+      rightImageElement.src = rightImage;
       rightImageElement.style.display = 'block';
     } else if (rightImageElement) {
       rightImageElement.style.display = 'none';
@@ -170,13 +170,16 @@ class QuizManager {
     // Update target info
     const targetInfoElement = document.getElementById('quiz-target-info');
     if (targetInfoElement && targetInfo) {
+      const displayName = targetInfo.display_name || targetInfo.name;
+      const avatarIcon = this.getAnimalIcon ? this.getAnimalIcon(displayName) : '👤';
+
       targetInfoElement.innerHTML = `
         <div class="quiz-target">
-          <div class="target-avatar">👤</div>
-          <div class="target-name">${targetInfo.name}</div>
+          <div class="target-avatar">${avatarIcon}</div>
+          <div class="target-name">${displayName}</div>
           <div class="target-photos">
             ${targetInfo.photos.slice(0, 3).map(photo =>
-              `<img src="${photo.url}" alt="타겟 사진" class="target-photo">`
+              `<img src="/api/assets/${photo.storage_key}" alt="타겟 사진" class="target-photo">`
             ).join('')}
           </div>
         </div>
@@ -222,9 +225,12 @@ class QuizManager {
     }
 
     try {
+      // Handle both old (pair_id) and new (quiz_id) data structures
+      const quizId = this.currentTemplate.quiz.id || this.currentTemplate.quiz.pair_id;
+
       const answerData = await api.submitQuizAnswer(
         this.currentSession.id,
-        this.currentTemplate.pair.id,
+        quizId,
         this.selectedOption
       );
 
@@ -262,7 +268,11 @@ class QuizManager {
       resultTitle.textContent = '정답! 🎉';
     } else {
       resultIcon.textContent = '😔';
-      resultMessage.textContent = `아쉽게도 틀렸습니다. 정답은 "${target_choice === 'LEFT' ? this.currentTemplate.pair.left_label : this.currentTemplate.pair.right_label}"입니다.`;
+      const quiz = this.currentTemplate.quiz;
+      const correctAnswer = target_choice === 'LEFT'
+        ? (quiz.option_a_title || quiz.left_label || quiz.left)
+        : (quiz.option_b_title || quiz.right_label || quiz.right);
+      resultMessage.textContent = `아쉽게도 틀렸습니다. 정답은 "${correctAnswer}"입니다.`;
       resultTitle.textContent = '오답 😔';
     }
 
@@ -339,9 +349,13 @@ class QuizManager {
       this.currentTargetId = null;
       this.selectedOption = null;
 
-      // Refresh home data to show updated rankings
-      if (ui.currentView === 'home') {
-        await ui.loadHomeData();
+      // 성능 최적화: 캐시가 무효화되었으므로 즉시 새로고침하지 않음
+      // 사용자가 홈으로 돌아갈 때 자동으로 새 데이터가 로드됨
+      console.log('✅ [Quiz] Answer submitted - ranking cache invalidated, will refresh on next home view');
+
+      // 사용자에게 업데이트된 랭킹을 보고 싶다면 홈으로 이동하라는 힌트 제공
+      if (ui.currentView !== 'home') {
+        ui.showToast('퀴즈 완료! 홈에서 업데이트된 랭킹을 확인하세요 🏆', 'success');
       }
 
       ui.showToast('퀴즈가 완료되었습니다!', 'success');
@@ -397,6 +411,43 @@ class QuizManager {
     // Close any open modals
     ui.closeModal('quiz-modal');
     ui.closeModal('result-modal');
+  }
+
+  // 동물 이름에 따른 이모지 아이콘 반환
+  getAnimalIcon(displayName) {
+    const animalIcons = {
+      '코알라': '🐨',
+      '팬더': '🐼',
+      '햄스터': '🐹',
+      '토끼': '🐰',
+      '사자': '🦁',
+      '여우': '🦊',
+      '고양이': '🐱',
+      '백조': '🦢',
+      '다람쥐': '🐿️',
+      '곰': '🐻',
+      '펭귄': '🐧',
+      '양': '🐑',
+      '독수리': '🦅',
+      '물개': '🦭',
+      '늑대': '🐺',
+      '별': '⭐',
+      '돌고래': '🐬',
+      '사슴': '🦌',
+      '나비': '🦋',
+      '벌': '🐝',
+      '강아지': '🐶'
+    };
+
+    // 가상 아이디에서 동물 이름 추출하여 아이콘 반환
+    for (const [animal, icon] of Object.entries(animalIcons)) {
+      if (displayName.includes(animal)) {
+        return icon;
+      }
+    }
+
+    // 기본 아이콘
+    return '👤';
   }
 }
 
