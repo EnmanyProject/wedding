@@ -31,7 +31,12 @@ export async function GET(request: NextRequest) {
 
     // Test simple database connection
     console.log('Attempting database connection...');
-    const client = createClient();
+
+    // Create client with explicit configuration
+    const client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL
+    });
+
     const result = await client.sql`SELECT 1 as test_value, NOW() as current_time`;
     console.log('Database connection successful');
 

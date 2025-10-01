@@ -29,8 +29,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Creating UUID extension...');
-    // Create database client
-    const client = createClient();
+    // Create database client with explicit configuration
+    const client = createClient({
+      connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL
+    });
 
     // Enable UUID extension
     await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
