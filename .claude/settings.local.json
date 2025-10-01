@@ -16,7 +16,9 @@
       "Bash(if exist run_swiper_tests.html del run_swiper_tests.html)",
       "Bash(if exist:*)",
       "Bash(git add:*)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create:*)"
     ],
     "deny": [],
     "ask": []
