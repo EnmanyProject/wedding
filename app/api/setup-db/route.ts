@@ -3,9 +3,36 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Starting database setup...');
+
+    // Check environment variables first
+    const hasPostgresUrl = !!process.env.POSTGRES_URL;
+    const hasDatabaseUrl = !!process.env.DATABASE_URL;
+    const hasPrismaUrl = !!process.env.PRISMA_DATABASE_URL;
+
+    console.log('Environment check for setup:', {
+      POSTGRES_URL: hasPostgresUrl,
+      DATABASE_URL: hasDatabaseUrl,
+      PRISMA_DATABASE_URL: hasPrismaUrl
+    });
+
+    if (!hasPostgresUrl && !hasDatabaseUrl && !hasPrismaUrl) {
+      return NextResponse.json({
+        success: false,
+        error: 'No database environment variables found for setup',
+        environment: {
+          has_postgres_url: hasPostgresUrl,
+          has_database_url: hasDatabaseUrl,
+          has_prisma_url: hasPrismaUrl
+        }
+      }, { status: 500 });
+    }
+
+    console.log('Creating UUID extension...');
     // Enable UUID extension
     await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
+    console.log('Creating users table...');
     // Create users table
     await sql`
       CREATE TABLE IF NOT EXISTS users (
@@ -19,6 +46,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
+    console.log('Creating ab_quizzes table...');
     // Create ab_quizzes table
     await sql`
       CREATE TABLE IF NOT EXISTS ab_quizzes (
@@ -39,6 +67,7 @@ export async function POST(request: NextRequest) {
       )
     `;
 
+    console.log('Creating quiz_responses table...');
     // Create quiz_responses table
     await sql`
       CREATE TABLE IF NOT EXISTS quiz_responses (
@@ -51,16 +80,20 @@ export async function POST(request: NextRequest) {
       )
     `;
 
+    console.log('Creating indexes...');
     // Create indexes
     await sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_user_id ON quiz_responses(user_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_quiz_responses_quiz_id ON quiz_responses(quiz_id)`;
 
+    console.log('Inserting admin user...');
     // Insert admin user with default password (should be changed in production)
     await sql`
       INSERT INTO users (name, email, display_name)
       VALUES ('Admin', 'admin@wedding.com', 'Admin')
       ON CONFLICT (email) DO NOTHING
     `;
+
+    console.log('Database setup completed successfully');
 
     return NextResponse.json({
       success: true,
@@ -73,11 +106,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Database setup error:', error);
+    console.error('Setup error stack:', error instanceof Error ? error.stack : 'No stack trace');
+
     return NextResponse.json(
       {
         success: false,
         error: 'Database setup failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
     );
