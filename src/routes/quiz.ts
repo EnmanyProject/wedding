@@ -359,4 +359,45 @@ router.get('/targets/:targetId/quizzes', authenticateToken, asyncHandler(async (
   res.json(response);
 }));
 
+/**
+ * GET /quiz/admin-quizzes
+ * Get public admin quizzes (no authentication required)
+ */
+router.get('/admin-quizzes', asyncHandler(async (req, res: Response) => {
+  console.log('🎭 [QuizRoute] GET /quiz/admin-quizzes 요청 시작 (공개 엔드포인트)');
+
+  try {
+    // Get active admin quizzes from ab_quizzes table
+    const quizzes = await quizService.database.query(
+      `SELECT
+         id,
+         category,
+         title,
+         description,
+         option_a_title,
+         option_a_description,
+         option_b_title,
+         option_b_description,
+         created_at
+       FROM ab_quizzes
+       WHERE is_active = true
+       ORDER BY created_at DESC
+       LIMIT 50`
+    );
+
+    console.log('✅ [QuizRoute] 어드민 퀴즈 조회 성공:', quizzes.length, '개');
+
+    const response: ApiResponse = {
+      success: true,
+      data: quizzes,
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error: any) {
+    console.error('❌ [QuizRoute] 어드민 퀴즈 조회 오류:', error);
+    throw createError('어드민 퀴즈를 불러올 수 없습니다', 500, 'ADMIN_QUIZ_FETCH_ERROR');
+  }
+}));
+
 export default router;

@@ -16,6 +16,8 @@ export class StorageService {
         secretAccessKey: config.STORAGE_SECRET_KEY,
       },
       forcePathStyle: config.STORAGE_FORCE_PATH_STYLE,
+      // Disable TLS for localhost development MinIO
+      tls: !config.STORAGE_ENDPOINT.includes('localhost'),
     });
     this.bucket = config.STORAGE_BUCKET;
   }
@@ -47,7 +49,10 @@ export class StorageService {
       expiresIn: config.PRESIGN_URL_EXPIRES,
     });
 
-    return { uploadUrl, storageKey, photoId };
+    // Fix SSL protocol error: Convert HTTPS to HTTP for localhost MinIO
+    const httpUploadUrl = uploadUrl.replace('https://localhost:9000', 'http://localhost:9000');
+
+    return { uploadUrl: httpUploadUrl, storageKey, photoId };
   }
 
   /**
@@ -59,7 +64,13 @@ export class StorageService {
       Key: storageKey,
     });
 
-    return await getSignedUrl(this.s3Client, command, { expiresIn });
+    const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn });
+
+    // Fix SSL protocol error: Convert HTTPS to HTTP for localhost MinIO
+    // This handles the case where AWS SDK forces HTTPS but MinIO is running on HTTP
+    const httpUrl = signedUrl.replace('https://localhost:9000', 'http://localhost:9000');
+
+    return httpUrl;
   }
 
   /**

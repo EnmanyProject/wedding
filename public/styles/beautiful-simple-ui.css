@@ -177,7 +177,7 @@
 .bety-expressions {
   width: 80px !important;
   height: 80px !important;
-  border-radius: 50% !important;
+  border-radius: 0 !important;
   object-fit: cover !important;
   object-position: center !important;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
@@ -185,7 +185,7 @@
   cursor: pointer !important;
   transition: all 0.3s ease !important;
   opacity: 1 !important;
-  border: 3px solid rgba(255, 107, 157, 0.3) !important;
+  border: none !important;
 }
 
 /* 👤 프로필 이미지 스타일 */
@@ -651,7 +651,7 @@
 .bety-character {
   width: 80px !important;
   height: 80px !important;
-  border-radius: 50% !important;
+  border-radius: 0 !important;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
   animation: loading-bounce 2s ease-in-out infinite !important;
 }

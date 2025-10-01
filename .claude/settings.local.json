@@ -35,7 +35,12 @@
       "Bash(start https://wedding-62z79xt6j-enmanys-projects.vercel.app/setup)",
       "Bash(start https://wedding-noctvs9ip-enmanys-projects.vercel.app/setup)",
       "Bash(start https://wedding-7cgcvqsxk-enmanys-projects.vercel.app/setup)",
-      "Bash(start https://wedding-ziub1d0bh-enmanys-projects.vercel.app/setup)"
+      "Bash(start https://wedding-ziub1d0bh-enmanys-projects.vercel.app/setup)",
+      "Bash(timeout 30 curl -v \"https://wedding-ziub1d0bh-enmanys-projects.vercel.app/api/test-db?x-vercel-protection-bypass=a7f9k2m8p3q6r1s5t9w4x7z2b6c8d5e1\")",
+      "Bash(pnpm install:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose up -d)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose ps)"
     ],
     "deny": [],
     "ask": []

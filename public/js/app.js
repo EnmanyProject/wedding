@@ -615,6 +615,23 @@ class BetyCharacterManager {
     // 클릭하면 즉시 액션 변경
     document.addEventListener('click', (e) => {
       if (e.target.classList.contains('bety-character')) {
+        // Check if this is a character-clickable element (special quiz trigger)
+        if (e.target.classList.contains('character-clickable')) {
+          console.log('🎭 [Character] Clickable character clicked, starting admin quiz');
+
+          // Start admin quiz instead of regular character action
+          if (window.quiz && window.quiz.startAdminQuiz) {
+            window.quiz.startAdminQuiz();
+          } else {
+            console.error('Quiz manager not available');
+            if (window.ui && window.ui.showToast) {
+              window.ui.showToast('퀴즈 기능을 불러올 수 없습니다', 'error');
+            }
+          }
+          return; // Don't proceed with regular character animation
+        }
+
+        // Regular character interaction
         const randomCharacter = this.getRandomCharacter();
         this.updateBetyCharacter(e.target, randomCharacter);
 

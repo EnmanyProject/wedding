@@ -224,6 +224,12 @@ class QuizManager {
       return;
     }
 
+    // Check if this is an admin quiz
+    if (this.currentSession.type === 'admin_quiz') {
+      this.submitAdminQuizAnswer();
+      return;
+    }
+
     try {
       // Handle both old (pair_id) and new (quiz_id) data structures
       const quizId = this.currentTemplate.quiz.id || this.currentTemplate.quiz.pair_id;
@@ -448,6 +454,152 @@ class QuizManager {
 
     // 기본 아이콘
     return '👤';
+  }
+
+  // Admin Quiz Functions
+  async startAdminQuiz() {
+    try {
+      console.log('🎯 [AdminQuiz] 어드민 퀴즈 시작');
+
+      // Get random admin quiz
+      const quizData = await api.getRandomAdminQuiz();
+      console.log('🎯 [AdminQuiz] 랜덤 퀴즈 데이터:', quizData);
+
+      if (!quizData.success || !quizData.data) {
+        ui.showToast('어드민 퀴즈를 불러올 수 없습니다', 'error');
+        return;
+      }
+
+      // Load admin quiz template
+      this.loadAdminQuizTemplate(quizData.data);
+
+      // Show quiz modal
+      ui.openModal('quiz-modal');
+      console.log('🎯 [AdminQuiz] 어드민 퀴즈 모달 열기 완료');
+
+      ui.showToast('🎭 베티의 특별 퀴즈가 시작됩니다!', 'info');
+    } catch (error) {
+      console.error('🎯 [AdminQuiz] Error starting admin quiz:', error);
+      ui.showToast('어드민 퀴즈 시작 실패', 'error');
+    }
+  }
+
+  loadAdminQuizTemplate(quiz) {
+    console.log('🎯 [AdminQuiz] 템플릿 로드:', quiz);
+
+    // Mock template structure for admin quiz
+    this.currentTemplate = {
+      quiz: {
+        id: quiz.id,
+        title: quiz.title,
+        description: quiz.description,
+        option_a_title: quiz.option_a_title,
+        option_a_description: quiz.option_a_description,
+        option_b_title: quiz.option_b_title,
+        option_b_description: quiz.option_b_description,
+        category: quiz.category
+      }
+    };
+
+    // Set mock session for admin quiz
+    this.currentSession = {
+      id: 'admin-quiz-session',
+      type: 'admin_quiz'
+    };
+    this.currentTargetId = null; // No target for admin quiz
+    this.selectedOption = null;
+
+    // Update UI elements
+    this.updateQuizUI();
+  }
+
+  updateQuizUI() {
+    const quiz = this.currentTemplate.quiz;
+
+    // Update quiz content
+    const quizTitle = document.getElementById('quiz-title');
+    const quizDescription = document.getElementById('quiz-description');
+    const leftOption = document.getElementById('quiz-option-left');
+    const rightOption = document.getElementById('quiz-option-right');
+
+    if (quizTitle) {
+      quizTitle.textContent = quiz.title || '베티의 특별 퀴즈';
+    }
+
+    if (quizDescription) {
+      quizDescription.textContent = quiz.description || '당신의 선택은?';
+    }
+
+    if (leftOption) {
+      const leftTitle = leftOption.querySelector('.option-title');
+      const leftDesc = leftOption.querySelector('.option-description');
+
+      if (leftTitle) leftTitle.textContent = quiz.option_a_title || 'Option A';
+      if (leftDesc) leftDesc.textContent = quiz.option_a_description || '';
+    }
+
+    if (rightOption) {
+      const rightTitle = rightOption.querySelector('.option-title');
+      const rightDesc = rightOption.querySelector('.option-description');
+
+      if (rightTitle) rightTitle.textContent = quiz.option_b_title || 'Option B';
+      if (rightDesc) rightDesc.textContent = quiz.option_b_description || '';
+    }
+
+    console.log('🎯 [AdminQuiz] UI 업데이트 완료');
+  }
+
+  // Override submitAnswer for admin quiz
+  async submitAdminQuizAnswer() {
+    if (!this.selectedOption || !this.currentTemplate) {
+      return;
+    }
+
+    try {
+      console.log('🎯 [AdminQuiz] 답변 제출:', this.selectedOption);
+
+      // Close quiz modal
+      ui.closeModal('quiz-modal');
+
+      // Show admin quiz result
+      this.showAdminQuizResult();
+
+    } catch (error) {
+      console.error('🎯 [AdminQuiz] Error submitting admin quiz answer:', error);
+      ui.showToast('답변 제출 실패', 'error');
+    }
+  }
+
+  showAdminQuizResult() {
+    const quiz = this.currentTemplate.quiz;
+    const selectedOption = this.selectedOption;
+
+    // Update result modal content for admin quiz
+    const resultIcon = document.getElementById('result-icon');
+    const resultMessage = document.getElementById('result-message');
+    const resultTitle = document.getElementById('result-title');
+
+    if (resultIcon) resultIcon.textContent = '🎭';
+    if (resultTitle) resultTitle.textContent = '베티의 퀴즈 완료! 🎭';
+
+    const selectedAnswer = selectedOption === 'LEFT' ? quiz.option_a_title : quiz.option_b_title;
+    if (resultMessage) {
+      resultMessage.textContent = `당신의 선택: "${selectedAnswer}"\n베티가 당신의 취향을 기록했습니다! 📝`;
+    }
+
+    // Hide affinity-related elements for admin quiz
+    const affinityChange = document.getElementById('affinity-change');
+    const currentAffinity = document.getElementById('current-affinity');
+    const unlockMessage = document.getElementById('unlock-message');
+
+    if (affinityChange) affinityChange.style.display = 'none';
+    if (currentAffinity) currentAffinity.style.display = 'none';
+    if (unlockMessage) unlockMessage.style.display = 'none';
+
+    // Show result modal
+    ui.openModal('result-modal');
+
+    console.log('🎯 [AdminQuiz] 결과 표시 완료');
   }
 }
 

@@ -63,7 +63,7 @@ body {
 .bety-character {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  border-radius: 0;
   filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
   transition: all 0.3s ease;
   cursor: pointer;
@@ -841,7 +841,10 @@ body {
 
 /* Quiz Modal */
 .quiz-modal .modal-content {
-  max-width: 400px;
+  max-width: min(400px, 95vw); /* 모바일에서 화면 너비의 95% 이하로 제한 */
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .matching-manager-quiz {
@@ -872,9 +875,11 @@ body {
 
 .quiz-options {
   display: flex;
-  gap: 15px;
-  align-items: center;
+  flex-direction: column; /* 세로 배치로 변경 */
+  gap: 12px; /* 간격 줄임 */
+  align-items: stretch; /* 전체 너비 사용 */
   margin-bottom: 20px;
+  max-width: 100%; /* 모바일 화면 넘지 않게 */
 }
 
 .quiz-option {
@@ -882,9 +887,15 @@ body {
   text-align: center;
   cursor: pointer;
   transition: var(--transition);
-  padding: 15px;
+  padding: 12px 8px; /* 모바일에서 패딩 줄임 */
   border-radius: var(--border-radius);
   border: 2px solid var(--border-color);
+  min-height: 44px; /* 터치하기 좋은 최소 높이 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .quiz-option:hover {
@@ -984,7 +995,7 @@ body {
   transition: width 0.3s ease;
 }
 
-/* Bottom Navigation */
+/* Bottom Navigation - 개선된 디자인 */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -992,14 +1003,17 @@ body {
   transform: translateX(-50%);
   width: 100%;
   max-width: 430px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 12px 20px;
   z-index: 100;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  border-radius: 20px 20px 0 0;
+  margin: 0 auto;
 }
 
 .nav-item {
@@ -1008,26 +1022,135 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 16px;
   cursor: pointer;
-  transition: var(--transition);
-  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
   color: var(--text-secondary);
+  position: relative;
+  min-height: 64px;
+  min-width: 64px;
+  flex: 1;
+  max-width: 80px;
+}
+
+.nav-item:hover {
+  background: rgba(255, 107, 157, 0.05);
+  transform: translateY(-2px);
 }
 
 .nav-item.active {
   color: var(--primary-color);
-  background: rgba(255, 107, 157, 0.1);
+  background: rgba(255, 107, 157, 0.12);
+  transform: translateY(-1px);
+}
+
+.nav-item.active .nav-icon {
+  transform: scale(1.1);
 }
 
 .nav-icon {
-  font-size: 20px;
+  font-size: 22px;
+  transition: transform 0.3s ease;
+  line-height: 1;
 }
 
 .nav-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* 모바일 최적화 및 반응형 디자인 */
+@media (max-width: 480px) {
+  .bottom-nav {
+    padding: 8px 15px;
+    border-radius: 15px 15px 0 0;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    min-height: 58px;
+    min-width: 58px;
+    gap: 3px;
+  }
+
+  .nav-icon {
+    font-size: 20px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .bottom-nav {
+    padding: 14px 25px;
+    border-radius: 25px 25px 0 0;
+  }
+
+  .nav-item {
+    padding: 12px 18px;
+    min-height: 68px;
+    min-width: 68px;
+    gap: 5px;
+  }
+
+  .nav-icon {
+    font-size: 24px;
+  }
+
+  .nav-label {
+    font-size: 12px;
+  }
+}
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .nav-item:hover {
+    background: none;
+    transform: none;
+  }
+
+  .nav-item:active {
+    background: rgba(255, 107, 157, 0.15);
+    transform: scale(0.98);
+  }
+}
+
+/* 큰 화면에서의 추가 개선 */
+@media (min-width: 769px) {
+  .bottom-nav {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 20px auto;
+    width: 500px;
+    border-radius: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .nav-item {
+    padding: 15px 20px;
+    min-height: 70px;
+    min-width: 70px;
+  }
+
+  .nav-icon {
+    font-size: 26px;
+  }
+
+  .nav-label {
+    font-size: 13px;
+  }
 }
 
 /* Toast Notifications */
@@ -1178,7 +1301,19 @@ body {
 
   .quiz-options {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px; /* 모바일에서 간격 더 줄임 */
+    padding: 0 10px; /* 좌우 여백 추가 */
+  }
+
+  .quiz-option {
+    padding: 10px 6px; /* 모바일에서 패딩 더 줄임 */
+    font-size: 14px; /* 폰트 크기 약간 줄임 */
+    min-height: 40px; /* 모바일에서 높이 줄임 */
+  }
+
+  .quiz-modal .modal-content {
+    max-width: 90vw; /* 모바일에서 더 넓게 사용 */
+    margin: 10px;
   }
 
   .vs-divider {
@@ -1227,12 +1362,14 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   margin: 1rem auto;
   aspect-ratio: 2/3;
+  /* 모바일 안전 영역 고려 */
+  margin-top: max(1rem, env(safe-area-inset-top, 1rem));
 }
 
 .partner-cards-container {
   display: flex;
   height: 100%;
-  align-items: center;
+  align-items: flex-start; /* 상단 정렬로 변경 */
   /* transition managed by JavaScript for precise control */
   will-change: transform;
 }
@@ -1242,13 +1379,13 @@ body {
   min-width: 100%;
   max-width: 100%;
   flex-shrink: 0;
-  height: 90%;
+  height: 85%; /* 높이를 약간 줄여서 여유 공간 확보 */
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 15px;
-  margin: 5% 15px;
+  margin: 2% 15px 13% 15px; /* 상단 마진 줄이고 하단 마진 늘림 */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
@@ -1276,7 +1413,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 1.5rem 1rem;
+  padding: 1rem 0.8rem; /* 패딩 줄여서 더 많은 공간 확보 */
   height: 100%;
   width: 100%;
 }

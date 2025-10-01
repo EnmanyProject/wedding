@@ -488,6 +488,23 @@ class APIService {
   async getAllUserProfileImages() {
     return this.request('/profile/images/all');
   }
+
+  // Admin Quiz API (public endpoint)
+  async getAdminQuizzes() {
+    return this.request('/quiz/admin-quizzes');
+  }
+
+  async getRandomAdminQuiz() {
+    const response = await this.getAdminQuizzes();
+    if (response.success && response.data && response.data.length > 0) {
+      const randomIndex = Math.floor(Math.random() * response.data.length);
+      return {
+        success: true,
+        data: response.data[randomIndex]
+      };
+    }
+    return { success: false, error: 'No admin quizzes available' };
+  }
 }
 
 // Create global API instance
