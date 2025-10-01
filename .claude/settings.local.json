@@ -31,7 +31,9 @@
       "Bash(move:*)",
       "Bash(npx:*)",
       "Bash(npm cache clean:*)",
-      "Bash(start https://wedding-la5kmluj7-enmanys-projects.vercel.app/setup)"
+      "Bash(start https://wedding-la5kmluj7-enmanys-projects.vercel.app/setup)",
+      "Bash(start https://wedding-62z79xt6j-enmanys-projects.vercel.app/setup)",
+      "Bash(start https://wedding-noctvs9ip-enmanys-projects.vercel.app/setup)"
     ],
     "deny": [],
     "ask": []
