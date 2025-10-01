@@ -112,3 +112,4 @@ coverage/
 # Problematic files
 nul
 .vercel
+.env*.local
