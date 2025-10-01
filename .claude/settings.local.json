@@ -28,7 +28,8 @@
       "Bash(npm run build:*)",
       "Bash(timeout 60 npm run build)",
       "Bash(move vitest.config.ts legacy_src/)",
-      "Bash(move:*)"
+      "Bash(move:*)",
+      "Bash(npx:*)"
     ],
     "deny": [],
     "ask": []
