@@ -128,6 +128,62 @@ git log --oneline -5  # 최근 5개 커밋 확인
 3. **시간 기준**: 마지막 커밋으로부터 30분 경과 시
 4. **세션 종료 전**: 대화가 길어져 종료될 가능성이 있을 때
 
+## 🏷️ 버전 관리 시스템
+
+### 자동 버전 생성
+**모든 커밋과 푸시마다 자동으로 버전이 업데이트됩니다.**
+
+### 버전 생성 명령어
+```bash
+# 버전 업데이트 스크립트 실행
+node scripts/update-version.js
+
+# 커밋 전 버전 업데이트 포함
+node scripts/update-version.js && git add . && git commit -m "[커밋메시지]"
+```
+
+### 버전 형식
+- **Git 기반**: `v1.{커밋수}.{빌드번호}-{커밋해시}`
+  - 예: `v1.34.02-58e746a`
+- **타임스탬프 기반**: `v1.0.{YYYYMMDD}.{HHMM}`
+  - 예: `v1.0.20251002.1430`
+
+### 버전 표시 위치
+1. **앱 헤더**: 상단 제목 아래 작은 텍스트로 표시
+2. **콘솔 로그**: 앱 시작 시 버전 정보 출력
+3. **version.js 파일**: 전역 변수로 버전 정보 제공
+
+### 자동 버전 워크플로우
+```bash
+# 1. 코드 수정 완료
+# 2. 자동 버전 업데이트
+node scripts/update-version.js
+
+# 3. 변경사항 스테이징 (버전 파일 포함)
+git add .
+
+# 4. 커밋 (버전 정보 포함)
+git commit -m "$(cat <<'EOF'
+[type]: [설명] (v1.34.02-58e746a)
+
+- 변경사항 1
+- 변경사항 2
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+
+# 5. 푸시
+git push origin main
+```
+
+### 버전 확인 방법
+1. **웹 앱**: 헤더 상단에서 현재 버전 확인
+2. **개발자 도구**: `window.APP_VERSION` 변수 확인
+3. **Git**: `git log --oneline -1` 최신 커밋 확인
+
 ## 📋 체크리스트
 
 ### 매 작업 후 확인사항
