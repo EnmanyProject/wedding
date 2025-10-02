@@ -1,0 +1,589 @@
+/* 🎯 Enhanced Quiz UI - 개선된 퀴즈 인터페이스 */
+
+/* =================================
+   🎭 퀴즈 모달 최적화
+   ================================= */
+
+.quiz-modal .modal-content {
+  max-width: min(380px, 90vw) !important;
+  width: 100% !important;
+  max-height: 85vh !important;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, var(--bg-dark) 0%, var(--surface-dark) 100%) !important;
+  border: 1px solid var(--border-dark) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  /* 성능 최적화 */
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* 퀴즈 모달 헤더 */
+.quiz-modal .modal-header {
+  background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-purple) 100%) !important;
+  color: white !important;
+  padding: var(--space-lg) var(--space-md) !important;
+  border-bottom: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.quiz-modal .modal-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100px;
+  height: 100px;
+  background: url('/images/Bety3.png') no-repeat center;
+  background-size: contain;
+  opacity: 0.2;
+  animation: quiz-header-float 6s ease-in-out infinite;
+}
+
+@keyframes quiz-header-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(10deg); }
+}
+
+.quiz-modal .modal-header h3 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 퀴즈 질문 영역 */
+.quiz-question-section {
+  padding: var(--space-lg) var(--space-md) !important;
+  background: var(--bg-dark) !important;
+  text-align: center !important;
+  border-bottom: 1px solid var(--border-dark) !important;
+}
+
+.matching-manager-quiz {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-md) !important;
+  margin-bottom: var(--space-lg) !important;
+  background: linear-gradient(135deg, var(--surface-dark) 0%, var(--card-dark) 100%) !important;
+  padding: var(--space-md) !important;
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--border-dark) !important;
+}
+
+.manager-avatar {
+  font-size: 2.5rem !important;
+  flex-shrink: 0 !important;
+  animation: manager-bounce 2s ease-in-out infinite !important;
+}
+
+@keyframes manager-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.manager-speech {
+  flex: 1 !important;
+  background: var(--card-dark) !important;
+  padding: var(--space-md) !important;
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--border-dark) !important;
+  position: relative !important;
+}
+
+.manager-speech::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 8px 8px 8px 0;
+  border-color: transparent var(--card-dark) transparent transparent;
+}
+
+.quiz-question {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+
+/* =================================
+   🎯 퀴즈 옵션 최적화
+   ================================= */
+
+.quiz-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-md) !important;
+  padding: var(--space-lg) var(--space-md) !important;
+  background: var(--bg-dark) !important;
+}
+
+.quiz-option {
+  background: linear-gradient(135deg, var(--surface-dark) 0%, var(--card-dark) 100%) !important;
+  border: 2px solid var(--border-dark) !important;
+  border-radius: var(--border-radius) !important;
+  padding: var(--space-lg) var(--space-md) !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  /* 터치 최적화 */
+  min-height: var(--touch-target) !important;
+  /* 성능 최적화 */
+  contain: layout style paint;
+  will-change: transform, background, border-color;
+}
+
+/* 옵션 호버 효과 */
+.quiz-option:hover {
+  border-color: var(--primary-pink) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3) !important;
+  background: linear-gradient(135deg, var(--card-dark) 0%, var(--surface-dark) 100%) !important;
+}
+
+/* 선택된 옵션 스타일 */
+.quiz-option.selected {
+  border-color: var(--primary-pink) !important;
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.15) 0%, rgba(156, 136, 255, 0.15) 100%) !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4) !important;
+  animation: selected-pulse 2s ease-in-out infinite !important;
+}
+
+@keyframes selected-pulse {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+  }
+  50% {
+    box-shadow: 0 12px 35px rgba(255, 107, 157, 0.6);
+  }
+}
+
+/* 옵션 내용 레이아웃 */
+.quiz-option-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-md) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 옵션 이미지 */
+.option-image {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-purple) 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.8rem !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+  border: 3px solid rgba(255, 255, 255, 0.2) !important;
+  transition: var(--animation-normal) !important;
+}
+
+.quiz-option:hover .option-image,
+.quiz-option.selected .option-image {
+  transform: scale(1.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.option-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* 옵션 텍스트 */
+.option-text {
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.option-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  margin: 0 0 var(--space-xs) 0 !important;
+  line-height: 1.3 !important;
+}
+
+.option-description {
+  font-size: 12px !important;
+  color: var(--text-secondary) !important;
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.quiz-option.selected .option-title {
+  color: var(--primary-pink) !important;
+}
+
+/* 선택 인디케이터 */
+.option-indicator {
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 50% !important;
+  border: 2px solid var(--border-dark) !important;
+  background: transparent !important;
+  flex-shrink: 0 !important;
+  transition: var(--animation-normal) !important;
+  position: relative !important;
+}
+
+.quiz-option:hover .option-indicator {
+  border-color: var(--primary-pink) !important;
+}
+
+.quiz-option.selected .option-indicator {
+  border-color: var(--primary-pink) !important;
+  background: var(--primary-pink) !important;
+}
+
+.quiz-option.selected .option-indicator::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =================================
+   ⚡ 퀴즈 액션 버튼
+   ================================= */
+
+.quiz-actions {
+  padding: var(--space-md) var(--space-lg) var(--space-lg) !important;
+  background: var(--bg-dark) !important;
+  border-top: 1px solid var(--border-dark) !important;
+  display: flex !important;
+  gap: var(--space-md) !important;
+}
+
+.quiz-submit-btn {
+  flex: 1 !important;
+  background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-purple) 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 25px !important;
+  padding: var(--space-md) var(--space-lg) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: var(--animation-normal) !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  /* 터치 최적화 */
+  min-height: var(--touch-target) !important;
+  /* 성능 최적화 */
+  contain: layout style paint;
+  will-change: transform, box-shadow;
+}
+
+.quiz-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.5) !important;
+}
+
+.quiz-submit-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.2) !important;
+}
+
+.quiz-skip-btn {
+  background: var(--surface-dark) !important;
+  color: var(--text-secondary) !important;
+  border: 2px solid var(--border-dark) !important;
+  border-radius: 25px !important;
+  padding: var(--space-md) var(--space-lg) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: var(--animation-normal) !important;
+  /* 터치 최적화 */
+  min-height: var(--touch-target) !important;
+  min-width: 80px !important;
+}
+
+.quiz-skip-btn:hover {
+  border-color: var(--text-secondary) !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* =================================
+   🏆 퀴즈 결과 모달
+   ================================= */
+
+.result-modal .modal-content {
+  max-width: 350px !important;
+  border-radius: 20px !important;
+  background: var(--bg-dark) !important;
+  border: 1px solid var(--border-dark) !important;
+  text-align: center !important;
+  overflow: hidden !important;
+}
+
+.result-modal .modal-header {
+  background: linear-gradient(135deg, var(--success-green) 0%, var(--accent-yellow) 100%) !important;
+  color: white !important;
+  padding: var(--space-xl) var(--space-md) !important;
+  border-bottom: none !important;
+}
+
+.result-icon {
+  font-size: 3rem !important;
+  margin-bottom: var(--space-md) !important;
+  animation: result-bounce 1s ease-out !important;
+}
+
+@keyframes result-bounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.result-message {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.result-stats {
+  background: var(--surface-dark) !important;
+  padding: var(--space-lg) !important;
+  margin: var(--space-md) !important;
+  border-radius: var(--border-radius) !important;
+  border: 1px solid var(--border-dark) !important;
+}
+
+.stat-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: var(--space-sm) !important;
+  padding: var(--space-sm) 0 !important;
+  border-bottom: 1px solid var(--border-dark) !important;
+}
+
+.stat-item:last-child {
+  margin-bottom: 0 !important;
+  border-bottom: none !important;
+}
+
+.stat-label {
+  font-size: 14px !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+}
+
+.stat-value {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--primary-pink) !important;
+}
+
+/* =================================
+   📱 반응형 최적화
+   ================================= */
+
+/* 작은 화면 최적화 */
+@media (max-width: 350px) {
+  .quiz-modal .modal-content {
+    max-width: 95vw !important;
+    margin: var(--space-sm) !important;
+  }
+
+  .quiz-option-content {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: var(--space-sm) !important;
+  }
+
+  .option-image {
+    width: 50px !important;
+    height: 50px !important;
+    margin: 0 auto !important;
+  }
+
+  .quiz-actions {
+    flex-direction: column !important;
+  }
+
+  .quiz-skip-btn {
+    order: -1 !important;
+  }
+}
+
+/* 매우 작은 높이 */
+@media (max-height: 600px) {
+  .quiz-modal .modal-content {
+    max-height: 95vh !important;
+  }
+
+  .quiz-question-section {
+    padding: var(--space-md) !important;
+  }
+
+  .quiz-options {
+    padding: var(--space-md) !important;
+    gap: var(--space-sm) !important;
+  }
+
+  .quiz-option {
+    padding: var(--space-md) !important;
+  }
+}
+
+/* =================================
+   ⚡ 터치 및 접근성 최적화
+   ================================= */
+
+/* 터치 디바이스 최적화 */
+@media (hover: none) and (pointer: coarse) {
+  .quiz-option:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .quiz-option:active {
+    transform: scale(0.98) !important;
+    transition-duration: 0.1s !important;
+  }
+
+  .quiz-submit-btn:hover {
+    transform: none !important;
+  }
+
+  .quiz-submit-btn:active {
+    transform: scale(0.98) !important;
+    transition-duration: 0.1s !important;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .quiz-option {
+    border-width: 3px !important;
+  }
+
+  .quiz-option.selected {
+    border-width: 4px !important;
+  }
+
+  .option-indicator {
+    border-width: 3px !important;
+  }
+}
+
+/* 애니메이션 최적화 */
+@media (prefers-reduced-motion: reduce) {
+  .quiz-option,
+  .quiz-submit-btn,
+  .option-image,
+  .option-indicator {
+    transition-duration: 0.01ms !important;
+  }
+
+  .selected-pulse,
+  .manager-bounce,
+  .quiz-header-float,
+  .result-bounce {
+    animation: none !important;
+  }
+}
+
+/* =================================
+   🎯 키보드 네비게이션 지원
+   ================================= */
+
+.quiz-option:focus {
+  outline: 3px solid var(--primary-pink) !important;
+  outline-offset: 2px !important;
+  border-color: var(--primary-pink) !important;
+}
+
+.quiz-submit-btn:focus,
+.quiz-skip-btn:focus {
+  outline: 3px solid var(--primary-pink) !important;
+  outline-offset: 2px !important;
+}
+
+/* =================================
+   🎊 로딩 및 전환 효과
+   ================================= */
+
+.quiz-option.loading {
+  pointer-events: none !important;
+  opacity: 0.7 !important;
+  position: relative !important;
+}
+
+.quiz-option.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-pink);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes loading-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.quiz-modal.entering {
+  animation: quiz-modal-enter 0.3s ease-out;
+}
+
+@keyframes quiz-modal-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.quiz-modal.exiting {
+  animation: quiz-modal-exit 0.2s ease-in;
+}
+
+@keyframes quiz-modal-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+}

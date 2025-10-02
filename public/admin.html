@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A&B 미팅 어드민 - 퀴즈 관리</title>
+    <title>A&B 미팅 어드민 - 선호 퀴즈 관리</title>
     <meta name="description" content="A&B 미팅 앱 관리자 페이지">
 
     <!-- PWA Meta Tags -->
@@ -527,14 +527,14 @@
                 <img src="/images/d-bety.png" alt="Admin Bety" class="admin-mascot character-float">
                 <div>
                     <h1>A&B 미팅 어드민</h1>
-                    <div class="subtitle">퀴즈 및 성향 질문 관리 시스템</div>
+                    <div class="subtitle">선호 퀴즈 및 선호 질문 관리 시스템</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span id="admin-name" style="color: rgba(255,255,255,0.8);"></span>
-                <button id="logout-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">
-                    로그아웃
-                </button>
+                <span style="background: rgba(255,165,0,0.8); color: white; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                    🔧 DEV MODE
+                </span>
             </div>
         </div>
     </div>
@@ -546,8 +546,8 @@
             <div class="nav-tabs">
                 <button class="nav-tab active" data-tab="dashboard">대시보드</button>
                 <button class="nav-tab" data-tab="users">👥 유저 관리</button>
-                <button class="nav-tab" data-tab="trait-pairs">성향 질문</button>
-                <button class="nav-tab" data-tab="quiz-creation">A&B 퀴즈 생성</button>
+                <button class="nav-tab" data-tab="trait-pairs">선호 질문</button>
+                <button class="nav-tab" data-tab="quiz-management">📝 선호 퀴즈 관리</button>
                 <button class="nav-tab" data-tab="visuals">시각 자료</button>
                 <button class="nav-tab" data-tab="ai-prompts">🎨 AI 프롬프트</button>
             </div>
@@ -558,7 +558,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="number" id="stat-trait-pairs">-</div>
-                    <div class="label">활성 성향 질문</div>
+                    <div class="label">활성 선호 질문</div>
                 </div>
                 <div class="stat-card">
                     <div class="number" id="stat-visuals">-</div>
@@ -574,7 +574,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="number" id="stat-responses">-</div>
-                    <div class="label">성향 응답</div>
+                    <div class="label">선호 응답</div>
                 </div>
             </div>
 
@@ -678,8 +678,14 @@
         <div class="tab-content" id="trait-pairs-tab">
             <div class="admin-section">
                 <div class="section-header">
-                    <h2 class="section-title">성향 질문 관리</h2>
-                    <button class="btn btn-primary" id="add-trait-pair-btn">새 질문 추가</button>
+                    <h2 class="section-title">선호 질문 관리</h2>
+                    <div class="section-actions">
+                        <div class="trait-pairs-counter" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #3498db; color: white; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <span>📊</span>
+                            <span>표시: <span id="trait-pairs-count">-</span>개 | 전체: <span id="trait-pairs-total">-</span>개</span>
+                        </div>
+                        <button class="btn btn-primary" id="add-trait-pair-btn">새 질문 추가</button>
+                    </div>
                 </div>
 
                 <div class="form-row" style="margin-bottom: 1rem;">
@@ -702,7 +708,7 @@
                 <div id="trait-pairs-list">
                     <div class="loading">
                         <img src="/images/Bety1.png" alt="Loading Bety" class="bety-character character-float" style="width: 40px; height: 40px; margin-right: 0.5rem;">
-                        성향 질문을 불러오는 중...
+                        선호 질문을 불러오는 중...
                     </div>
                 </div>
             </div>
@@ -712,14 +718,22 @@
         <div class="tab-content" id="quiz-creation-tab">
             <div class="admin-section">
                 <div class="section-header">
-                    <h2 class="section-title">A&B 퀴즈 생성</h2>
-                    <button class="btn btn-primary" id="add-quiz-btn">새 퀴즈 생성</button>
+                    <h2 class="section-title">📝 선호 퀴즈 관리</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" id="refresh-quiz-btn">🔄 새로고침</button>
+                        <button class="btn btn-primary" id="add-quiz-btn">✨ 새 퀴즈 생성</button>
+                    </div>
                 </div>
 
-                <div class="form-row" style="margin-bottom: 1rem;">
+                <!-- 필터 및 검색 -->
+                <div class="form-row" style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">검색</label>
+                        <input type="text" class="search-input" id="quiz-search" placeholder="퀴즈 제목, 선택지 검색...">
+                    </div>
                     <div class="form-group">
                         <label class="form-label">카테고리 필터</label>
-                        <select class="form-control" id="quiz-category-filter">
+                        <select class="filter-select" id="quiz-category-filter">
                             <option value="">전체 카테고리</option>
                             <option value="lifestyle">라이프스타일</option>
                             <option value="food">음식</option>
@@ -730,15 +744,46 @@
                             <option value="travel">여행</option>
                             <option value="personality">성격</option>
                             <option value="values">가치관</option>
+                            <option value="nature">자연</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">유형 필터</label>
+                        <select class="filter-select" id="quiz-type-filter">
+                            <option value="">전체 유형</option>
+                            <option value="ab_quiz">관리자 생성</option>
+                            <option value="trait_pair">시스템 생성</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">상태 필터</label>
-                        <select class="form-control" id="quiz-status-filter">
+                        <select class="filter-select" id="quiz-status-filter">
                             <option value="">전체 상태</option>
                             <option value="true">활성</option>
                             <option value="false">비활성</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- 퀴즈 통계 -->
+                <div id="quiz-stats" style="margin-bottom: 1.5rem;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="number" id="total-quizzes">-</div>
+                            <div class="label">전체 퀴즈</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="ab-quizzes">-</div>
+                            <div class="label">관리자 생성</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="trait-quizzes">-</div>
+                            <div class="label">시스템 생성</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" id="active-quizzes">-</div>
+                            <div class="label">활성 퀴즈</div>
+                        </div>
                     </div>
                 </div>
 
@@ -771,7 +816,7 @@
     <div id="trait-pair-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="modal-title">새 성향 질문 추가</h3>
+                <h3 class="modal-title" id="modal-title">새 선호 질문 추가</h3>
                 <button class="modal-close" id="close-trait-modal-btn">&times;</button>
             </div>
 
@@ -820,7 +865,7 @@
     <div id="quiz-creation-modal" class="modal">
         <div class="modal-content" style="max-width: 700px;">
             <div class="modal-header">
-                <h3 class="modal-title" id="quiz-modal-title">새 A&B 퀴즈 생성</h3>
+                <h3 class="modal-title" id="quiz-modal-title">새 선호 퀴즈 생성</h3>
                 <button class="modal-close" id="close-quiz-modal-btn">&times;</button>
             </div>
 

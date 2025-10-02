@@ -23,11 +23,8 @@ class UIManager {
     // loadUserData는 App에서 호출하도록 변경 (토큰 설정 후)
     // this.loadUserData();
 
-    // Hide loading screen after initialization
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    }, 1000);
+    // Hide loading screen after initialization with better event handling
+    this.hideLoadingScreen();
   }
 
   // Navigation setup
@@ -40,61 +37,52 @@ class UIManager {
       });
     });
 
-    // 베티 표정 변화 애니메이션 설정
-    this.setupBetyExpressions();
+    // 베티 매니저에게 표정 변화 위임 (setupBetyExpressions 제거)
   }
 
-  // 베티 캐릭터 표정 변화 설정
-  setupBetyExpressions() {
-    const welcomeBety = document.getElementById('welcome-bety');
-    if (!welcomeBety) return;
+  // 로딩 화면 숨기기 (강제 타임아웃 추가)
+  hideLoadingScreen() {
+    // 즉시 로딩 화면 숨기기 (서버 오류 시 무한 로딩 방지)
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loading-screen');
+      const app = document.getElementById('app');
 
-    // 베티 이미지 배열 (다양한 표정)
-    const betyImages = [
-      '/images/Bety1.png',  // 기본 표정
-      '/images/Bety2.png',  // 웃는 표정
-      '/images/Bety3.png',  // 행복한 표정
-      '/images/Bety4.png',  // 놀란 표정
-      '/images/Bety5.png',  // 신나는 표정
-      '/images/Bety6.png',  // 윙크 표정
-      '/images/Bety7.png'   // 설레는 표정
-    ];
+      if (loadingScreen && app) {
+        loadingScreen.style.display = 'none';
+        app.style.display = 'block';
+        console.log('✅ [UI] Loading screen hidden (force timeout)');
+      }
+    }, 2000); // 2초 후 강제로 로딩 화면 숨기기
 
-    let currentImageIndex = 0;
+    // 베티 매니저와 로딩 매니저 준비 대기 (백그라운드)
+    const waitForManagers = () => {
+      return new Promise((resolve) => {
+        const checkManagers = () => {
+          const betyReady = window.betyManager && window.betyManager.isInitialized;
+          const loadingManagerReady = window.loadingManager;
 
-    // 이미지 preload로 로딩 실패 방지
-    betyImages.forEach(src => {
-      const img = new Image();
-      img.onload = () => console.log(`✅ [Betty] Preloaded: ${src}`);
-      img.onerror = () => console.warn(`❌ [Betty] Failed to preload: ${src}`);
-      img.src = src;
-    });
+          if (betyReady && loadingManagerReady) {
+            console.log('✅ [UI] All managers ready');
+            resolve();
+          } else {
+            console.log('⏳ [UI] Waiting for managers...', { betyReady, loadingManagerReady });
+            setTimeout(checkManagers, 100);
+          }
+        };
 
-    // 3초마다 베티 표정 변경 (부드러운 페이드 효과)
-    setInterval(() => {
-      // 페이드 아웃
-      welcomeBety.style.opacity = '0.3';
-      welcomeBety.style.transform = 'scale(0.9)';
+        checkManagers();
 
-      setTimeout(() => {
-        // 이미지 변경
-        currentImageIndex = (currentImageIndex + 1) % betyImages.length;
-        const newSrc = betyImages[currentImageIndex];
-        // 이미지 로드 확인 후 변경
-        const testImg = new Image();
-        testImg.onload = () => welcomeBety.src = newSrc;
-        testImg.onerror = () => console.warn(`⚠️ [Betty] Failed to load: ${newSrc}`);
-        testImg.src = newSrc;
-
-        // 페이드 인 + 살짝 튀는 효과
-        welcomeBety.style.opacity = '1';
-        welcomeBety.style.transform = 'scale(1.1)';
-
+        // 최대 5초 타임아웃
         setTimeout(() => {
-          welcomeBety.style.transform = 'scale(1)';
-        }, 300);
-      }, 200);
-    }, 3000);
+          console.log('⚠️ [UI] Manager timeout, proceeding anyway');
+          resolve();
+        }, 5000);
+      });
+    };
+
+    waitForManagers().then(() => {
+      console.log('🎭 [UI] Managers ready, UI fully initialized');
+    });
   }
 
   // Switch between views with enhanced animations

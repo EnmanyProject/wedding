@@ -11,6 +11,9 @@ class App {
     try {
       SecurityUtils.safeLog(`A&B Meeting App v${this.version} initializing...`);
 
+      // 베티 매니저 준비 대기
+      await this.waitForBetyManager();
+
       // Initialize core services
       await this.initializeServices();
 
@@ -35,6 +38,33 @@ class App {
       SecurityUtils.safeLog('App initialization failed:', error);
       ui.showToast('앱 초기화 실패', 'error');
     }
+  }
+
+  // 베티 매니저 준비 대기
+  async waitForBetyManager() {
+    return new Promise((resolve) => {
+      if (window.betyManager && window.betyManager.isInitialized) {
+        SecurityUtils.safeLog('🎭 [App] Bety Manager already ready');
+        resolve();
+        return;
+      }
+
+      // 베티 매니저 준비 이벤트 대기
+      const handleBetyReady = () => {
+        SecurityUtils.safeLog('🎭 [App] Bety Manager ready');
+        document.removeEventListener('betyManagerReady', handleBetyReady);
+        resolve();
+      };
+
+      document.addEventListener('betyManagerReady', handleBetyReady);
+
+      // 타임아웃 설정 (5초 후 강제 진행)
+      setTimeout(() => {
+        SecurityUtils.safeLog('🎭 [App] Bety Manager timeout, proceeding without it');
+        document.removeEventListener('betyManagerReady', handleBetyReady);
+        resolve();
+      }, 5000);
+    });
   }
 
   // Initialize core services

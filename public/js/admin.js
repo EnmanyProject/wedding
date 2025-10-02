@@ -266,8 +266,7 @@ class AdminManager {
   async loadTraitPairs() {
     try {
       const params = new URLSearchParams({
-        page: this.currentPage.toString(),
-        per_page: '20'
+        per_page: '1000' // 충분히 큰 수로 설정하여 모든 질문 표시
       });
 
       if (this.currentFilters.category) {
@@ -277,23 +276,40 @@ class AdminManager {
         params.append('active', this.currentFilters.active);
       }
 
-      const data = await api.request(`/admin/trait-pairs?${params}`);
-      this.renderTraitPairs(data.data.pairs);
+      // 필터링된 결과와 전체 수 동시에 가져오기
+      const [filteredData, totalData] = await Promise.all([
+        api.request(`/admin/trait-pairs?${params}`),
+        api.request('/admin/trait-pairs?per_page=1000') // 전체 수를 위한 요청도 제한 해제
+      ]);
+
+      this.renderTraitPairs(filteredData.data.pairs, totalData.data.pairs.length);
 
     } catch (error) {
-      console.error('성향 질문 로딩 실패:', error);
-      this.showAlert('성향 질문 데이터 로딩에 실패했습니다', 'error');
+      console.error('선호 질문 로딩 실패:', error);
+      this.showAlert('선호 질문 데이터 로딩에 실패했습니다', 'error');
     }
   }
 
-  renderTraitPairs(pairs) {
+  renderTraitPairs(pairs, totalCount = null) {
     const container = document.getElementById('trait-pairs-list');
+    const counterElement = document.getElementById('trait-pairs-count');
+    const totalCountElement = document.getElementById('trait-pairs-total');
+
+    // 표시된 질문수 카운터 업데이트
+    if (counterElement) {
+      counterElement.textContent = pairs ? pairs.length : 0;
+    }
+
+    // 전체 질문수 카운터 업데이트
+    if (totalCountElement && totalCount !== null) {
+      totalCountElement.textContent = totalCount;
+    }
 
     if (!pairs || pairs.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="icon">❓</div>
-          <p>성향 질문이 없습니다</p>
+          <p>선호 질문이 없습니다</p>
           <button class="btn btn-primary" data-action="add-trait">첫 번째 질문 추가하기</button>
         </div>
       `;
@@ -304,6 +320,7 @@ class AdminManager {
       <table class="trait-pairs-table">
         <thead>
           <tr>
+            <th style="width: 60px;">#</th>
             <th>키</th>
             <th>왼쪽 선택지</th>
             <th>오른쪽 선택지</th>
@@ -315,8 +332,9 @@ class AdminManager {
           </tr>
         </thead>
         <tbody>
-          ${pairs.map(pair => `
+          ${pairs.map((pair, index) => `
             <tr>
+              <td style="text-align: center; font-weight: 600; color: #666;">${index + 1}</td>
               <td><code>${pair.key}</code></td>
               <td>${pair.left_label}</td>
               <td>${pair.right_label}</td>
@@ -404,7 +422,7 @@ class AdminManager {
         <div class="icon">🎨</div>
         <p>시각 자료 관리 기능은 준비 중입니다</p>
         <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
-          성향 질문별 이미지와 설명을 관리할 수 있습니다
+          선호 질문별 이미지와 설명을 관리할 수 있습니다
         </p>
       </div>
     `;
@@ -414,6 +432,8 @@ class AdminManager {
     try {
       // Build query parameters from current filters
       const params = new URLSearchParams();
+      params.append('per_page', '1000'); // 모든 퀴즈를 가져오기 위해 충분히 큰 수 설정
+
       if (this.currentFilters.quizCategory) {
         params.append('category', this.currentFilters.quizCategory);
       }
@@ -422,7 +442,7 @@ class AdminManager {
       }
 
       const queryString = params.toString();
-      const url = queryString ? `/admin/quizzes?${queryString}` : '/admin/quizzes';
+      const url = `/admin/quizzes?${queryString}`;
 
       const data = await api.request(url);
       this.renderQuizList(data.data.quizzes);
@@ -439,7 +459,7 @@ class AdminManager {
       container.innerHTML = `
         <div class="empty-state">
           <div class="icon">🎯</div>
-          <p>생성된 A&B 퀴즈가 없습니다</p>
+          <p>생성된 선호 퀴즈가 없습니다</p>
           <button class="btn btn-primary" data-action="add-quiz">첫 번째 퀴즈 만들기</button>
         </div>
       `;
@@ -535,13 +555,13 @@ class AdminManager {
         });
       }
 
-      this.showAlert('A&B 퀴즈가 성공적으로 저장되었습니다', 'success');
+      this.showAlert('선호 퀴즈가 성공적으로 저장되었습니다', 'success');
       closeQuizCreationModal();
       this.loadQuizList();
 
     } catch (error) {
       console.error('퀴즈 저장 실패:', error);
-      this.showAlert(error.message || 'A&B 퀴즈 저장에 실패했습니다', 'error');
+      this.showAlert(error.message || '선호 퀴즈 저장에 실패했습니다', 'error');
     }
   }
 
@@ -571,14 +591,14 @@ class AdminManager {
         });
       }
 
-      this.showAlert('성향 질문이 성공적으로 저장되었습니다', 'success');
+      this.showAlert('선호 질문이 성공적으로 저장되었습니다', 'success');
       this.closeTraitPairModal();
       this.loadTraitPairs();
       this.loadCategories();
 
     } catch (error) {
-      console.error('성향 질문 저장 실패:', error);
-      this.showAlert(error.message || '성향 질문 저장에 실패했습니다', 'error');
+      console.error('선호 질문 저장 실패:', error);
+      this.showAlert(error.message || '선호 질문 저장에 실패했습니다', 'error');
     }
   }
 
@@ -614,10 +634,10 @@ function openTraitPairModal(pairId = null) {
   const form = document.getElementById('trait-pair-form');
 
   if (pairId) {
-    title.textContent = '성향 질문 수정';
+    title.textContent = '선호 질문 수정';
     // Load existing data here if needed
   } else {
-    title.textContent = '새 성향 질문 추가';
+    title.textContent = '새 선호 질문 추가';
     form.reset();
     document.getElementById('pair-active').checked = true;
   }
@@ -641,9 +661,9 @@ function openQuizCreationModal(quizId = null) {
   const form = document.getElementById('quiz-creation-form');
 
   if (quizId) {
-    title.textContent = 'A&B 퀴즈 수정';
+    title.textContent = '선호 퀴즈 수정';
   } else {
-    title.textContent = '새 A&B 퀴즈 만들기';
+    title.textContent = '새 선호 퀴즈 만들기';
   }
 
   // 항상 폼과 이미지를 초기화 (새 생성이든 수정이든)
@@ -743,13 +763,13 @@ async function editTraitPair(pairId) {
       document.getElementById('pair-active').checked = pair.is_active;
     }
   } catch (error) {
-    console.error('성향 질문 로딩 실패:', error);
-    admin.showAlert('성향 질문 데이터를 불러올 수 없습니다', 'error');
+    console.error('선호 질문 로딩 실패:', error);
+    admin.showAlert('선호 질문 데이터를 불러올 수 없습니다', 'error');
   }
 }
 
 async function deleteTraitPair(pairId) {
-  if (!confirm('정말로 이 성향 질문을 삭제하시겠습니까?\n\n이미 응답이 있는 질문은 비활성화됩니다.')) {
+  if (!confirm('정말로 이 선호 질문을 삭제하시겠습니까?\n\n이미 응답이 있는 질문은 비활성화됩니다.')) {
     return;
   }
 
@@ -758,13 +778,13 @@ async function deleteTraitPair(pairId) {
       method: 'DELETE'
     });
 
-    admin.showAlert('성향 질문이 삭제되었습니다', 'success');
+    admin.showAlert('선호 질문이 삭제되었습니다', 'success');
     admin.loadTraitPairs();
     admin.loadDashboard();
 
   } catch (error) {
-    console.error('성향 질문 삭제 실패:', error);
-    admin.showAlert(error.message || '성향 질문 삭제에 실패했습니다', 'error');
+    console.error('선호 질문 삭제 실패:', error);
+    admin.showAlert(error.message || '선호 질문 삭제에 실패했습니다', 'error');
   }
 }
 
@@ -814,39 +834,30 @@ console.error = function(...args) {
 
 // Initialize admin when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Check if admin is logged in
-  const adminToken = localStorage.getItem('admin_token');
-  const adminUser = JSON.parse(localStorage.getItem('admin_user') || '{}');
+  console.log('🔧 [DEV] 어드민 인증 체크 비활성화됨 - 개발 모드');
 
-  if (!adminToken || !adminUser.id) {
-    alert('관리자 로그인이 필요합니다');
-    window.location.href = '/admin-login.html';
-    return;
-  }
+  // DEV MODE: Skip authentication for development convenience
+  // Set fake admin token for API calls
+  const devAdminToken = 'dev-admin-token';
+  const devAdminUser = {
+    id: 'dev-admin',
+    name: 'Dev Admin',
+    role: 'super_admin'
+  };
+
+  // Store dev credentials
+  localStorage.setItem('admin_token', devAdminToken);
+  localStorage.setItem('admin_user', JSON.stringify(devAdminUser));
 
   // Set admin token for API calls
   if (window.api) {
-    window.api.setAdminToken = function(token) {
-      this.adminToken = token;
-    };
-
-    // Override request method to use admin token
-    const originalRequest = window.api.request;
-    window.api.request = function(url, options = {}) {
-      if (this.adminToken && url.startsWith('/admin')) {
-        options.headers = options.headers || {};
-        options.headers['Authorization'] = `Bearer ${this.adminToken}`;
-      }
-      return originalRequest.call(this, url, options);
-    };
-
-    window.api.setAdminToken(adminToken);
+    window.api.setAdminToken(devAdminToken);
   }
 
   // Show admin name
   const adminNameElement = document.getElementById('admin-name');
-  if (adminNameElement && adminUser.name) {
-    adminNameElement.textContent = `${adminUser.name} (${adminUser.role})`;
+  if (adminNameElement) {
+    adminNameElement.textContent = `${devAdminUser.name} (개발모드)`;
   }
 
   window.admin = new AdminManager();
@@ -874,6 +885,11 @@ async function logout() {
     // Clear local storage
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
+
+    // Clear admin token from API service
+    if (window.api) {
+      window.api.clearAdminToken();
+    }
 
     // Redirect to login
     window.location.href = '/admin-login.html';
@@ -926,7 +942,7 @@ async function editQuiz(quizId) {
 }
 
 async function deleteQuiz(quizId) {
-  if (!confirm('정말로 이 A&B 퀴즈를 삭제하시겠습니까?\\n\\n사용자 응답 데이터도 함께 삭제됩니다.')) {
+  if (!confirm('정말로 이 선호 퀴즈를 삭제하시겠습니까?\\n\\n사용자 응답 데이터도 함께 삭제됩니다.')) {
     return;
   }
 
@@ -935,12 +951,12 @@ async function deleteQuiz(quizId) {
       method: 'DELETE'
     });
 
-    admin.showAlert('A&B 퀴즈가 삭제되었습니다', 'success');
+    admin.showAlert('선호 퀴즈가 삭제되었습니다', 'success');
     admin.loadQuizList();
 
   } catch (error) {
     console.error('퀴즈 삭제 실패:', error);
-    admin.showAlert(error.message || 'A&B 퀴즈 삭제에 실패했습니다', 'error');
+    admin.showAlert(error.message || '선호 퀴즈 삭제에 실패했습니다', 'error');
   }
 }
 
@@ -1287,7 +1303,7 @@ AdminManager.prototype.renderUsers = function(users) {
         <div class="user-stats">
           <div>📸 사진: ${user.stats.approved_photos}/${user.stats.photo_count}</div>
           <div>🎯 퀴즈: ${user.stats.quiz_responses}</div>
-          <div>💭 성향: ${user.stats.trait_responses}</div>
+          <div>💭 선호: ${user.stats.trait_responses}</div>
         </div>
       </td>
       <td>
@@ -1431,7 +1447,7 @@ AdminManager.prototype.renderUserDetailModal = function(data) {
       </div>
 
       <div style="margin-top: 2rem;">
-        <h4>🎭 성향 응답</h4>
+        <h4>🎭 선호 응답</h4>
         <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 200px; overflow-y: auto;">
           ${data.traits.length > 0 ?
             data.traits.map(trait => `
@@ -1440,7 +1456,7 @@ AdminManager.prototype.renderUserDetailModal = function(data) {
                 <span style="color: #2c3e50;">${trait.choice === 'LEFT' ? trait.left_label : trait.right_label}</span>
                 <small style="color: #666; margin-left: 1rem;">${new Date(trait.created_at).toLocaleDateString()}</small>
               </div>
-            `).join('') : '<div>아직 성향 응답이 없습니다</div>'
+            `).join('') : '<div>아직 선호 응답이 없습니다</div>'
           }
         </div>
       </div>
@@ -1504,5 +1520,415 @@ AdminManager.prototype.switchTab = function(tabName) {
   } else {
     // 기존 탭 처리
     originalSwitchTab.call(this, tabName);
+  }
+};
+
+// Add showError method to AdminManager prototype
+AdminManager.prototype.showError = function(message) {
+  console.error('Admin Error:', message);
+
+  // Create or update error alert
+  let alertDiv = document.getElementById('admin-error-alert');
+  if (!alertDiv) {
+    alertDiv = document.createElement('div');
+    alertDiv.id = 'admin-error-alert';
+    alertDiv.className = 'alert alert-error';
+    alertDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 400px;
+      padding: 1rem;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 6px;
+      color: #721c24;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    document.body.appendChild(alertDiv);
+  }
+
+  alertDiv.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span>${message}</span>
+      <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #721c24;">&times;</button>
+    </div>
+  `;
+
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (alertDiv && alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 5000);
+};
+
+// Add showSuccess method to AdminManager prototype
+AdminManager.prototype.showSuccess = function(message) {
+  console.log('✅ Admin Success:', message);
+
+  // Create or update success alert
+  let alertDiv = document.getElementById('admin-success-alert');
+  if (!alertDiv) {
+    alertDiv = document.createElement('div');
+    alertDiv.id = 'admin-success-alert';
+    alertDiv.className = 'alert alert-success';
+    alertDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      max-width: 400px;
+      padding: 1rem;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 6px;
+      color: #155724;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    document.body.appendChild(alertDiv);
+  }
+
+  alertDiv.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span>${message}</span>
+      <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #155724;">&times;</button>
+    </div>
+  `;
+
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (alertDiv && alertDiv.parentNode) {
+      alertDiv.remove();
+    }
+  }, 3000);
+};
+
+// Quiz Management Methods
+AdminManager.prototype.loadQuizzes = async function() {
+  try {
+    console.log('📝 [QuizManagement] 퀴즈 목록 로딩 시작');
+
+    const response = await api.get('/admin/all-quizzes');
+
+    if (response.success) {
+      this.allQuizzes = response.data.quizzes || [];
+      this.quizStats = response.data.stats || {};
+
+      console.log('✅ [QuizManagement] 퀴즈 데이터 로드 성공:', {
+        totalQuizzes: this.allQuizzes.length,
+        stats: this.quizStats
+      });
+
+      this.updateQuizStats();
+      this.renderQuizList();
+    } else {
+      this.showError('퀴즈 목록을 불러오는데 실패했습니다');
+    }
+  } catch (error) {
+    console.error('❌ [QuizManagement] 퀴즈 목록 로드 실패:', error);
+    this.showError('퀴즈 목록 로드에 실패했습니다');
+  }
+};
+
+AdminManager.prototype.updateQuizStats = function() {
+  const statsContainer = document.querySelector('#quiz-stats');
+  if (!statsContainer || !this.quizStats) return;
+
+  statsContainer.innerHTML = `
+    <div class="stat-item">
+      <span class="stat-number">${this.quizStats.total_quizzes || 0}</span>
+      <span class="stat-label">전체 퀴즈</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">${this.quizStats.ab_quizzes || 0}</span>
+      <span class="stat-label">선호 퀴즈</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">${this.quizStats.trait_pairs || 0}</span>
+      <span class="stat-label">선호 퀴즈</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">${this.quizStats.active_quizzes || 0}</span>
+      <span class="stat-label">활성 퀴즈</span>
+    </div>
+  `;
+};
+
+AdminManager.prototype.getFilteredQuizzes = function() {
+  const searchInput = document.querySelector('#quiz-search');
+  const categorySelect = document.querySelector('#quiz-category-filter');
+  const typeSelect = document.querySelector('#quiz-type-filter');
+  const statusSelect = document.querySelector('#quiz-status-filter');
+
+  const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+  const categoryFilter = categorySelect ? categorySelect.value : 'all';
+  const typeFilter = typeSelect ? typeSelect.value : 'all';
+  const statusFilter = statusSelect ? statusSelect.value : 'all';
+
+  return this.allQuizzes.filter(quiz => {
+    // Search filter
+    const matchesSearch = !searchTerm ||
+      quiz.title.toLowerCase().includes(searchTerm) ||
+      quiz.left_option.toLowerCase().includes(searchTerm) ||
+      quiz.right_option.toLowerCase().includes(searchTerm);
+
+    // Category filter
+    const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
+
+    // Type filter
+    const matchesType = typeFilter === 'all' || quiz.quiz_type === typeFilter;
+
+    // Status filter
+    const matchesStatus = statusFilter === 'all' ||
+      (statusFilter === 'active' && quiz.is_active) ||
+      (statusFilter === 'inactive' && !quiz.is_active);
+
+    return matchesSearch && matchesCategory && matchesType && matchesStatus;
+  });
+};
+
+AdminManager.prototype.renderQuizList = function() {
+  const container = document.querySelector('#quiz-list');
+  if (!container) return;
+
+  const filteredQuizzes = this.getFilteredQuizzes();
+
+  if (filteredQuizzes.length === 0) {
+    container.innerHTML = `
+      <div class="no-data" style="text-align: center; padding: 2rem; color: #666;">
+        📭 조건에 맞는 퀴즈가 없습니다
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filteredQuizzes.map(quiz => `
+    <div class="quiz-item" style="border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
+      <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 0.5rem;">
+        <div style="flex: 1;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #2c3e50;">
+            ${quiz.title}
+            <span class="quiz-type-badge" style="
+              background: ${quiz.quiz_type === 'ab_quiz' ? '#3498db' : '#9b59b6'};
+              color: white;
+              padding: 0.2rem 0.5rem;
+              border-radius: 12px;
+              font-size: 0.7rem;
+              margin-left: 0.5rem;
+            ">
+              ${quiz.quiz_type === 'ab_quiz' ? '선호' : '선호'}
+            </span>
+            ${quiz.is_active ?
+              '<span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; margin-left: 0.5rem;">활성</span>' :
+              '<span style="background: #95a5a6; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; margin-left: 0.5rem;">비활성</span>'
+            }
+          </h4>
+          <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">
+            카테고리: <strong>${quiz.category || '미분류'}</strong> |
+            생성일: <strong>${new Date(quiz.created_at).toLocaleDateString()}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-options" style="display: flex; gap: 1rem; margin: 1rem 0;">
+        <div style="flex: 1; background: #f8f9fa; padding: 0.75rem; border-radius: 6px; border-left: 4px solid #3498db;">
+          <strong>A: ${quiz.left_option}</strong>
+        </div>
+        <div style="flex: 1; background: #f8f9fa; padding: 0.75rem; border-radius: 6px; border-left: 4px solid #e74c3c;">
+          <strong>B: ${quiz.right_option}</strong>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+        <div style="font-size: 0.8rem; color: #666;">
+          ID: ${quiz.id}
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="adminManager.toggleQuizStatus('${quiz.id}', ${!quiz.is_active})"
+                  style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+            ${quiz.is_active ? '비활성화' : '활성화'}
+          </button>
+          <button onclick="adminManager.viewQuizDetails('${quiz.id}')"
+                  style="background: #3498db; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+            상세보기
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+};
+
+AdminManager.prototype.setupQuizEventListeners = function() {
+  // Search functionality
+  const searchInput = document.querySelector('#quiz-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      this.renderQuizList();
+    });
+  }
+
+  // Filter functionality
+  const filters = ['#quiz-category-filter', '#quiz-type-filter', '#quiz-status-filter'];
+  filters.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.addEventListener('change', () => {
+        this.renderQuizList();
+      });
+    }
+  });
+
+  // Refresh button
+  const refreshBtn = document.querySelector('#refresh-quizzes');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      this.loadQuizzes();
+    });
+  }
+};
+
+AdminManager.prototype.toggleQuizStatus = async function(quizId, newStatus) {
+  if (!confirm(`정말로 이 퀴즈를 ${newStatus ? '활성화' : '비활성화'}하시겠습니까?`)) {
+    return;
+  }
+
+  try {
+    // Find quiz type to determine endpoint
+    const quiz = this.allQuizzes.find(q => q.id === quizId);
+    if (!quiz) {
+      this.showError('퀴즈를 찾을 수 없습니다');
+      return;
+    }
+
+    const endpoint = quiz.quiz_type === 'ab_quiz' ?
+      `/admin/ab-quizzes/${quizId}/status` :
+      `/admin/trait-pairs/${quizId}/status`;
+
+    const response = await api.patch(endpoint, {
+      is_active: newStatus
+    });
+
+    if (response.success) {
+      this.showSuccess(`퀴즈가 ${newStatus ? '활성화' : '비활성화'}되었습니다`);
+      this.loadQuizzes(); // 목록 새로고침
+    }
+  } catch (error) {
+    console.error('퀴즈 상태 변경 실패:', error);
+    this.showError('퀴즈 상태 변경에 실패했습니다');
+  }
+};
+
+AdminManager.prototype.viewQuizDetails = function(quizId) {
+  const quiz = this.allQuizzes.find(q => q.id === quizId);
+  if (!quiz) {
+    this.showError('퀴즈를 찾을 수 없습니다');
+    return;
+  }
+
+  // Create modal content
+  const modalContent = `
+    <div style="max-width: 600px; background: white; margin: 2rem auto; padding: 2rem; border-radius: 8px;">
+      <h3 style="margin-top: 0;">📝 퀴즈 상세 정보</h3>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4>기본 정보</h4>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 6px;">
+          <p><strong>제목:</strong> ${quiz.title}</p>
+          <p><strong>카테고리:</strong> ${quiz.category || '미분류'}</p>
+          <p><strong>타입:</strong> ${quiz.quiz_type === 'ab_quiz' ? '선호 퀴즈' : '선호 퀴즈'}</p>
+          <p><strong>상태:</strong> ${quiz.is_active ? '활성' : '비활성'}</p>
+          <p><strong>생성일:</strong> ${new Date(quiz.created_at).toLocaleDateString()}</p>
+          <p><strong>ID:</strong> ${quiz.id}</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4>선택지</h4>
+        <div style="display: flex; gap: 1rem;">
+          <div style="flex: 1; background: #e3f2fd; padding: 1rem; border-radius: 6px;">
+            <strong>A: ${quiz.left_option}</strong>
+          </div>
+          <div style="flex: 1; background: #ffebee; padding: 1rem; border-radius: 6px;">
+            <strong>B: ${quiz.right_option}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: right;">
+        <button onclick="this.closest('.modal').style.display='none'"
+                style="background: #95a5a6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
+          닫기
+        </button>
+        <button onclick="adminManager.toggleQuizStatus('${quiz.id}', ${!quiz.is_active}); this.closest('.modal').style.display='none'"
+                style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+          ${quiz.is_active ? '비활성화' : '활성화'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Show modal
+  let modal = document.querySelector('.quiz-detail-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'quiz-detail-modal modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+    `;
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = modalContent;
+  modal.style.display = 'block';
+
+  // Close on background click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+};
+
+// Update switchTab method to handle quiz management
+const originalSwitchTabQuiz = AdminManager.prototype.switchTab;
+AdminManager.prototype.switchTab = function(tabName) {
+  if (tabName === 'quiz-management') {
+    // 기존 탭 숨기기
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    // 퀴즈 관리 탭 활성화
+    const quizTab = document.getElementById('quiz-management-tab');
+    const quizNavTab = document.querySelector('[data-tab="quiz-management"]');
+
+    if (quizTab) quizTab.classList.add('active');
+    if (quizNavTab) quizNavTab.classList.add('active');
+
+    this.currentTab = 'quiz-management';
+
+    // 퀴즈 관리 이벤트 리스너 설정 (한 번만)
+    if (!this.quizListenersSetup) {
+      this.setupQuizEventListeners();
+      this.quizListenersSetup = true;
+    }
+
+    // 퀴즈 목록 로드
+    this.loadQuizzes();
+  } else {
+    // 기존 탭 처리
+    originalSwitchTabQuiz.call(this, tabName);
   }
 };

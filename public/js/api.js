@@ -16,8 +16,10 @@ class APIService {
       'Content-Type': contentType
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // Use admin token for admin routes, regular token for other routes
+    const token = this.adminToken || this.token;
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     return headers;
@@ -509,6 +511,49 @@ class APIService {
   // Get user statistics (public endpoint)
   async getUserStats() {
     return this.request('/profile/stats');
+  }
+
+  // Generic HTTP methods for admin use
+  async get(url) {
+    return this.request(url, {
+      method: 'GET'
+    });
+  }
+
+  async post(url, data) {
+    return this.request(url, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async patch(url, data) {
+    return this.request(url, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async put(url, data) {
+    return this.request(url, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+  }
+
+  async delete(url) {
+    return this.request(url, {
+      method: 'DELETE'
+    });
+  }
+
+  // Admin token management
+  setAdminToken(token) {
+    this.adminToken = token;
+  }
+
+  clearAdminToken() {
+    this.adminToken = null;
   }
 }
 

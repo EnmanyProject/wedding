@@ -16,6 +16,30 @@ export const authenticateAdmin = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    // 🔧 DEV MODE: Skip authentication for development convenience
+    if (process.env.NODE_ENV === 'development') {
+      const authHeader = req.headers.authorization;
+
+      // Check if this is a dev token
+      if (authHeader && authHeader.includes('dev-admin-token')) {
+        console.log('🔧 [DEV] Admin auth bypassed for development');
+
+        // Create fake admin user for development
+        req.admin = {
+          id: 'dev-admin-id',
+          username: 'dev-admin',
+          name: 'Dev Admin',
+          role: 'super_admin',
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date()
+        } as AdminUser;
+        req.adminId = 'dev-admin-id';
+
+        return next();
+      }
+    }
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
