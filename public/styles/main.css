@@ -346,6 +346,28 @@ body {
   margin-bottom: 30px;
 }
 
+.welcome-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: transparent; /* 투명 배경 */
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+.welcome-bety {
+  background: transparent !important; /* 베티 영역 완전 투명 */
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 .welcome-section h2 {
   font-size: 28px;
   font-weight: 700;
@@ -1803,7 +1825,7 @@ body {
 /* Pagination Dots */
 .swiper-pagination {
   position: absolute;
-  bottom: 10px; /* 인디케이터를 하단으로 이동하여 카드와 겹치지 않도록 */
+  top: -30px; /* 인디케이터를 카드 위쪽으로 이동하여 완전히 분리 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
