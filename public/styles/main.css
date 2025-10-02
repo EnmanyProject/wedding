@@ -361,11 +361,12 @@ body {
 }
 
 .welcome-bety {
-  background: transparent !important; /* 베티 영역 완전 투명 */
+  background: var(--surface-color) !important; /* 베티 영역을 앱 컨테이너와 동일한 색상으로 */
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding: 15px !important; /* 적당한 패딩 추가 */
   margin: 0 !important;
+  border-radius: 10px; /* 약간의 둥근 모서리 */
 }
 
 .welcome-section h2 {
@@ -1389,9 +1390,9 @@ body {
   position: relative;
   width: 100%;
   max-width: 300px;
-  height: 600px; /* 프레임 높이를 더더 확장 */
+  height: 680px; /* 컨테이너 높이를 더 늘림 */
   overflow: visible; /* 베틴 캐릭터가 프레임 밖으로 나올 수 있도록 */
-  padding: 30px 0; /* 상하 패딩 더 추가 */
+  padding: 30px 0 80px 0; /* 하단 패딩을 늘려서 인디케이터와 화살표 공간 확보 */
   /* background 제거하여 베틴가 보이도록 */
   border-radius: 20px;
   margin: 1rem auto;
@@ -1775,7 +1776,7 @@ body {
 /* Swiper Controls */
 .swiper-controls {
   position: absolute;
-  bottom: 20px;
+  bottom: -10px; /* 화살표 버튼을 컨테이너 밖으로 이동 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1786,6 +1787,7 @@ body {
   border-radius: 25px;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  z-index: 10; /* 다른 요소 위에 표시되도록 */
 }
 
 .swiper-nav-btn {
@@ -1825,7 +1827,7 @@ body {
 /* Pagination Dots */
 .swiper-pagination {
   position: absolute;
-  top: -30px; /* 인디케이터를 카드 위쪽으로 이동하여 완전히 분리 */
+  bottom: 30px; /* 인디케이터를 컨테이너 하단 밖으로 이동 */
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1922,9 +1924,9 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
   .mobile-partner-swiper {
-    height: 600px; /* 모바일에서도 충분한 높이 확보 */
+    height: 680px; /* 모바일에서도 늘어난 높이 적용 */
     margin-top: max(1rem, env(safe-area-inset-top, 1rem));
-    padding: 25px 0; /* 모바일에서 패딩 충분히 확보 */
+    padding: 25px 0 80px 0; /* 모바일에서도 하단 패딩 늘림 */
   }
 
   .partner-card {
