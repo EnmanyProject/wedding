@@ -1,9 +1,10 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { z } from 'zod';
 import { AuthenticatedRequest, authenticateToken } from '../middleware/auth';
 import { asyncHandler, createError } from '../middleware/errorHandler';
 import { disclosureService } from '../services/disclosureService';
 import { ApiResponse } from '../types/api';
+import { db } from '../utils/database';
 
 const router = Router();
 
@@ -176,6 +177,41 @@ router.post('/milestones/:targetId/update', authenticateToken, asyncHandler(asyn
       stack: error.stack,
       requestData: { userId, targetId }
     });
+    throw error;
+  }
+}));
+
+/**
+ * GET /profile/stats
+ * Get public statistics (user count, etc.)
+ */
+router.get('/stats', asyncHandler(async (
+  req: Request,
+  res: Response
+) => {
+  console.log('📊 [ProfileRoute] GET /profile/stats 요청 시작');
+
+  try {
+    // Get active user count
+    const result = await db.queryOne(
+      'SELECT COUNT(*) as count FROM users WHERE is_active = true'
+    );
+
+    const userCount = result?.count || 0;
+
+    console.log('✅ [ProfileRoute] 사용자 통계 조회 성공:', { userCount });
+
+    const response: ApiResponse = {
+      success: true,
+      data: {
+        user_count: userCount
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('❌ [ProfileRoute] 사용자 통계 조회 실패:', error);
     throw error;
   }
 }));

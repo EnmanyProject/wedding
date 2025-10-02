@@ -80,12 +80,12 @@
             <div id="home-view" class="view active">
                 <div class="welcome-section">
                     <div class="welcome-content">
-                        <div class="welcome-text">
-                            <h2>안녕하세요! 👋</h2>
-                            <p>당신의 반려자를 찾으세요</p>
-                        </div>
                         <div class="welcome-bety">
                             <img src="/images/Bety1.png" alt="베티" class="bety-character bety-expressions" id="welcome-bety">
+                        </div>
+                        <div class="welcome-text">
+                            <h2>안녕하세요! 👋</h2>
+                            <p>현재 <span id="user-count">0</span>명의 신부감이 있어요</p>
                         </div>
                     </div>
                 </div>
@@ -369,5 +369,29 @@
     <script src="/js/photos.js"></script>
     <script src="/js/app.js"></script>
     <!-- <script src="/test_button_clicks.js"></script> -->
+
+    <!-- User Count Update Script -->
+    <script>
+        // Update user count on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await window.api.getUserStats();
+                if (response.success && response.data.user_count !== undefined) {
+                    const userCountElement = document.getElementById('user-count');
+                    if (userCountElement) {
+                        userCountElement.textContent = response.data.user_count;
+                        console.log('✅ User count updated:', response.data.user_count);
+                    }
+                }
+            } catch (error) {
+                console.warn('Could not fetch user count:', error);
+                // Set fallback count
+                const userCountElement = document.getElementById('user-count');
+                if (userCountElement) {
+                    userCountElement.textContent = '20+';
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -349,7 +349,7 @@ body {
 .welcome-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* 베티를 왼쪽으로 */
   gap: 20px;
   background: transparent; /* 투명 배경 */
   padding: 20px;
@@ -358,6 +358,7 @@ body {
 
 .welcome-text {
   flex: 1;
+  text-align: left; /* 텍스트 왼쪽 정렬 */
 }
 
 .welcome-bety {

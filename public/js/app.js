@@ -54,6 +54,9 @@ class App {
 
     // Initialize user session
     await this.initializeUserSession();
+
+    // Update user count display
+    await this.updateUserCount();
   }
 
   // Initialize user session

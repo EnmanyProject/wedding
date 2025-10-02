@@ -505,6 +505,11 @@ class APIService {
     }
     return { success: false, error: 'No admin quizzes available' };
   }
+
+  // Get user statistics (public endpoint)
+  async getUserStats() {
+    return this.request('/profile/stats');
+  }
 }
 
 // Create global API instance
