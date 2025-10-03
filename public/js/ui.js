@@ -115,129 +115,92 @@ class UIManager {
   // Load home view data with enhanced error handling and circuit breaker
   async loadHomeData() {
     try {
-      // 🛡️ 강화된 Circuit Breaker 패턴으로 무한 호출 방지
+      // 🔧 Rate Limiting
       const now = Date.now();
-      const lastLoad = localStorage.getItem('lastHomeDataLoad');
-      const failureCount = parseInt(localStorage.getItem('homeDataFailureCount') || '0');
-      const lastFailure = parseInt(localStorage.getItem('lastHomeDataFailure') || '0');
+      const lastLoad = parseInt(localStorage.getItem('lastHomeDataLoad') || '0');
+      const MIN_INTERVAL = 5000; // 5초
 
-      const MIN_INTERVAL = 10000; // 10초 최소 간격
-      const MAX_FAILURES = 5; // 최대 실패 횟수
-      const CIRCUIT_BREAKER_TIMEOUT = 60000; // 1분 Circuit Breaker 타임아웃
-
-      // Circuit Breaker: 연속 실패가 많으면 일정 시간 차단
-      if (failureCount >= MAX_FAILURES && (now - lastFailure) < CIRCUIT_BREAKER_TIMEOUT) {
-        console.log(`🚨 [UI] Circuit Breaker 활성화 - ${Math.ceil((CIRCUIT_BREAKER_TIMEOUT - (now - lastFailure)) / 1000)}초 후 재시도 가능`);
-
-        // 사용자에게 Circuit Breaker 상태 표시
-        this.showToast('일시적으로 연결 문제가 있습니다. 잠시 후 다시 시도해주세요.', 'warning');
-        return;
-      }
-
-      // Rate Limiting 체크
-      if (lastLoad && (now - parseInt(lastLoad)) < MIN_INTERVAL) {
-        console.log('🚫 [UI] loadHomeData 호출이 너무 빠름 - 무시됨');
+      if (lastLoad && (now - lastLoad) < MIN_INTERVAL) {
+        console.log('🚫 [UI] Rate limit: 호출 무시');
         return;
       }
 
       localStorage.setItem('lastHomeDataLoad', now.toString());
-      console.log('✅ [UI] loadHomeData 시작 - Rate limiting 통과');
+      console.log('✅ [UI] loadHomeData 시작');
 
-      let loadErrors = [];
+      // 🔧 Promise.allSettled로 독립적 처리
+      const results = await Promise.allSettled([
+        this.loadPointsData(),
+        this.loadUserAvatarsData(),
+        this.loadRankingsPreview(),
+        this.loadMeetingsPreview()
+      ]);
 
-      // 🛡️ 각 API 호출을 개별적으로 try-catch 처리하여 부분 실패 허용
+      // 결과 분석
+      const failed = results.filter(r => r.status === 'rejected').length;
 
-      // 포인트 데이터 로드
-      try {
-        console.log('Loading points data...');
-        const pointsData = await api.getMyPoints();
-        this.updatePointsDisplay(pointsData.data.balance);
-        console.log('✅ Points data loaded successfully');
-      } catch (pointsError) {
-        console.warn('⚠️ Points loading failed:', pointsError);
-        loadErrors.push('points');
-        this.updatePointsDisplay(0); // 기본값으로 대체
-      }
-
-      // 더 긴 대기 시간으로 안정성 확보
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 사용자 아바타 로드
-      try {
-        console.log('Loading user avatars...');
-        await this.loadUserAvatars();
-        console.log('✅ User avatars loaded successfully');
-      } catch (avatarsError) {
-        console.warn('⚠️ User avatars loading failed:', avatarsError);
-        loadErrors.push('avatars');
-        // 빈 아바타 목록으로 대체
-        this.updateUserAvatars([]);
-      }
-
-      // 더 긴 대기 시간으로 안정성 확보
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 랭킹 데이터 로드 (가장 중요한 데이터)
-      try {
-        console.log('Loading rankings data...');
-        const rankingsData = await api.getMyRanking();
-        this.updateHomeRankings(rankingsData.data.rankings.slice(0, 3));
-        console.log('✅ Rankings data loaded successfully');
-      } catch (rankingsError) {
-        console.warn('⚠️ Rankings loading failed:', rankingsError);
-        loadErrors.push('rankings');
-        // 빈 랭킹으로 대체
-        this.updateHomeRankings([]);
-      }
-
-      // 더 긴 대기 시간으로 안정성 확보
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 미팅 데이터 로드
-      try {
-        console.log('Loading meeting data...');
-        const meetingData = await api.getMeetingState();
-        this.updateHomeMeetings(meetingData.data.available_meetings.slice(0, 3));
-        console.log('✅ Meeting data loaded successfully');
-      } catch (meetingError) {
-        console.warn('⚠️ Meeting data loading failed:', meetingError);
-        loadErrors.push('meetings');
-        // 빈 미팅 목록으로 대체
-        this.updateHomeMeetings([]);
-      }
-
-      // 🛡️ 성공 시 실패 카운터 리셋
-      if (loadErrors.length === 0) {
+      if (failed === 0) {
+        console.log('🎉 [UI] 모든 데이터 로딩 성공');
         localStorage.removeItem('homeDataFailureCount');
-        localStorage.removeItem('lastHomeDataFailure');
-        console.log('🎉 [UI] 모든 홈 데이터 로딩 성공');
-      } else if (loadErrors.length < 4) {
-        // 부분 실패는 경고 메시지만 표시
-        console.log(`⚠️ [UI] 일부 데이터 로딩 실패: ${loadErrors.join(', ')}`);
+      } else if (failed < results.length) {
+        console.warn(`⚠️ [UI] 일부 실패: ${failed}/${results.length}`);
         this.showToast('일부 데이터를 불러오지 못했습니다', 'warning');
-
-        // 부분 실패도 실패 카운터에 포함하지만 덜 가중
-        const currentFailures = Math.min(failureCount + 1, MAX_FAILURES - 1);
-        localStorage.setItem('homeDataFailureCount', currentFailures.toString());
-        localStorage.setItem('lastHomeDataFailure', now.toString());
       } else {
-        // 전체 실패
-        throw new Error(`전체 데이터 로딩 실패: ${loadErrors.join(', ')}`);
+        throw new Error('전체 데이터 로딩 실패');
       }
 
     } catch (error) {
-      console.error('🚨 [UI] 홈 데이터 로딩 전체 실패:', error);
-
-      // 🛡️ 실패 카운터 증가
-      const failureCount = parseInt(localStorage.getItem('homeDataFailureCount') || '0');
-      localStorage.setItem('homeDataFailureCount', (failureCount + 1).toString());
-      localStorage.setItem('lastHomeDataFailure', Date.now().toString());
-
-      // 사용자에게 실패 알림
-      this.showToast('데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error');
-
-      // 기본값으로 UI 초기화
+      console.error('🚨 [UI] 데이터 로딩 실패:', error);
+      this.showToast('데이터를 불러오지 못했습니다', 'error');
       this.initializeDefaultHomeData();
+    }
+  }
+
+  // 🔧 NEW: 개별 데이터 로딩 메서드들
+  async loadPointsData() {
+    try {
+      const pointsData = await api.getMyPoints();
+      this.updatePointsDisplay(pointsData.data.balance);
+      return { success: true };
+    } catch (error) {
+      console.warn('⚠️ Points failed:', error);
+      this.updatePointsDisplay(0);
+      throw error;
+    }
+  }
+
+  async loadUserAvatarsData() {
+    try {
+      await this.loadUserAvatars();
+      return { success: true };
+    } catch (error) {
+      console.warn('⚠️ Avatars failed:', error);
+      this.updateUserAvatars([]);
+      throw error;
+    }
+  }
+
+  async loadRankingsPreview() {
+    try {
+      const rankingsData = await api.getMyRanking();
+      this.updateHomeRankings(rankingsData.data.rankings.slice(0, 3));
+      return { success: true };
+    } catch (error) {
+      console.warn('⚠️ Rankings failed:', error);
+      this.updateHomeRankings([]);
+      throw error;
+    }
+  }
+
+  async loadMeetingsPreview() {
+    try {
+      const meetingData = await api.getMeetingState();
+      this.updateHomeMeetings(meetingData.data.available_meetings.slice(0, 3));
+      return { success: true };
+    } catch (error) {
+      console.warn('⚠️ Meetings failed:', error);
+      this.updateHomeMeetings([]);
+      throw error;
     }
   }
 
