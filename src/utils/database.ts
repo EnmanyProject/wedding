@@ -96,3 +96,6 @@ export async function runMigrations(): Promise<void> {
     await client.end();
   }
 }
+
+// Export database instance for routes
+export const db = Database.getInstance();

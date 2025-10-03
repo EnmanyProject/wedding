@@ -64,7 +64,11 @@
       "Bash(start http://localhost:6006)",
       "Bash(curl:*)",
       "Bash(dir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(timeout 5 curl -s http://localhost:3001/api/profile/stats)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

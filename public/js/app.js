@@ -11,10 +11,7 @@ class App {
     try {
       SecurityUtils.safeLog(`A&B Meeting App v${this.version} initializing...`);
 
-      // 베티 매니저 준비 대기
-      await this.waitForBetyManager();
-
-      // Initialize core services
+      // Initialize core services (베티 매니저 대기 제거)
       await this.initializeServices();
 
       // Setup development tools if in dev mode
@@ -36,7 +33,10 @@ class App {
 
     } catch (error) {
       SecurityUtils.safeLog('App initialization failed:', error);
-      ui.showToast('앱 초기화 실패', 'error');
+      // 오류가 있어도 앱은 표시
+      if (window.ui) {
+        ui.showToast('일부 기능이 제한될 수 있습니다', 'warning');
+      }
     }
   }
 
@@ -85,8 +85,7 @@ class App {
     // Initialize user session
     await this.initializeUserSession();
 
-    // Update user count display
-    await this.updateUserCount();
+    // User count is handled by HTML initialization
   }
 
   // Initialize user session

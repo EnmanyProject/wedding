@@ -40,49 +40,22 @@ class UIManager {
     // 베티 매니저에게 표정 변화 위임 (setupBetyExpressions 제거)
   }
 
-  // 로딩 화면 숨기기 (강제 타임아웃 추가)
+  // 로딩 화면 즉시 숨기기 (무한 로딩 방지)
   hideLoadingScreen() {
-    // 즉시 로딩 화면 숨기기 (서버 오류 시 무한 로딩 방지)
+    // 즉시 로딩 화면 숨기기
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+
+    if (loadingScreen && app) {
+      loadingScreen.style.display = 'none';
+      app.style.display = 'block';
+      console.log('✅ [UI] Loading screen hidden immediately');
+    }
+
+    // 매니저들 백그라운드 초기화
     setTimeout(() => {
-      const loadingScreen = document.getElementById('loading-screen');
-      const app = document.getElementById('app');
-
-      if (loadingScreen && app) {
-        loadingScreen.style.display = 'none';
-        app.style.display = 'block';
-        console.log('✅ [UI] Loading screen hidden (force timeout)');
-      }
-    }, 2000); // 2초 후 강제로 로딩 화면 숨기기
-
-    // 베티 매니저와 로딩 매니저 준비 대기 (백그라운드)
-    const waitForManagers = () => {
-      return new Promise((resolve) => {
-        const checkManagers = () => {
-          const betyReady = window.betyManager && window.betyManager.isInitialized;
-          const loadingManagerReady = window.loadingManager;
-
-          if (betyReady && loadingManagerReady) {
-            console.log('✅ [UI] All managers ready');
-            resolve();
-          } else {
-            console.log('⏳ [UI] Waiting for managers...', { betyReady, loadingManagerReady });
-            setTimeout(checkManagers, 100);
-          }
-        };
-
-        checkManagers();
-
-        // 최대 5초 타임아웃
-        setTimeout(() => {
-          console.log('⚠️ [UI] Manager timeout, proceeding anyway');
-          resolve();
-        }, 5000);
-      });
-    };
-
-    waitForManagers().then(() => {
-      console.log('🎭 [UI] Managers ready, UI fully initialized');
-    });
+      console.log('🎭 [UI] UI initialization complete');
+    }, 100);
   }
 
   // Switch between views with enhanced animations
