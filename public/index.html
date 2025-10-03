@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A&B 미팅 앱 - 사진 기반 퀴즈로 만나는 특별한 인연</title>
-    <meta name="description" content="A&B 취향 퀴즈와 사진 기반 예측으로 완벽한 인연을 찾아보세요">
+    <title>누구나 - 사진 기반 퀴즈로 만나는 특별한 인연</title>
+    <meta name="description" content="누구나 취향 퀴즈와 사진 기반 예측으로 완벽한 인연을 찾아보세요">
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="A&B 미팅">
+    <meta name="apple-mobile-web-app-title" content="누구나">
     <link rel="manifest" href="/manifest.json">
 
     <!-- Icons -->
@@ -37,6 +37,8 @@
     <link rel="stylesheet" href="/styles/mobile-optimized.css?v=20251002">
     <!-- 🎯 향상된 퀴즈 UI/UX -->
     <link rel="stylesheet" href="/styles/quiz-enhanced.css?v=20251002">
+    <!-- ✨ 세련된 로딩 화면 전환 효과 -->
+    <link rel="stylesheet" href="/styles/elegant-loading.css?v=20251002">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -46,12 +48,19 @@
     <a href="#main-content" class="skip-link">메인 콘텐츠로 건너뛰기</a>
 
     <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
-        <div class="loading-character">
-            <img src="/images/Bety1.png" alt="베티 캐릭터가 로딩 중입니다" class="bety-character loading-bounce">
+    <div id="loading-screen" class="loading-screen elegant-loading" role="status" aria-live="polite">
+        <div class="loading-content">
+            <div class="loading-character">
+                <img src="/images/Bety1.png" alt="베티 캐릭터가 준비 중입니다" class="bety-character loading-bounce">
+            </div>
+            <div class="loading-text-container">
+                <h2 class="loading-title">누구나</h2>
+                <p class="loading-message" id="loading-message">베티가 특별한 인연을 준비하고 있어요... 💕</p>
+                <div class="loading-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
         </div>
-        <div class="loading-spinner" aria-hidden="true"></div>
-        <p>A&B 미팅 로딩중...</p>
     </div>
 
     <!-- Main App Container -->
@@ -60,7 +69,7 @@
         <header class="app-header" role="banner">
             <div class="header-content">
                 <div class="title-section">
-                    <h1 class="app-title">A&B 미팅</h1>
+                    <h1 class="app-title">누구나</h1>
                     <span class="app-version" id="app-version">v1.34.02-58e746a</span>
                 </div>
                 <div class="header-stats" role="region" aria-label="사용자 상태 정보">
@@ -384,8 +393,64 @@
 
     <!-- App Initialization Script -->
     <script>
+        // ✨ 세련된 로딩 전환 시스템
+        function hideLoadingAndShowApp() {
+            console.log('🚀 세련된 로딩 전환 시작...');
+
+            const loadingScreen = document.getElementById('loading-screen');
+            const appContainer = document.getElementById('app');
+
+            if (loadingScreen) {
+                // 베티 애니메이션 중지
+                if (window.betyManager && window.betyManager.isInitialized) {
+                    window.betyManager.showExpression('happy', 1000);
+                }
+
+                // CSS 클래스를 사용한 부드러운 페이드 아웃
+                loadingScreen.classList.add('fade-out');
+                console.log('✅ 로딩 화면 페이드 아웃 시작');
+
+                // 전환 애니메이션 완료 후 숨기기 (1.5초 후)
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    console.log('✅ 로딩 화면 완전히 숨김');
+                }, 1500);
+            }
+
+            if (appContainer) {
+                // 앱 컨테이너 등장 애니메이션
+                appContainer.classList.add('entering');
+                appContainer.style.display = 'block';
+
+                // 약간의 지연 후 진입 애니메이션
+                setTimeout(() => {
+                    appContainer.classList.remove('entering');
+                    appContainer.classList.add('entered');
+                    console.log('✅ 앱 컨테이너 우아하게 표시');
+                }, 500);
+            }
+
+            console.log('🎉 세련된 앱 전환 완료!');
+        }
+
         // App initialization on page load
         document.addEventListener('DOMContentLoaded', async function() {
+            // 즉시 로딩 화면 숨기기 (테스트용)
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                const appContainer = document.getElementById('app');
+
+                if (loadingScreen) {
+                    loadingScreen.style.display = 'none';
+                    console.log('✅ [UI] Loading screen hidden immediately');
+                }
+
+                if (appContainer) {
+                    appContainer.style.display = 'block';
+                    appContainer.style.opacity = '1';
+                }
+            }, 100);
+
             // Update user count
             try {
                 const response = await window.api.getUserStats();
