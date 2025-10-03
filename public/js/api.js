@@ -4,10 +4,26 @@ class APIService {
     this.baseURL = '/api';
     this.token = localStorage.getItem('auth_token');
 
-    // 성능 최적화: 캐싱 시스템 추가
-    this.cache = new Map();
-    this.cacheTimeout = 30000; // 30초 캐시
+    // ⚡ 성능 최적화: 고급 캐싱 시스템
+    this.initializeCache();
     this.pendingRequests = new Map(); // 중복 요청 방지
+  }
+
+  // 캐싱 시스템 초기화
+  async initializeCache() {
+    try {
+      // 동적 import로 캐시 모듈 로드
+      const cacheModule = await import('/js/utils/cache.js');
+      this.memoryCache = cacheModule.memoryCache;
+      this.sessionCache = cacheModule.sessionCache;
+      this.persistentCache = cacheModule.persistentCache;
+      console.log('✅ [API] 고급 캐싱 시스템 초기화 완료');
+    } catch (error) {
+      console.warn('⚠️ [API] 캐싱 시스템 로드 실패, 기본 캐싱 사용:', error);
+      // 폴백: 기본 캐싱
+      this.cache = new Map();
+      this.cacheTimeout = 30000; // 30초
+    }
   }
 
   // Authentication headers
@@ -26,43 +42,82 @@ class APIService {
   }
 
   // 캐시 키 생성
-  getCacheKey(url, options) {
-    return `${url}_${JSON.stringify(options)}`;
+  getCacheKey(url, options = {}) {
+    return this.memoryCache?.generateKey?.(url, options) || `${url}_${JSON.stringify(options)}`;
   }
 
-  // 캐시에서 데이터 조회
-  getCachedData(cacheKey) {
-    const cached = this.cache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
-      return cached.data;
+  // 캐시에서 데이터 조회 (고급 캐싱 우선, 폴백)
+  getCachedData(cacheKey, cacheType = 'memory') {
+    // 고급 캐싱 시스템 사용
+    if (this.memoryCache) {
+      const cache = cacheType === 'session' ? this.sessionCache :
+                    cacheType === 'persistent' ? this.persistentCache :
+                    this.memoryCache;
+      return cache.get(cacheKey);
+    }
+
+    // 폴백: 기본 캐싱
+    if (this.cache) {
+      const cached = this.cache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+        return cached.data;
+      }
     }
     return null;
   }
 
-  // 캐시에 데이터 저장
-  setCachedData(cacheKey, data) {
-    this.cache.set(cacheKey, {
-      data,
-      timestamp: Date.now()
-    });
+  // 캐시에 데이터 저장 (고급 캐싱 우선, 폴백)
+  setCachedData(cacheKey, data, cacheType = 'memory', customTTL = null) {
+    // 고급 캐싱 시스템 사용
+    if (this.memoryCache) {
+      const cache = cacheType === 'session' ? this.sessionCache :
+                    cacheType === 'persistent' ? this.persistentCache :
+                    this.memoryCache;
+      cache.set(cacheKey, data, customTTL);
+      return;
+    }
 
-    // 캐시 크기 제한 (100개 항목)
-    if (this.cache.size > 100) {
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+    // 폴백: 기본 캐싱
+    if (this.cache) {
+      this.cache.set(cacheKey, {
+        data,
+        timestamp: Date.now()
+      });
+
+      // 캐시 크기 제한 (100개 항목)
+      if (this.cache.size > 100) {
+        const oldestKey = this.cache.keys().next().value;
+        this.cache.delete(oldestKey);
+      }
     }
   }
 
-  // 캐시 무효화
+  // 캐시 무효화 (고급 캐싱 우선, 폴백)
   invalidateCache(pattern = null) {
-    if (pattern) {
-      for (const key of this.cache.keys()) {
-        if (key.includes(pattern)) {
-          this.cache.delete(key);
-        }
+    // 고급 캐싱 시스템 사용
+    if (this.memoryCache) {
+      if (pattern) {
+        this.memoryCache.invalidate(pattern);
+        this.sessionCache?.invalidate(pattern);
+      } else {
+        this.memoryCache.clear();
+        this.sessionCache?.clear();
       }
-    } else {
-      this.cache.clear();
+      console.log('💾 [API] 캐시 무효화:', pattern || 'all');
+      return;
+    }
+
+    // 폴백: 기본 캐싱
+    if (this.cache) {
+      if (pattern) {
+        for (const key of this.cache.keys()) {
+          if (key.includes(pattern)) {
+            this.cache.delete(key);
+          }
+        }
+      } else {
+        this.cache.clear();
+      }
     }
   }
 

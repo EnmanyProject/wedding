@@ -12,7 +12,43 @@ class UIManager {
     this.isPartnerSwiping = false;
     this.hintTimeout = null;
     this.isHintVisible = false;
+
+    // ⚡ 성능 최적화 유틸리티 초기화
+    this.initPerformanceUtils();
+
     this.init();
+  }
+
+  // 성능 유틸리티 초기화
+  async initPerformanceUtils() {
+    try {
+      const perfModule = await import('/js/utils/performance.js');
+      this.debounce = perfModule.debounce;
+      this.throttle = perfModule.throttle;
+      this.lazyLoader = perfModule.lazyLoader;
+      this.perfTracker = perfModule.perfTracker;
+      console.log('✅ [UI] 성능 유틸리티 로드 완료');
+    } catch (error) {
+      console.warn('⚠️ [UI] 성능 유틸리티 로드 실패:', error);
+      // 폴백: 기본 함수
+      this.debounce = (fn, delay) => {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => fn(...args), delay);
+        };
+      };
+      this.throttle = (fn, delay) => {
+        let last = 0;
+        return (...args) => {
+          const now = Date.now();
+          if (now - last >= delay) {
+            last = now;
+            fn(...args);
+          }
+        };
+      };
+    }
   }
 
   init() {
@@ -1248,24 +1284,30 @@ class UIManager {
 
   // Setup resize handler for partner swiper
   setupPartnerResizeHandler() {
-    let resizeTimeout;
-
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        console.log('📱 [Resize] 화면 크기 변경 감지, 카드 위치 재조정');
-        this.snapToPartnerCard(false); // 리사이즈 시에는 애니메이션 없이 즉시 이동
-      }, 150); // 150ms 디바운스
+    // ⚡ 성능 최적화: debounce 적용
+    const resizeHandler = () => {
+      console.log('📱 [Resize] 화면 크기 변경 감지, 카드 위치 재조정');
+      this.snapToPartnerCard(false); // 리사이즈 시에는 애니메이션 없이 즉시 이동
     };
 
+    // debounce가 로드되었으면 사용, 아니면 기본 setTimeout 방식
+    const handleResize = this.debounce ?
+      this.debounce(resizeHandler, 250) :
+      resizeHandler;
+
     window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', () => {
-      // 방향 전환 시 약간의 딜레이 후 재조정
-      setTimeout(() => {
-        console.log('📱 [Orientation] 화면 방향 변경 감지, 카드 위치 재조정');
-        this.snapToPartnerCard(false); // 방향 전환 시에는 애니메이션 없이 즉시 이동
-      }, 300);
-    });
+
+    // orientationchange도 debounce 적용
+    const orientationHandler = () => {
+      console.log('📱 [Orientation] 화면 방향 변경 감지, 카드 위치 재조정');
+      this.snapToPartnerCard(false);
+    };
+
+    const handleOrientation = this.debounce ?
+      this.debounce(orientationHandler, 300) :
+      orientationHandler;
+
+    window.addEventListener('orientationchange', handleOrientation);
   }
 
   // Navigate partner cards
