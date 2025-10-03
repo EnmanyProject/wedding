@@ -4,6 +4,7 @@ class App {
     this.version = '1.0.0';
     this.initialized = false;
     this.socket = null;
+    this.loadingTimeout = null; // 🔧 NEW: 로딩 타임아웃
     this.init();
   }
 
@@ -11,16 +12,16 @@ class App {
     try {
       SecurityUtils.safeLog(`A&B Meeting App v${this.version} initializing...`);
 
-      // Initialize core services (베티 매니저 대기 제거)
+      // 🔧 NEW: 최대 10초 후 강제로 로딩 화면 숨기기
+      this.setupLoadingTimeout();
+
+      // Initialize core services
       await this.initializeServices();
 
       // Setup development tools if in dev mode
       if (this.isDevelopment()) {
         await this.setupDevelopmentTools();
       }
-
-      // Setup real-time features (임시 비활성화)
-      // this.setupWebSocket();
 
       // Setup PWA features
       this.setupPWA();
@@ -31,13 +32,52 @@ class App {
       this.initialized = true;
       SecurityUtils.safeLog('A&B Meeting App initialized successfully');
 
+      // 🔧 NEW: 초기화 성공 시 로딩 화면 명시적 제거
+      this.hideLoadingScreen();
+
     } catch (error) {
       SecurityUtils.safeLog('App initialization failed:', error);
-      // 오류가 있어도 앱은 표시
+
+      // 🔧 NEW: 에러 발생 시에도 로딩 화면 숨기기
+      this.hideLoadingScreen();
+
       if (window.ui) {
         ui.showToast('일부 기능이 제한될 수 있습니다', 'warning');
       }
     }
+  }
+
+  // 🔧 NEW: 로딩 타임아웃 설정
+  setupLoadingTimeout() {
+    this.loadingTimeout = setTimeout(() => {
+      console.warn('⚠️ 로딩 타임아웃 - 강제로 앱 표시');
+      this.hideLoadingScreen();
+      if (window.ui) {
+        ui.showToast('일부 데이터를 불러오는데 실패했습니다', 'warning');
+      }
+    }, 10000); // 10초 타임아웃
+  }
+
+  // 🔧 NEW: 로딩 화면 숨기기
+  hideLoadingScreen() {
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
+      this.loadingTimeout = null;
+    }
+
+    const loadingScreen = document.getElementById('loading-screen');
+    const appContainer = document.getElementById('app');
+
+    if (loadingScreen) {
+      loadingScreen.style.display = 'none';
+    }
+
+    if (appContainer) {
+      appContainer.style.display = 'block';
+      appContainer.style.opacity = '1';
+    }
+
+    console.log('✅ 로딩 화면 숨김 완료');
   }
 
   // 베티 매니저 준비 대기
@@ -84,8 +124,6 @@ class App {
 
     // Initialize user session
     await this.initializeUserSession();
-
-    // User count is handled by HTML initialization
   }
 
   // Initialize user session
@@ -560,6 +598,11 @@ Configuration:
   cleanup() {
     if (this.socket) {
       this.socket.disconnect();
+    }
+
+    // 🔧 NEW: 타이머 정리
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
     }
 
     this.trackEvent('app_end', {
