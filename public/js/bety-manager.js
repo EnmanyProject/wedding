@@ -27,22 +27,21 @@ class BetyManager {
       // 베티 요소들 먼저 설정 (기본 이미지로)
       this.setupBetyElements();
 
-      // 이미지 프리로드 (백그라운드에서)
+      // 이미지 프리로드 (백그라운드에서) - 자동 애니메이션 시작 안 함
       this.preloadImages().then(() => {
-        console.log('🎭 [Bety] Image preloading completed');
-        // 프리로드 완료 후 자동 표정 변화 시작
-        this.startAutoExpressionCycle();
+        console.log('🎭 [Bety] Image preloading completed - waiting for app ready');
       }).catch(error => {
         console.warn('🎭 [Bety] Image preloading failed, using default images:', error);
-        // 프리로드 실패해도 기본 기능은 동작
-        this.startAutoExpressionCycle();
       });
 
       // 컨텍스트 기반 표정 변화 설정
       this.setupContextualExpressions();
 
+      // 로딩 완료 후에만 자동 표정 변화 시작
+      this.waitForAppReady();
+
       this.isInitialized = true;
-      console.log('🎭 [Bety] Manager initialized successfully');
+      console.log('🎭 [Bety] Manager initialized successfully (auto-animation delayed)');
 
       // 초기화 완료 이벤트 발생
       document.dispatchEvent(new CustomEvent('betyManagerReady'));
@@ -53,6 +52,26 @@ class BetyManager {
       this.isInitialized = true;
       document.dispatchEvent(new CustomEvent('betyManagerReady'));
     }
+  }
+
+  // 앱 준비 완료 대기
+  waitForAppReady() {
+    // 로딩 화면이 숨겨질 때까지 대기
+    const checkLoadingScreen = () => {
+      const loadingScreen = document.getElementById('loading-screen');
+      if (!loadingScreen || loadingScreen.style.display === 'none') {
+        console.log('🎭 [Bety] App ready, starting auto expression cycle');
+        // 3초 추가 대기 후 자동 애니메이션 시작
+        setTimeout(() => {
+          this.startAutoExpressionCycle();
+        }, 3000);
+      } else {
+        // 500ms 후 다시 확인
+        setTimeout(checkLoadingScreen, 500);
+      }
+    };
+
+    checkLoadingScreen();
   }
 
   // 이미지 프리로드 (성능 최적화)
