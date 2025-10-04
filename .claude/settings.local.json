@@ -68,7 +68,9 @@
       "Bash(timeout 5 curl -s http://localhost:3001/api/profile/stats)",
       "Bash(npm run dev:*)",
       "Bash(netstat:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(timeout:*)",
+      "Bash(set PORT=3001)"
     ],
     "deny": [],
     "ask": []

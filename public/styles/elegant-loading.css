@@ -35,18 +35,19 @@
 .loading-character .bety-character {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 20px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 0; /* 원형 배경 제거 */
+  background: transparent; /* 배경 투명 */
+  padding: 0; /* 패딩 제거 */
+  backdrop-filter: none; /* 블러 효과 제거 */
+  box-shadow: none; /* 박스 섀도우 제거 */
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)); /* 자연스러운 드롭 섀도우 */
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   animation: float 3s ease-in-out infinite;
 }
 
 .loading-character .bety-character:hover {
   transform: scale(1.1) rotateY(15deg);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.2)); /* 호버 시 섀도우만 */
 }
 
 .loading-text-container {

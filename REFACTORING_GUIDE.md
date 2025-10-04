@@ -1,7 +1,8 @@
 # 🔧 Wedding App Refactoring Guide
 
 리팩토링 완료 날짜: 2025-10-03
-버전: 1.0.0
+버전: 1.1.0
+최종 업데이트: 2025-10-03 22:06 KST
 
 ## 📋 목차
 
@@ -567,34 +568,146 @@ refactor: integrate ErrorHandler into api.js
 
 ## 변경 이력
 
+### 2025-10-03 22:06 KST - 로딩 최적화 완료
+- ✅ **loading-manager.js 로그 최적화**
+  - 이미지 리소스 로딩 로그 비활성화 (PNG, JPG, JPEG)
+  - 콘솔 출력 약 30+ 줄 감소
+  - 중요한 API 요청 로그만 유지
+
+- ✅ **bety-manager.js 로그 최적화**
+  - 개별 Bety 이미지 로드 로그 제거 (7개 → 1개 요약)
+  - 프리로드 완료 시 총 개수만 표시
+  - 콘솔 가독성 대폭 향상
+
+- ✅ **Bety 애니메이션 타이밍 개선**
+  - 앱 로딩 완료 후에만 자동 표정 변화 시작
+  - 3초 추가 대기로 초기 로딩 부담 감소
+  - 로딩 화면 → 메인 화면 전환 안정화
+
 ### 2025-10-03 - Phase 1 완료
-- ✅ ErrorHandler 유틸리티 생성
-- ✅ UI Components 유틸리티 생성
-- ✅ Formatters 유틸리티 생성
+- ✅ ErrorHandler 유틸리티 생성 (error-handler.js)
+- ✅ UI Components 유틸리티 생성 (ui-components.js)
+- ✅ Formatters 유틸리티 생성 (formatters.js)
 - ✅ index.html에 유틸리티 통합
-- ✅ 리팩토링 가이드 문서 작성
+- ✅ 리팩토링 가이드 문서 작성 (REFACTORING_GUIDE.md)
+- ✅ 성능 유틸리티 이미 완료 (performance.js)
+- ✅ 캐싱 시스템 이미 완료 (cache.js)
 
 ### 다음 마일스톤
-- ⏳ Phase 2: api.js 통합
-- ⏳ Phase 2: ui.js 통합
-- ⏳ Phase 3: MobileSwiper 컴포넌트 추출
+- ⏳ Phase 2: api.js에 ErrorHandler 통합
+- ⏳ Phase 2: ui.js에 UI Components 통합
+- ⏳ Phase 2: ui.js에 Formatters 통합
+- ⏳ Phase 3: MobileSwiper 컴포넌트 추출 (선택사항)
 
 ---
 
 ## 결론
 
-Phase 1이 성공적으로 완료되었습니다. 3개의 핵심 유틸리티가 생성되어 코드 품질과 유지보수성 향상을 위한 기반이 마련되었습니다.
+### 완료된 작업 요약 (2025-10-03)
 
-**다음 단계:** Phase 2로 진행하여 api.js와 ui.js에 유틸리티를 통합하세요.
+#### Phase 1: 리팩토링 기반 구축 ✅
+3개의 핵심 유틸리티가 생성되어 코드 품질과 유지보수성 향상을 위한 기반이 마련되었습니다.
+
+**생성된 파일:**
+- `/public/js/utils/error-handler.js` - 270 줄
+- `/public/js/utils/ui-components.js` - 332 줄
+- `/public/js/utils/formatters.js` - 294 줄
+- `REFACTORING_GUIDE.md` - 완전한 가이드 문서
+
+**기존 완료 파일:**
+- `/public/js/utils/performance.js` - 266 줄
+- `/public/js/utils/cache.js` - 248 줄
+
+**총 유틸리티 코드:** ~1,410 줄의 재사용 가능한 코드
+
+#### 로딩 최적화 ✅
+사용자 피드백에 따라 무한 로딩 로그 문제 해결:
+
+**수정된 파일:**
+1. `loading-manager.js:409` - 이미지 로그 비활성화
+2. `bety-manager.js:86` - 개별 이미지 로드 로그 제거
+3. `bety-manager.js:23-75` - 애니메이션 타이밍 최적화 (이전 세션에서 완료)
+
+**결과:**
+- ✅ 콘솔 로그 약 30+ 줄 감소
+- ✅ 로딩 화면 → 메인 화면 전환 안정화
+- ✅ Bety 애니메이션 지연 시작으로 초기 부담 감소
+
+### 다음 단계 권장사항
+
+**Phase 2: 유틸리티 통합 (권장)**
+api.js와 ui.js에 유틸리티를 통합하여 실제 이점 실현:
 
 **예상 결과:**
-- 코드 약 350줄 감소
+- 코드 약 350줄 감소 (-20%)
 - 일관된 에러 처리
 - 재사용 가능한 UI 컴포넌트
 - 향상된 개발자 경험
+- 버그 감소 및 유지보수성 향상
+
+**Phase 3: 추가 최적화 (선택)**
+- MobileSwiper 컴포넌트 추출 (-500 줄)
+- JSDoc 타입 주석 추가
+- 테스트 코드 작성 (목표 60%+ 커버리지)
+
+### 기술 부채 현황
+
+**Before (시작 전):**
+- ui.js: 1,924 줄
+- api.js: 616 줄
+- 코드 중복: ~25%
+- 테스트: 0%
+
+**After (Phase 1 완료):**
+- ui.js: 1,924 줄 (변경 없음)
+- api.js: 616 줄 (변경 없음)
+- 유틸리티: +1,410 줄 (새로 생성)
+- 코드 중복: ~25% (통합 후 ~5%로 감소 예상)
+- 테스트: 0% (통합 후 테스트 작성 가능)
+
+**Phase 2 완료 후 예상:**
+- ui.js: ~1,100 줄 (-43%)
+- api.js: ~450 줄 (-27%)
+- 유틸리티: 1,410 줄 (유지)
+- 코드 중복: ~5% (-80%)
+- 테스트 가능성: 높음
 
 ---
 
 **작성자:** Claude Code
 **날짜:** 2025-10-03
-**버전:** 1.0.0
+**버전:** 1.1.0
+**세션 완료 시간:** 22:06 KST
+
+---
+
+## 빠른 참조
+
+### 생성된 파일 위치
+```
+public/js/utils/
+├── error-handler.js    # 🛡️ 에러 처리
+├── ui-components.js    # 💎 UI 컴포넌트
+├── formatters.js       # 📐 데이터 포맷팅
+├── performance.js      # ⚡ 성능 최적화
+└── cache.js           # 💾 캐싱 시스템
+
+REFACTORING_GUIDE.md   # 📖 완전한 리팩토링 가이드
+```
+
+### 주요 수정된 파일
+```
+public/index.html           # 유틸리티 스크립트 추가
+public/js/loading-manager.js # 이미지 로그 비활성화
+public/js/bety-manager.js   # 로그 최적화 + 애니메이션 타이밍
+```
+
+### 다음 작업 시작하기
+```bash
+# Phase 2 통합 시작
+# 1. api.js에 ErrorHandler 통합
+# 2. ui.js에 UI Components 통합
+# 3. ui.js에 Formatters 통합
+
+# 자세한 내용은 REFACTORING_GUIDE.md 참조
+```

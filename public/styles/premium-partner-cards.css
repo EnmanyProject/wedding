@@ -1,0 +1,663 @@
+/* 🎨 프리미엄 파트너 카드 디자인 - 천재 UI 디자이너 버전 */
+
+/* ==========================================
+   메인 컨테이너 - 모던 카드 스와이퍼
+   ========================================== */
+.mobile-partner-swiper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 600px;
+  margin: 2rem auto;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.partner-cards-container {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   파트너 카드 - 프리미엄 디자인
+   ========================================== */
+.partner-card {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+
+.partner-card:active {
+  cursor: grabbing;
+}
+
+.partner-card .card-content {
+  width: 100%;
+  height: 95%;
+  background: linear-gradient(135deg,
+    #ffffff 0%,
+    #fefefe 50%,
+    #f8f9fa 100%
+  );
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 카드 호버 효과 */
+.partner-card:hover .card-content {
+  transform: translateY(-4px);
+  box-shadow:
+    0 15px 50px rgba(0, 0, 0, 0.15),
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* 카드 배경 패턴 */
+.partner-card .card-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(173, 216, 230, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 카드 상단 장식 */
+.partner-card .card-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    #ff6b9d 0%,
+    #c94b8b 25%,
+    #a44a92 50%,
+    #8b5cf6 75%,
+    #667eea 100%
+  );
+  opacity: 0.8;
+}
+
+/* ==========================================
+   프로필 아바타 - 3D 효과
+   ========================================== */
+.partner-avatar-large {
+  width: 180px;
+  height: 180px;
+  margin: 20px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.partner-avatar-large::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(135deg,
+    rgba(255, 107, 157, 0.3) 0%,
+    rgba(139, 92, 246, 0.3) 100%
+  );
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.6;
+  z-index: -1;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.partner-avatar-large .profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.partner-card:hover .partner-avatar-large .profile-image {
+  transform: scale(1.05) rotate(2deg);
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.8),
+    inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   사용자 정보 - 우아한 타이포그래피
+   ========================================== */
+.partner-info {
+  text-align: center;
+  margin: 10px 0 20px;
+  z-index: 1;
+}
+
+.partner-info h3 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   퀴즈 통계 - 모던 카드 스타일
+   ========================================== */
+.partner-quiz-stats {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: center;
+  margin: 10px 0;
+  z-index: 1;
+}
+
+.partner-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(250, 250, 250, 0.9) 100%
+  );
+  border-radius: 16px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 100px;
+}
+
+.partner-stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.partner-stat-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.partner-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.partner-stat-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ==========================================
+   액션 버튼 - 프리미엄 CTA
+   ========================================== */
+.partner-actions {
+  width: 100%;
+  margin-top: auto;
+  z-index: 1;
+}
+
+.partner-action-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg,
+    #667eea 0%,
+    #764ba2 100%
+  );
+  border-radius: 14px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow:
+    0 8px 24px rgba(102, 126, 234, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: hint-bounce 2s ease-in-out infinite;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes hint-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.partner-action-hint:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 12px 32px rgba(102, 126, 234, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.hint-icon {
+  font-size: 24px;
+  animation: point-finger 1.5s ease-in-out infinite;
+}
+
+@keyframes point-finger {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.1);
+  }
+}
+
+.hint-text {
+  letter-spacing: 0.3px;
+}
+
+/* ==========================================
+   네비게이션 컨트롤 - 세련된 버튼
+   ========================================== */
+.partner-swiper-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  z-index: 10;
+}
+
+.partner-nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(250, 250, 250, 0.95) 100%
+  );
+  border: none;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.partner-nav-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.98) 100%
+  );
+  box-shadow:
+    0 6px 24px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.partner-nav-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.partner-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.partner-counter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  backdrop-filter: blur(10px);
+}
+
+/* ==========================================
+   페이지네이션 - 모던 인디케이터
+   ========================================== */
+.partner-swiper-pagination {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.partner-pagination-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.partner-pagination-dot.active {
+  width: 24px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.partner-pagination-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.2);
+}
+
+/* ==========================================
+   Empty State - 친근한 빈 상태
+   ========================================== */
+.partner-card.empty .card-content {
+  background: linear-gradient(135deg,
+    rgba(255, 248, 250, 0.95) 0%,
+    rgba(248, 250, 255, 0.95) 100%
+  );
+  justify-content: center;
+  gap: 24px;
+}
+
+.empty .loading-character img {
+  width: 120px;
+  height: 120px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.empty h3 {
+  font-size: 20px;
+  color: #666;
+  margin: 0;
+}
+
+.empty p {
+  font-size: 15px;
+  color: #999;
+  margin: 0;
+}
+
+/* ==========================================
+   반응형 디자인 - 모바일 최적화
+   ========================================== */
+@media (max-width: 768px) {
+  .mobile-partner-swiper {
+    max-width: 100%;
+    height: 550px;
+    margin: 1rem 10px;
+    border-radius: 20px;
+  }
+
+  .partner-card .card-content {
+    padding: 30px 20px;
+  }
+
+  .partner-avatar-large {
+    width: 150px;
+    height: 150px;
+    margin: 15px 0;
+  }
+
+  .partner-info h3 {
+    font-size: 24px;
+  }
+
+  .partner-quiz-stats {
+    gap: 12px;
+  }
+
+  .partner-stat-item {
+    padding: 12px 18px;
+    min-width: 85px;
+  }
+
+  .partner-stat-icon {
+    font-size: 24px;
+  }
+
+  .partner-stat-value {
+    font-size: 20px;
+  }
+
+  .partner-stat-label {
+    font-size: 12px;
+  }
+
+  .partner-action-hint {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  .partner-swiper-controls {
+    padding: 0 20px;
+  }
+
+  .partner-nav-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-partner-swiper {
+    height: 520px;
+    margin: 0.5rem 5px;
+  }
+
+  .partner-card .card-content {
+    padding: 25px 15px;
+  }
+
+  .partner-avatar-large {
+    width: 130px;
+    height: 130px;
+  }
+
+  .partner-info h3 {
+    font-size: 22px;
+  }
+
+  .partner-quiz-stats {
+    gap: 10px;
+  }
+
+  .partner-stat-item {
+    padding: 10px 14px;
+    min-width: 75px;
+  }
+
+  .partner-stat-icon {
+    font-size: 22px;
+  }
+
+  .partner-stat-value {
+    font-size: 18px;
+  }
+
+  .partner-stat-label {
+    font-size: 11px;
+  }
+}
+
+/* ==========================================
+   다크 모드 지원
+   ========================================== */
+@media (prefers-color-scheme: dark) {
+  .mobile-partner-swiper {
+    background: linear-gradient(135deg,
+      rgba(30, 30, 35, 0.9) 0%,
+      rgba(25, 25, 30, 0.9) 100%
+    );
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .partner-card .card-content {
+    background: linear-gradient(135deg,
+      #2a2a2f 0%,
+      #25252a 50%,
+      #202025 100%
+    );
+    box-shadow:
+      0 10px 40px rgba(0, 0, 0, 0.5),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .partner-card .card-content::before {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%);
+  }
+
+  .partner-info h3 {
+    background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .partner-stat-item {
+    background: linear-gradient(135deg,
+      rgba(50, 50, 55, 0.9) 0%,
+      rgba(45, 45, 50, 0.9) 100%
+    );
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .partner-stat-label {
+    color: #aaa;
+  }
+
+  .partner-nav-btn {
+    background: linear-gradient(135deg,
+      rgba(50, 50, 55, 0.95) 0%,
+      rgba(45, 45, 50, 0.95) 100%
+    );
+  }
+
+  .partner-nav-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg,
+      rgba(60, 60, 65, 1) 0%,
+      rgba(55, 55, 60, 0.98) 100%
+    );
+  }
+
+  .partner-counter {
+    background: rgba(40, 40, 45, 0.9);
+    color: #e0e0e0;
+  }
+
+  .partner-pagination-dot {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ==========================================
+   접근성 - 모션 감소
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -83,7 +83,7 @@ class BetyManager {
         const img = new Image();
         img.onload = () => {
           this.preloadedImages.set(expression.name, img);
-          console.log(`✅ [Bety] Loaded: ${expression.name}`);
+          // 개별 이미지 로드 로그 제거 (너무 많음)
           resolve(img);
         };
         img.onerror = () => {
@@ -100,7 +100,7 @@ class BetyManager {
 
     try {
       await Promise.allSettled(loadPromises);
-      console.log('🎭 [Bety] All images preloaded');
+      console.log(`🎭 [Bety] All ${this.preloadedImages.size} images preloaded`);
     } catch (error) {
       console.warn('🎭 [Bety] Some images failed to preload:', error);
     }

@@ -102,7 +102,13 @@ class LoadingManager {
 
   // 글로벌 로딩 오버레이 생성
   createGlobalLoadingOverlay() {
-    if (document.getElementById('global-loading-overlay')) return;
+    const existingOverlay = document.getElementById('global-loading-overlay');
+    if (existingOverlay) {
+      // Ensure it's hidden on init
+      existingOverlay.style.display = 'none';
+      existingOverlay.classList.add('hidden');
+      return;
+    }
 
     const overlay = document.createElement('div');
     overlay.id = 'global-loading-overlay';
@@ -198,6 +204,7 @@ class LoadingManager {
         progressElement.style.display = showProgress ? 'block' : 'none';
       }
 
+      overlay.style.display = 'flex';
       overlay.classList.remove('hidden');
 
       // 베티 애니메이션 시작 (베티 매니저 준비되었을 때만)
@@ -220,6 +227,7 @@ class LoadingManager {
 
     const overlay = document.getElementById('global-loading-overlay');
     if (overlay) {
+      overlay.style.display = 'none';
       overlay.classList.add('hidden');
 
       // 베티 애니메이션 복원 (베티 매니저 준비되었을 때만)
@@ -406,7 +414,11 @@ class LoadingManager {
   // 리소스 메트릭 기록
   recordResourceMetric(entry) {
     const { name, duration, transferSize } = entry;
-    console.log(`🔄 [Loading] Resource loaded: ${this.getSimplifiedUrl(name)} (${Math.round(duration)}ms, ${Math.round(transferSize/1024)}KB)`);
+    // 이미지 로딩 로그는 너무 많아서 비활성화
+    const url = this.getSimplifiedUrl(name);
+    if (!url.includes('.png') && !url.includes('.jpg') && !url.includes('.jpeg')) {
+      console.log(`🔄 [Loading] Resource loaded: ${url} (${Math.round(duration)}ms, ${Math.round(transferSize/1024)}KB)`);
+    }
   }
 
   // ================================

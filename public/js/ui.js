@@ -185,10 +185,26 @@ class UIManager {
         throw new Error('전체 데이터 로딩 실패');
       }
 
+      // Force hide any loading overlays
+      const globalOverlay = document.getElementById('global-loading-overlay');
+      if (globalOverlay) {
+        globalOverlay.style.display = 'none';
+        globalOverlay.classList.add('hidden');
+        console.log('✅ [UI] 글로벌 로딩 오버레이 강제 숨김');
+      }
+
     } catch (error) {
       console.error('🚨 [UI] 데이터 로딩 실패:', error);
       this.showToast('데이터를 불러오지 못했습니다', 'error');
       this.initializeDefaultHomeData();
+
+      // Force hide any loading overlays even on error
+      const globalOverlay = document.getElementById('global-loading-overlay');
+      if (globalOverlay) {
+        globalOverlay.style.display = 'none';
+        globalOverlay.classList.add('hidden');
+        console.log('✅ [UI] 에러 후 글로벌 로딩 오버레이 강제 숨김');
+      }
     }
   }
 

@@ -67,14 +67,34 @@ class App {
 
     const loadingScreen = document.getElementById('loading-screen');
     const appContainer = document.getElementById('app');
+    const globalOverlay = document.getElementById('global-loading-overlay');
 
     if (loadingScreen) {
-      loadingScreen.style.display = 'none';
+      // Add fade-out class for smooth transition
+      loadingScreen.classList.add('fade-out');
+
+      // Remove loading screen after animation completes
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 1500); // Match transition duration in CSS
+    }
+
+    // Force hide global loading overlay
+    if (globalOverlay) {
+      globalOverlay.style.display = 'none';
+      globalOverlay.classList.add('hidden');
+      console.log('🔧 강제로 글로벌 로딩 오버레이 숨김');
     }
 
     if (appContainer) {
       appContainer.style.display = 'block';
-      appContainer.style.opacity = '1';
+      appContainer.classList.add('entering');
+
+      // Trigger entered state after a frame
+      requestAnimationFrame(() => {
+        appContainer.classList.remove('entering');
+        appContainer.classList.add('entered');
+      });
     }
 
     console.log('✅ 로딩 화면 숨김 완료');

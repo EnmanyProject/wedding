@@ -377,12 +377,12 @@ body {
 }
 
 .welcome-bety {
-  background: var(--surface-color) !important; /* 베티 영역을 앱 컨테이너와 동일한 색상으로 */
+  background: transparent !important; /* 베티 배경 완전 투명 */
   border: none !important;
   box-shadow: none !important;
-  padding: 15px !important; /* 적당한 패딩 추가 */
+  padding: 0 !important; /* 패딩 제거 */
   margin: 0 !important;
-  border-radius: 10px; /* 약간의 둥근 모서리 */
+  border-radius: 0 !important; /* 테두리 반경 제거 */
 }
 
 .welcome-section h2 {

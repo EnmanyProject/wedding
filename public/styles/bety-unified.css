@@ -1,0 +1,393 @@
+/* 🎭 베티 캐릭터 통합 스타일 - 모든 베티를 깔끔하게 */
+
+/* ==========================================
+   베티 기본 스타일 - 컨테이너 없이 깔끔하게
+   ========================================== */
+
+.bety-character,
+.bety-expressions,
+#welcome-bety,
+.welcome-bety img,
+.loading-character img,
+.bety-working,
+img[src*="Bety"],
+img[alt*="베티"],
+img[alt*="베티 캐릭터"],
+img[alt*="로딩 중"] {
+  /* 크기 */
+  max-width: 100%;
+  height: auto;
+
+  /* 배경 제거 */
+  background: transparent !important;
+  background-color: transparent !important;
+
+  /* 테두리/그림자 제거 */
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  /* 패딩/마진 제거 */
+  padding: 0 !important;
+  margin: 0 !important;
+
+  /* 이미지 렌더링 */
+  object-fit: contain !important;
+  object-position: center !important;
+
+  /* 부드러운 렌더링 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  /* 투명도 */
+  opacity: 1 !important;
+
+  /* 트랜지션 */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* ==========================================
+   베티 컨테이너 - 투명하게
+   ========================================== */
+
+.welcome-bety,
+.loading-character,
+.bety-loading,
+.empty-character,
+.loading-bety-container,
+[class*="bety-container"] {
+  /* 배경 완전 투명 */
+  background: transparent !important;
+  background-color: transparent !important;
+
+  /* 테두리/그림자 제거 */
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  /* 패딩 최소화 */
+  padding: 0 !important;
+
+  /* 오버플로우 허용 (베티가 잘리지 않도록) */
+  overflow: visible !important;
+}
+
+/* ==========================================
+   베티 표정 애니메이션 (기존 유지하되 배경 제거)
+   ========================================== */
+
+.bety-expressions {
+  width: 80px !important;
+  height: 80px !important;
+
+  /* 드롭 섀도우만 유지 (자연스러운 그림자) */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+
+  /* 애니메이션 */
+  animation: bety-float 3s ease-in-out infinite;
+
+  /* 커서 */
+  cursor: pointer !important;
+}
+
+/* 부드러운 떠다니는 효과 */
+@keyframes bety-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ==========================================
+   특정 위치별 베티 스타일
+   ========================================== */
+
+/* Welcome 섹션 베티 */
+#welcome-bety,
+.welcome-bety img {
+  width: 80px;
+  height: 80px;
+}
+
+/* 로딩 화면 베티 */
+.loading-character img {
+  width: 120px;
+  height: 120px;
+}
+
+/* Empty State 베티 */
+.empty-character img {
+  width: 100px;
+  height: 100px;
+}
+
+/* 퀴즈 화면 베티 */
+.quiz-bety img {
+  width: 60px;
+  height: 60px;
+}
+
+/* ==========================================
+   베티 호버 효과 - 상호작용
+   ========================================== */
+
+.bety-character:hover,
+.bety-expressions:hover,
+#welcome-bety:hover {
+  transform: scale(1.1) rotate(5deg);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+}
+
+.bety-character:active,
+.bety-expressions:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
+   베티 특수 효과 (선택적)
+   ========================================== */
+
+/* 윙크 효과 */
+.bety-wink {
+  animation: bety-wink 2s ease-in-out;
+}
+
+@keyframes bety-wink {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.05) rotate(-5deg);
+  }
+}
+
+/* 흔들기 효과 */
+.bety-shake {
+  animation: bety-shake 0.5s ease-in-out;
+}
+
+@keyframes bety-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: translateX(5px) rotate(5deg);
+  }
+}
+
+/* 점프 효과 */
+.bety-jump {
+  animation: bety-jump 0.6s ease-in-out;
+}
+
+@keyframes bety-jump {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* ==========================================
+   베티 로딩 애니메이션
+   ========================================== */
+
+.bety-loading img,
+.loading-pulse {
+  animation: bety-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes bety-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* ==========================================
+   반응형 베티 크기 조정
+   ========================================== */
+
+@media (max-width: 768px) {
+  .bety-expressions,
+  #welcome-bety,
+  .welcome-bety img {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .loading-character img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .empty-character img {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bety-expressions,
+  #welcome-bety,
+  .welcome-bety img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .loading-character img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .empty-character img {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* ==========================================
+   베티 접근성
+   ========================================== */
+
+/* 스크린 리더용 텍스트 */
+.bety-character[alt=""],
+.bety-character:not([alt]) {
+  position: relative;
+}
+
+.bety-character[alt=""]::after,
+.bety-character:not([alt])::after {
+  content: "베티 캐릭터";
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ==========================================
+   모션 감소 사용자 지원
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .bety-character,
+  .bety-expressions,
+  .loading-pulse,
+  .bety-wink,
+  .bety-shake,
+  .bety-jump {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .bety-character:hover,
+  .bety-expressions:hover {
+    transform: none !important;
+  }
+}
+
+/* ==========================================
+   다크 모드에서도 동일하게
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .bety-character,
+  .bety-expressions,
+  #welcome-bety,
+  img[src*="Bety"] {
+    /* 다크모드에서도 배경 없음 */
+    background: transparent !important;
+
+    /* 약간 더 부드러운 그림자 */
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) !important;
+  }
+
+  .bety-character:hover,
+  .bety-expressions:hover {
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4)) !important;
+  }
+}
+
+/* ==========================================
+   고대비 모드 지원
+   ========================================== */
+
+@media (prefers-contrast: high) {
+  .bety-character,
+  .bety-expressions {
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8)) !important;
+  }
+}
+
+/* ==========================================
+   기존 스타일 오버라이드 (최우선 순위)
+   ========================================== */
+
+/* 모든 베티 관련 요소의 배경/테두리 강제 제거 */
+.bety-character,
+.bety-expressions,
+.welcome-bety,
+.loading-character,
+.bety-loading,
+.empty-character,
+#welcome-bety,
+[class*="bety"] img,
+img[src*="Bety"] {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 베티 이미지 주변 여백 제거 */
+.bety-character,
+.bety-expressions,
+img[src*="Bety"] {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ==========================================
+   특수 케이스 처리
+   ========================================== */
+
+/* 카드 안의 베티 */
+.partner-card .bety-character,
+.user-card .bety-character,
+.empty .bety-character {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* 로딩 오버레이 안의 베티 */
+#global-loading-overlay .bety-character,
+#loading-screen .bety-character {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 퀴즈 화면의 베티 */
+.quiz-view .bety-character,
+.quiz-container .bety-character {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
