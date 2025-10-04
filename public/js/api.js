@@ -1,4 +1,6 @@
 // API Service for A&B Meeting App
+import { ErrorHandler, withRetry } from '/js/utils/error-handler.js';
+
 class APIService {
   constructor() {
     this.baseURL = '/api';
@@ -19,7 +21,7 @@ class APIService {
       this.persistentCache = cacheModule.persistentCache;
       console.log('✅ [API] 고급 캐싱 시스템 초기화 완료');
     } catch (error) {
-      console.warn('⚠️ [API] 캐싱 시스템 로드 실패, 기본 캐싱 사용:', error);
+      ErrorHandler.handleAPIError(error, '캐싱 시스템 초기화');
       // 폴백: 기본 캐싱
       this.cache = new Map();
       this.cacheTimeout = 30000; // 30초
@@ -161,7 +163,7 @@ class APIService {
               return cachedData;
             }
           } catch (cacheError) {
-            console.warn('🚨 [Cache] 캐시 읽기 오류:', cacheError);
+            ErrorHandler.handleAPIError(cacheError, '캐시 읽기', false);
             // 캐시 오류 시 캐시 우회하여 계속 진행
           }
 
@@ -171,7 +173,7 @@ class APIService {
             try {
               return await this.pendingRequests.get(cacheKey);
             } catch (pendingError) {
-              console.warn('🚨 [Cache] 대기 중인 요청 오류:', pendingError);
+              ErrorHandler.handleAPIError(pendingError, '대기 중인 요청', false);
               // pending 요청에서 오류가 발생하면 새로운 요청 시작
             }
           }
@@ -205,15 +207,14 @@ class APIService {
                 this.setCachedData(cacheKey, data);
                 console.log(`💾 [Cache] Stored result for ${url}`);
               } catch (cacheStoreError) {
-                console.warn('🚨 [Cache] 캐시 저장 오류:', cacheStoreError);
+                ErrorHandler.handleAPIError(cacheStoreError, '캐시 저장', false);
                 // 캐시 저장 실패해도 결과는 반환
               }
             }
 
             return data;
           } catch (parseError) {
-            console.error('🚨 [API] JSON 파싱 오류:', parseError);
-            throw new Error('서버 응답 파싱 실패');
+            throw ErrorHandler.handleAPIError(parseError, 'JSON 파싱');
           }
         }).finally(() => {
           // 요청 완료 후 pending 목록에서 제거
@@ -221,7 +222,7 @@ class APIService {
             try {
               this.pendingRequests.delete(cacheKey);
             } catch (cleanupError) {
-              console.warn('🚨 [Cache] pending 정리 오류:', cleanupError);
+              ErrorHandler.handleAPIError(cleanupError, 'pending 정리', false);
             }
           }
         });
@@ -231,7 +232,7 @@ class APIService {
           try {
             this.pendingRequests.set(cacheKey, requestPromise);
           } catch (setPendingError) {
-            console.warn('🚨 [Cache] pending 설정 오류:', setPendingError);
+            ErrorHandler.handleAPIError(setPendingError, 'pending 설정', false);
           }
         }
 
@@ -242,8 +243,6 @@ class APIService {
         return result;
 
       } catch (error) {
-        console.error(`🚨 [API] Request error (attempt ${retryCount + 1}/${maxRetries + 1}):`, error);
-
         // 🛡️ 특정 오류에 대한 fallback 처리
         if (url.includes('/affinity/me/ranking') && retryCount === maxRetries) {
           console.log('🔄 [API] 랭킹 API 최종 실패 - 빈 데이터로 대체');
@@ -267,7 +266,7 @@ class APIService {
         }
 
         // 최종 실패
-        throw error;
+        throw ErrorHandler.handleAPIError(error, `API Request: ${url}`);
       }
     }
   }
@@ -326,8 +325,7 @@ class APIService {
 
       return data;
     } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+      throw ErrorHandler.handleAPIError(error, `File Upload: ${url}`);
     }
   }
 

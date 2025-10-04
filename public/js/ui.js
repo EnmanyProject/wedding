@@ -1,4 +1,17 @@
 // UI Management for A&B Meeting App
+import { ErrorHandler } from '/js/utils/error-handler.js';
+import {
+  renderEmptyState,
+  updatePagination,
+  updateNavigationButtons,
+  showLoading,
+  hideLoading
+} from '/js/utils/ui-components.js';
+import {
+  formatRelativeTime,
+  formatCompactNumber
+} from '/js/utils/formatters.js';
+
 class UIManager {
   constructor() {
     this.currentView = 'home';
@@ -452,31 +465,26 @@ class UIManager {
     `).join('');
   }
 
-  // Render empty swiper
+  // Render empty swiper (delegated to ui-components utility)
   renderEmptySwiper() {
     const cardsContainer = document.getElementById('user-cards-container');
     const pagination = document.getElementById('swiper-pagination');
     const controls = document.getElementById('swiper-controls');
 
     if (cardsContainer) {
-      cardsContainer.innerHTML = `
-        <div class="user-card empty">
-          <div class="card-content">
-            <div class="empty-state">
-              <img src="/images/Bety3.png" alt="Bety" class="bety-character character-float character-clickable character-glow">
-              <h3>아직 호감도 데이터가 없습니다</h3>
-              <p>퀴즈를 시작하여 다른 사용자들과 친밀도를 쌓아보세요!</p>
-            </div>
-          </div>
-        </div>
-      `;
+      renderEmptyState(cardsContainer, {
+        message: '아직 호감도 데이터가 없습니다',
+        description: '퀴즈를 시작하여 다른 사용자들과 친밀도를 쌓아보세요!',
+        betyImage: '/images/Bety3.png',
+        containerClass: 'user-card empty'
+      });
     }
 
     if (pagination) pagination.innerHTML = '';
     if (controls) {
       const counter = controls.querySelector('#user-counter');
       if (counter) counter.textContent = '0 / 0';
-      this.updateNavigationButtons(false, false);
+      updateNavigationButtons(controls.querySelector('#prev-user-btn'), controls.querySelector('#next-user-btn'), false, false);
     }
   }
 
@@ -690,38 +698,24 @@ class UIManager {
     }
   }
 
-  // Update pagination dots
+  // Update pagination dots (delegated to ui-components utility)
   updatePagination(totalCards) {
     const pagination = document.getElementById('swiper-pagination');
-    if (!pagination) return;
-
-    const dotsHTML = Array.from({ length: totalCards }, (_, i) =>
-      `<span class="pagination-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
-    ).join('');
-
-    pagination.innerHTML = dotsHTML;
-
-    // Add click handlers to dots
-    pagination.querySelectorAll('.pagination-dot').forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        this.currentCardIndex = index;
-        this.updateCardPosition();
-        this.updateNavigationButtons(
-          index > 0,
-          index < totalCards - 1
-        );
-        this.updateCounter(index, totalCards);
-        this.updatePaginationActive(index);
-      });
+    updatePagination(pagination, totalCards, this.currentCardIndex, (index) => {
+      this.currentCardIndex = index;
+      this.updateCardPosition();
+      this.updateNavigationButtons(
+        index > 0,
+        index < totalCards - 1
+      );
+      this.updateCounter(index, totalCards);
     });
   }
 
-  // Update active pagination dot
+  // Update active pagination dot (delegated to ui-components utility)
   updatePaginationActive(activeIndex) {
-    const dots = document.querySelectorAll('.pagination-dot');
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === activeIndex);
-    });
+    const pagination = document.getElementById('swiper-pagination');
+    updatePagination(pagination, this.currentRankings.length, activeIndex);
   }
 
   // Update counter
@@ -869,21 +863,9 @@ class UIManager {
     }
   }
 
-  // Format date/time
+  // Format date/time (delegated to formatters utility)
   formatDate(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return '방금 전';
-    if (diffMins < 60) return `${diffMins}분 전`;
-    if (diffHours < 24) return `${diffHours}시간 전`;
-    if (diffDays < 7) return `${diffDays}일 전`;
-
-    return date.toLocaleDateString('ko-KR');
+    return formatRelativeTime(dateString);
   }
 
   // Utility: truncate text
@@ -942,31 +924,27 @@ class UIManager {
     this.initializePartnerSwiper();
   }
 
-  // Render empty partner swiper
+  // Render empty partner swiper (delegated to ui-components utility)
   renderEmptyPartnerSwiper() {
     const cardsContainer = document.getElementById('partner-cards-container');
     const pagination = document.getElementById('partner-swiper-pagination');
     const controls = document.getElementById('partner-swiper-controls');
 
     if (cardsContainer) {
-      cardsContainer.innerHTML = `
-        <div class="partner-card empty">
-          <div class="card-content">
-            <div class="loading-character">
-              <img src="/images/Bety6.png" alt="베티 매니저" class="bety-character character-wiggle">
-            </div>
-            <h3>퀴즈를 답한 사용자가 없습니다</h3>
-            <p>나중에 다시 확인해주세요!</p>
-          </div>
-        </div>
-      `;
+      renderEmptyState(cardsContainer, {
+        message: '퀴즈를 답한 사용자가 없습니다',
+        description: '나중에 다시 확인해주세요!',
+        betyImage: '/images/Bety6.png',
+        betyClass: 'character-wiggle',
+        containerClass: 'partner-card empty'
+      });
     }
 
     if (pagination) pagination.innerHTML = '';
     if (controls) {
       const counter = controls.querySelector('#partner-counter');
       if (counter) counter.textContent = '0 / 0';
-      this.updatePartnerNavigationButtons(false, false);
+      updateNavigationButtons(controls.querySelector('#prev-partner-btn'), controls.querySelector('#next-partner-btn'), false, false);
     }
   }
 
@@ -1565,41 +1543,25 @@ class UIManager {
     }
   }
 
-  // Update partner pagination
+  // Update partner pagination (delegated to ui-components utility)
   updatePartnerPagination(totalCards) {
     const pagination = document.getElementById('partner-swiper-pagination');
-    if (!pagination) return;
-
-    const dotsHTML = Array.from({ length: totalCards }, (_, i) =>
-      `<span class="pagination-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
-    ).join('');
-
-    pagination.innerHTML = dotsHTML;
-
-    // Add click handlers to dots
-    pagination.querySelectorAll('.pagination-dot').forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        // 페이지네이션 클릭 감지
-        this.onUserInteraction();
-
-        this.currentPartnerIndex = index;
-        this.snapToPartnerCard();
-        this.updatePartnerNavigationButtons(
-          index > 0,
-          index < totalCards - 1
-        );
-        this.updatePartnerCounter(index, totalCards);
-        this.updatePartnerPaginationActive(index);
-      });
+    updatePagination(pagination, totalCards, this.currentPartnerIndex, (index) => {
+      this.onUserInteraction();
+      this.currentPartnerIndex = index;
+      this.snapToPartnerCard();
+      this.updatePartnerNavigationButtons(
+        index > 0,
+        index < totalCards - 1
+      );
+      this.updatePartnerCounter(index, totalCards);
     });
   }
 
-  // Update active partner pagination dot
+  // Update active partner pagination dot (delegated to ui-components utility)
   updatePartnerPaginationActive(activeIndex) {
-    const dots = document.querySelectorAll('#partner-swiper-pagination .pagination-dot');
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === activeIndex);
-    });
+    const pagination = document.getElementById('partner-swiper-pagination');
+    updatePagination(pagination, this.currentPartners.length, activeIndex);
   }
 
   // Update partner counter
