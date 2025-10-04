@@ -94,8 +94,6 @@ class QuizManager {
 
       ui.openModal('quiz-modal');
       console.log('🎯 [Quiz] 모달 열기 완료');
-
-      ui.showToast('퀴즈가 시작되었습니다! (1P 차감)', 'info');
     } catch (error) {
       console.error('🎯 [Quiz] Error starting quiz:', error);
       if (error.message.includes('Insufficient points') || error.message.includes('포인트가 부족')) {
@@ -269,7 +267,12 @@ class QuizManager {
     const resultTitle = document.getElementById('result-title');
 
     if (correct) {
-      resultIcon.textContent = '🎉';
+      // 베티 신난 표정으로 점프 애니메이션
+      if (window.betyManager && window.betyManager.showExpression) {
+        window.betyManager.showExpression('excited', 3000);
+      }
+
+      resultIcon.innerHTML = '<img src="/images/Bety2.png" class="bety-jump" style="width: 100px; height: 100px;" alt="신난 베티">';
       resultMessage.textContent = '정답입니다!';
       resultTitle.textContent = '정답! 🎉';
     } else {

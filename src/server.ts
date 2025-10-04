@@ -96,6 +96,23 @@ app.use(express.static('public', {
   }
 }));
 
+// Uploads - 로컬 파일 시스템 storage를 위한 추가 경로
+app.use('/uploads', express.static('public/uploads', {
+  setHeaders: (res, path) => {
+    // 이미지 파일 MIME 타입 설정
+    if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    }
+
+    // 개발 환경에서는 캐시 비활성화
+    if (config.NODE_ENV === 'development') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
+    }
+  }
+}));
+
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api', photosRouter);

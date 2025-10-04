@@ -6,7 +6,9 @@ export const config = {
   // Database
   DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/wedding_app',
 
-  // Storage (MinIO/S3)
+  // Storage (MinIO/S3 or Local File System)
+  STORAGE_MODE: (process.env.STORAGE_MODE || 'local') as 'local' | 'minio',
+  LOCAL_STORAGE_PATH: process.env.LOCAL_STORAGE_PATH || 'public/uploads',
   STORAGE_ENDPOINT: process.env.STORAGE_ENDPOINT || 'http://localhost:9000',
   STORAGE_ACCESS_KEY: process.env.STORAGE_ACCESS_KEY || 'minioadmin',
   STORAGE_SECRET_KEY: process.env.STORAGE_SECRET_KEY || 'minioadmin123',
@@ -59,10 +61,13 @@ export const isTest = config.NODE_ENV === 'test';
 function validateConfig() {
   const required = [
     'DATABASE_URL',
-    'JWT_SECRET',
-    'STORAGE_ACCESS_KEY',
-    'STORAGE_SECRET_KEY'
+    'JWT_SECRET'
   ];
+
+  // MinIO credentials only required when using MinIO storage
+  if (config.STORAGE_MODE === 'minio') {
+    required.push('STORAGE_ACCESS_KEY', 'STORAGE_SECRET_KEY');
+  }
 
   for (const key of required) {
     if (!process.env[key] && !config[key as keyof typeof config]) {

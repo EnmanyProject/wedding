@@ -182,17 +182,23 @@ img[alt*="로딩 중"] {
   }
 }
 
-/* 점프 효과 */
+/* 점프 효과 - 정답 시 신나게 뛰기 */
 .bety-jump {
-  animation: bety-jump 0.6s ease-in-out;
+  animation: bety-jump 0.5s ease-in-out infinite;
 }
 
 @keyframes bety-jump {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-30px) scale(1.1);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-40px) scale(1.15) rotate(5deg);
+  }
+  75% {
+    transform: translateY(-30px) scale(1.1) rotate(-5deg);
   }
 }
 

@@ -2,8 +2,165 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } fro
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { config } from './config';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
-export class StorageService {
+/**
+ * Storage Service Interface
+ */
+export interface IStorageService {
+  generatePresignedUploadUrl(
+    userId: string,
+    filename: string,
+    contentType: string
+  ): Promise<{ uploadUrl: string; storageKey: string; photoId: string }>;
+  generatePresignedDownloadUrl(storageKey: string, expiresIn?: number): Promise<string>;
+  uploadPhotoVariant(storageKey: string, buffer: Buffer, contentType?: string): Promise<void>;
+  downloadPhoto(storageKey: string): Promise<Buffer>;
+  deletePhoto(storageKeys: string[]): Promise<void>;
+  generateVariantStorageKey(originalKey: string, variant: 'THUMB' | 'BLUR1' | 'BLUR2'): string;
+  photoExists(storageKey: string): Promise<boolean>;
+}
+
+/**
+ * Local File System Storage Service
+ */
+class LocalStorageService implements IStorageService {
+  private basePath: string;
+
+  constructor() {
+    this.basePath = config.LOCAL_STORAGE_PATH;
+  }
+
+  /**
+   * Ensure directory exists
+   */
+  private async ensureDir(dirPath: string): Promise<void> {
+    try {
+      await fs.mkdir(dirPath, { recursive: true });
+    } catch (error: any) {
+      if (error.code !== 'EEXIST') {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Get absolute file path
+   */
+  private getAbsolutePath(storageKey: string): string {
+    return path.join(this.basePath, storageKey);
+  }
+
+  /**
+   * Get public URL path
+   */
+  private getPublicUrl(storageKey: string): string {
+    return `/uploads/${storageKey}`;
+  }
+
+  /**
+   * Generate upload info (no presigned URL needed for local storage)
+   */
+  async generatePresignedUploadUrl(
+    userId: string,
+    filename: string,
+    contentType: string
+  ): Promise<{ uploadUrl: string; storageKey: string; photoId: string }> {
+    const photoId = uuidv4();
+    const extension = filename.split('.').pop() || 'jpg';
+    const storageKey = `users/${userId}/photos/${photoId}/orig.${extension}`;
+
+    // Ensure directory exists
+    const absolutePath = this.getAbsolutePath(storageKey);
+    await this.ensureDir(path.dirname(absolutePath));
+
+    // For local storage, uploadUrl is just the storage key
+    // Client will use multipart upload API instead
+    return {
+      uploadUrl: this.getPublicUrl(storageKey),
+      storageKey,
+      photoId
+    };
+  }
+
+  /**
+   * Generate download URL (just return public path)
+   */
+  async generatePresignedDownloadUrl(storageKey: string, expiresIn: number = 3600): Promise<string> {
+    return this.getPublicUrl(storageKey);
+  }
+
+  /**
+   * Upload photo variant to local file system
+   */
+  async uploadPhotoVariant(
+    storageKey: string,
+    buffer: Buffer,
+    contentType: string = 'image/jpeg'
+  ): Promise<void> {
+    const absolutePath = this.getAbsolutePath(storageKey);
+    await this.ensureDir(path.dirname(absolutePath));
+    await fs.writeFile(absolutePath, buffer);
+  }
+
+  /**
+   * Download photo from local file system
+   */
+  async downloadPhoto(storageKey: string): Promise<Buffer> {
+    const absolutePath = this.getAbsolutePath(storageKey);
+    return await fs.readFile(absolutePath);
+  }
+
+  /**
+   * Delete photo and all its variants
+   */
+  async deletePhoto(storageKeys: string[]): Promise<void> {
+    const deletePromises = storageKeys.map(async (key) => {
+      const absolutePath = this.getAbsolutePath(key);
+      try {
+        await fs.unlink(absolutePath);
+      } catch (error: any) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    });
+
+    await Promise.all(deletePromises);
+  }
+
+  /**
+   * Generate storage key for photo variant
+   */
+  generateVariantStorageKey(originalKey: string, variant: 'THUMB' | 'BLUR1' | 'BLUR2'): string {
+    const pathParts = originalKey.split('/');
+    const filename = pathParts.pop() || '';
+    const extension = filename.split('.').pop() || 'jpg';
+    const basePath = pathParts.join('/');
+
+    const variantName = variant.toLowerCase();
+    return `${basePath}/${variantName}.${extension}`;
+  }
+
+  /**
+   * Check if photo exists in local file system
+   */
+  async photoExists(storageKey: string): Promise<boolean> {
+    try {
+      const absolutePath = this.getAbsolutePath(storageKey);
+      await fs.access(absolutePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
+/**
+ * MinIO/S3 Storage Service
+ */
+class MinIOStorageService implements IStorageService {
   private s3Client: S3Client;
   private bucket: string;
 
@@ -165,4 +322,18 @@ export class StorageService {
   }
 }
 
-export const storageService = new StorageService();
+/**
+ * Storage Service Factory
+ * Returns appropriate storage service based on configuration
+ */
+function createStorageService(): IStorageService {
+  if (config.STORAGE_MODE === 'local') {
+    console.log('📁 Using Local File System Storage');
+    return new LocalStorageService();
+  } else {
+    console.log('☁️ Using MinIO/S3 Storage');
+    return new MinIOStorageService();
+  }
+}
+
+export const storageService = createStorageService();
