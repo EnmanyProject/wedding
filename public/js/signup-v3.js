@@ -115,31 +115,30 @@ class FullScreenSignup {
 
         if (!nextScreenEl) return;
 
-        // Remove active classes
-        currentScreenEl.classList.remove('active');
+        console.log(`🔄 화면 전환: ${this.currentScreen} → ${screenIndex}`);
 
-        // Add previous class for backward animation
-        if (direction === 'backward') {
-            currentScreenEl.classList.add('previous');
-            nextScreenEl.classList.remove('previous');
-        }
+        // 모든 화면의 active 클래스 제거
+        screens.forEach((screen, idx) => {
+            if (idx !== screenIndex) {
+                screen.classList.remove('active');
+                screen.classList.add('previous');
+            }
+        });
 
-        // Activate next screen
+        // 다음 화면 활성화
         setTimeout(() => {
+            nextScreenEl.classList.remove('previous');
             nextScreenEl.classList.add('active');
             this.currentScreen = screenIndex;
 
-            // Remove previous class after animation
-            setTimeout(() => {
-                currentScreenEl.classList.remove('previous');
-            }, 600);
+            console.log(`✅ 화면 ${screenIndex} 활성화 완료`);
+
+            // Bounce Bety on screen entry
+            this.bounceBetyOnScreen(screenIndex);
+
+            // Auto-focus input
+            this.focusInputOnScreen(screenIndex);
         }, 50);
-
-        // Bounce Bety on screen entry
-        this.bounceBetyOnScreen(screenIndex);
-
-        // Auto-focus input
-        this.focusInputOnScreen(screenIndex);
     }
 
     bounceBetyOnScreen(screenIndex) {
