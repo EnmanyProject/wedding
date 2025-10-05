@@ -28,7 +28,7 @@
                 </div>
                 <h1 class="screen-title warning-title">잠깐만요! ✋</h1>
                 <div class="warning-message">
-                    <p class="warning-text">이 앱은 <strong>1년 내에 결혼하고 싶은 사람</strong>을 위한 앱이에요.</p>
+                    <p class="warning-text">이 앱은 <strong>결혼하고 싶은 사람</strong>을 위한 앱이에요.</p>
                     <p class="warning-text">진심이 아니시면 <strong>지금 당장 나가서</strong> 이 앱을 지우세요.</p>
                 </div>
                 <div class="countdown-container">
@@ -41,54 +41,41 @@
             </div>
         </div>
 
-        <!-- Screen 1: Email -->
+        <!-- Screen 1: Gender -->
         <div class="screen" id="screen-1">
             <div class="screen-content">
                 <div class="bety-medium">
-                    <img src="/images/Bety2.png" alt="베티" class="bety-img">
+                    <img src="/images/Bety4.png" alt="베티" class="bety-img">
                 </div>
-                <h1 class="screen-title">이메일 주소를 알려주세요 📧</h1>
-                <p class="screen-description">로그인할 때 사용할 이메일이에요</p>
-                <form class="screen-form" id="form-email">
-                    <input
-                        type="email"
-                        id="email"
-                        placeholder="example@email.com"
-                        class="input-large"
-                        required
-                        autocomplete="email"
-                    >
-                    <button type="submit" class="btn-primary">
-                        <span>다음</span>
-                        <span class="arrow">→</span>
+                <h1 class="screen-title">성별을 알려주세요</h1>
+                <p class="screen-description">매칭을 위해 필요해요</p>
+                <div class="gender-selection">
+                    <button class="gender-card" data-gender="male">
+                        <div class="gender-icon">👨</div>
+                        <div class="gender-text">남성</div>
                     </button>
-                </form>
+                    <button class="gender-card" data-gender="female">
+                        <div class="gender-icon">👩</div>
+                        <div class="gender-text">여성</div>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Screen 2: Password -->
+        <!-- Screen 2: Gender Feedback -->
         <div class="screen" id="screen-2">
             <div class="screen-content">
-                <div class="bety-medium">
-                    <img src="/images/Bety1.png" alt="베티" class="bety-img">
+                <div class="bety-large">
+                    <img src="/images/Bety2.png" alt="베티" class="bety-img bety-excited">
                 </div>
-                <h1 class="screen-title">비밀번호를 만들어주세요 🔒</h1>
-                <p class="screen-description">8자 이상으로 안전하게!</p>
-                <form class="screen-form" id="form-password">
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="비밀번호 (8자 이상)"
-                        class="input-large"
-                        minlength="8"
-                        required
-                        autocomplete="new-password"
-                    >
-                    <button type="submit" class="btn-primary">
-                        <span>다음</span>
-                        <span class="arrow">→</span>
-                    </button>
-                </form>
+                <h1 class="screen-title celebration-title" id="gender-feedback-title">우와! 🎉</h1>
+                <div class="celebration-text" id="gender-feedback-message">
+                    <!-- 성별에 따른 메시지가 여기에 표시됩니다 -->
+                </div>
+                <button class="btn-primary btn-large" id="gender-continue-btn">
+                    <span>계속하기</span>
+                    <span class="arrow">→</span>
+                </button>
             </div>
         </div>
 
@@ -119,43 +106,18 @@
             </div>
         </div>
 
-        <!-- Screen 4: Gender -->
+        <!-- Screen 4: Age -->
         <div class="screen" id="screen-4">
-            <div class="screen-content">
-                <div class="bety-medium">
-                    <img src="/images/Bety4.png" alt="베티" class="bety-img">
-                </div>
-                <h1 class="screen-title">성별을 알려주세요</h1>
-                <p class="screen-description">매칭을 위해 필요해요</p>
-                <div class="gender-selection">
-                    <button class="gender-card" data-gender="male">
-                        <div class="gender-icon">👨</div>
-                        <div class="gender-text">남성</div>
-                    </button>
-                    <button class="gender-card" data-gender="female">
-                        <div class="gender-icon">👩</div>
-                        <div class="gender-text">여성</div>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Screen 5: Birthdate -->
-        <div class="screen" id="screen-5">
             <div class="screen-content">
                 <div class="bety-medium">
                     <img src="/images/Bety6.png" alt="베티" class="bety-img">
                 </div>
-                <h1 class="screen-title">생년월일을 알려주세요 🎂</h1>
-                <p class="screen-description">나이 확인을 위해 필요해요</p>
-                <form class="screen-form" id="form-birthdate">
-                    <input
-                        type="date"
-                        id="birthdate"
-                        class="input-large"
-                        max="2010-01-01"
-                        required
-                    >
+                <h1 class="screen-title">나이를 알려주세요 🎂</h1>
+                <p class="screen-description">매칭을 위해 필요해요</p>
+                <form class="screen-form" id="form-age">
+                    <select id="age-select" class="input-large" required>
+                        <option value="">나이를 선택해주세요</option>
+                    </select>
                     <button type="submit" class="btn-primary">
                         <span>다음</span>
                         <span class="arrow">→</span>
@@ -164,8 +126,106 @@
             </div>
         </div>
 
-        <!-- Screen 6: Complete -->
+        <!-- Screen 5: Region -->
+        <div class="screen" id="screen-5">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety3.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">어느 지역에 사시나요? 🏙️</h1>
+                <p class="screen-description">지역별 매칭을 위해 필요해요</p>
+                <div class="region-selection" id="region-selection">
+                    <button class="region-card" data-region="seoul">
+                        <div class="region-icon">🏙️</div>
+                        <div class="region-text">서울특별시</div>
+                    </button>
+                    <button class="region-card" data-region="busan">
+                        <div class="region-icon">🌊</div>
+                        <div class="region-text">부산광역시</div>
+                    </button>
+                    <button class="region-card" data-region="incheon">
+                        <div class="region-icon">✈️</div>
+                        <div class="region-text">인천광역시</div>
+                    </button>
+                    <button class="region-card" data-region="daegu">
+                        <div class="region-icon">🍎</div>
+                        <div class="region-text">대구광역시</div>
+                    </button>
+                    <button class="region-card" data-region="daejeon">
+                        <div class="region-icon">🔬</div>
+                        <div class="region-text">대전광역시</div>
+                    </button>
+                    <button class="region-card" data-region="gwangju">
+                        <div class="region-icon">🎨</div>
+                        <div class="region-text">광주광역시</div>
+                    </button>
+                    <button class="region-card" data-region="ulsan">
+                        <div class="region-icon">🏭</div>
+                        <div class="region-text">울산광역시</div>
+                    </button>
+                    <button class="region-card" data-region="sejong">
+                        <div class="region-icon">🏛️</div>
+                        <div class="region-text">세종특별자치시</div>
+                    </button>
+                    <button class="region-card" data-region="gyeonggi">
+                        <div class="region-icon">🌳</div>
+                        <div class="region-text">경기도</div>
+                    </button>
+                    <button class="region-card" data-region="gangwon">
+                        <div class="region-icon">⛰️</div>
+                        <div class="region-text">강원도</div>
+                    </button>
+                    <button class="region-card" data-region="chungbuk">
+                        <div class="region-icon">🏞️</div>
+                        <div class="region-text">충청북도</div>
+                    </button>
+                    <button class="region-card" data-region="chungnam">
+                        <div class="region-icon">🌾</div>
+                        <div class="region-text">충청남도</div>
+                    </button>
+                    <button class="region-card" data-region="jeonbuk">
+                        <div class="region-icon">🍚</div>
+                        <div class="region-text">전라북도</div>
+                    </button>
+                    <button class="region-card" data-region="jeonnam">
+                        <div class="region-icon">🌿</div>
+                        <div class="region-text">전라남도</div>
+                    </button>
+                    <button class="region-card" data-region="gyeongbuk">
+                        <div class="region-icon">🏯</div>
+                        <div class="region-text">경상북도</div>
+                    </button>
+                    <button class="region-card" data-region="gyeongnam">
+                        <div class="region-icon">🌸</div>
+                        <div class="region-text">경상남도</div>
+                    </button>
+                    <button class="region-card" data-region="jeju">
+                        <div class="region-icon">🍊</div>
+                        <div class="region-text">제주특별자치도</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Region Feedback -->
         <div class="screen" id="screen-6">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety2.png" alt="베티" class="bety-img bety-excited">
+                </div>
+                <h1 class="screen-title celebration-title" id="region-feedback-title">멋진 곳이네요! 🎉</h1>
+                <div class="celebration-text" id="region-feedback-message">
+                    <!-- 지역에 따른 메시지가 여기에 표시됩니다 -->
+                </div>
+                <button class="btn-primary btn-large" id="region-continue-btn">
+                    <span>계속하기</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 7: Complete -->
+        <div class="screen" id="screen-7">
             <div class="screen-content">
                 <div class="bety-large">
                     <img src="/images/Bety7.png" alt="베티" class="bety-img bety-bounce">
