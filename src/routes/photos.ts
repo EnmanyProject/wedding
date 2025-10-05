@@ -15,6 +15,7 @@ import {
   ProfilePhotosResponse,
   ApiResponse
 } from '../types/api';
+import { config } from '../utils/config';
 
 const router = Router();
 const db = Database.getInstance();
@@ -73,6 +74,79 @@ router.post('/me/photos/presign', authenticateToken, asyncHandler(async (
       photo_id: photoId,
       storage_key: storageKey,
       expires_in: 300
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
+/**
+ * POST /me/photos/upload
+ * Direct file upload for local storage (replaces presigned URL flow)
+ */
+router.post('/me/photos/upload', authenticateToken, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const userId = req.userId!;
+
+  // Check user's photo count limit (max 10 photos)
+  const [photoCount] = await db.query(
+    'SELECT COUNT(*) as count FROM user_photos WHERE user_id = $1',
+    [userId]
+  );
+
+  if (photoCount.count >= 10) {
+    throw createError('Maximum photo limit reached (10 photos)', 400, 'PHOTO_LIMIT_EXCEEDED');
+  }
+
+  // Get file from request body (raw buffer)
+  const fileBuffer = req.body as Buffer;
+
+  if (!fileBuffer || fileBuffer.length === 0) {
+    throw createError('No file data provided', 400, 'NO_FILE_DATA');
+  }
+
+  // Get metadata from headers
+  const filename = req.headers['x-filename'] as string || 'photo.jpg';
+  const contentType = req.headers['content-type'] as string || 'image/jpeg';
+  const role = (req.headers['x-photo-role'] as string || 'PROFILE') as 'PROFILE' | 'QUIZ' | 'OTHER';
+
+  // Validate content type
+  if (!contentType.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+    throw createError('Invalid content type. Only JPEG, PNG, and WebP images are allowed', 400, 'INVALID_CONTENT_TYPE');
+  }
+
+  // Generate photo ID
+  const photoId = uuidv4();
+  const extension = filename.split('.').pop() || 'jpg';
+  const storageKey = `users/${userId}/photos/${photoId}/orig.${extension}`;
+
+  // Save file to local storage
+  await storageService.uploadPhotoVariant(storageKey, fileBuffer, contentType);
+
+  // Create photo record
+  await db.query(
+    `INSERT INTO user_photos (id, user_id, role, order_idx, is_safe, moderation_status, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+    [photoId, userId, role, 0, true, 'PENDING']
+  );
+
+  // Queue photo for processing
+  await photoProcessorService.queuePhotoProcessing({
+    photoId,
+    originalStorageKey: storageKey,
+    userId
+  });
+
+  const response: ApiResponse<PhotoPresignResponse> = {
+    success: true,
+    data: {
+      upload_url: '', // Not needed for direct upload
+      photo_id: photoId,
+      storage_key: storageKey,
+      expires_in: 0
     },
     timestamp: new Date().toISOString()
   };

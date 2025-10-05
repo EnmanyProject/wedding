@@ -63,6 +63,12 @@ if (config.NODE_ENV !== 'development') {
   console.log('⚠️ Rate limiting disabled in development mode');
 }
 
+// Raw body parsing for photo upload - MUST come before express.json()
+app.use('/api/me/photos/upload', express.raw({
+  type: 'image/*',
+  limit: '10mb'
+}));
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));

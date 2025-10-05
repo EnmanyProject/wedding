@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>테스트</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .test-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        #countdown {
+            font-size: 72px;
+            font-weight: 900;
+            color: #ff6b6b;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 16px 32px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>회원가입 테스트 ✋</h1>
+        <p>이 화면이 보이나요?</p>
+        <div id="countdown">10</div>
+        <button id="btn-test" disabled>진심입니다 💍</button>
+    </div>
+
+    <script>
+        console.log('✅ 테스트 페이지 로드됨');
+
+        let count = 10;
+        const countdownEl = document.getElementById('countdown');
+        const btnTest = document.getElementById('btn-test');
+
+        const interval = setInterval(() => {
+            count--;
+            countdownEl.textContent = count;
+            console.log('카운트:', count);
+
+            if (count <= 0) {
+                clearInterval(interval);
+                btnTest.disabled = false;
+                console.log('버튼 활성화!');
+            }
+        }, 1000);
+
+        btnTest.addEventListener('click', () => {
+            alert('버튼 클릭 성공!');
+            window.location.href = '/signup-v3.html';
+        });
+    </script>
+</body>
+</html>

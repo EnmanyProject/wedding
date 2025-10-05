@@ -11,6 +11,7 @@ import {
   formatRelativeTime,
   formatCompactNumber
 } from '/js/utils/formatters.js';
+import { MobileSwiper } from '/js/utils/mobile-swiper.js';
 
 class UIManager {
   constructor() {
@@ -559,144 +560,33 @@ class UIManager {
   initializeMobileSwiper() {
     if (this.swiperInitialized) return;
 
-    const cardsContainer = document.getElementById('user-cards-container');
-    const prevBtn = document.getElementById('prev-user-btn');
-    const nextBtn = document.getElementById('next-user-btn');
+    // Create MobileSwiper instance for Rankings
+    this.rankingsSwiper = new MobileSwiper({
+      containerSelector: '#user-cards-container',
+      prevBtnSelector: '#prev-user-btn',
+      nextBtnSelector: '#next-user-btn',
+      paginationSelector: '#swiper-pagination',
+      counterSelector: '#swiper-counter',
 
-    if (!cardsContainer || !prevBtn || !nextBtn) return;
+      onNavigate: (index, direction) => {
+        this.currentCardIndex = index;
+        this.updatePaginationActive(index);
+      },
 
-    // Touch/swipe event handlers
-    this.setupSwipeEvents(cardsContainer);
+      onInteraction: () => {
+        // User interaction callback
+      },
 
-    // Navigation button handlers
-    prevBtn.addEventListener('click', () => this.navigateCard('prev'));
-    nextBtn.addEventListener('click', () => this.navigateCard('next'));
+      enableKeyboard: true,
+      enableVelocity: false,
+      usePixelTransform: false,
+      considerPadding: false
+    });
 
-    // Initial state
-    this.updateNavigationButtons(false, this.currentRankings.length > 1);
-    this.updateCardPosition();
-
+    this.rankingsSwiper.init(this.currentRankings.length);
     this.swiperInitialized = true;
   }
 
-  // Setup swipe events
-  setupSwipeEvents(container) {
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-    let startTime = 0;
-
-    const handleStart = (e) => {
-      isDragging = true;
-      startTime = Date.now();
-      startX = e.touches ? e.touches[0].clientX : e.clientX;
-      currentX = startX;
-      container.style.transition = 'none';
-    };
-
-    const handleMove = (e) => {
-      if (!isDragging) return;
-      e.preventDefault();
-
-      currentX = e.touches ? e.touches[0].clientX : e.clientX;
-      const diffX = currentX - startX;
-      const currentTransform = -this.currentCardIndex * 100;
-      container.style.transform = `translateX(${currentTransform + (diffX / container.offsetWidth) * 100}%)`;
-    };
-
-    const handleEnd = () => {
-      if (!isDragging) return;
-      isDragging = false;
-
-      const diffX = currentX - startX;
-      const threshold = 50;
-      const timeThreshold = 300;
-      const timeDiff = Date.now() - startTime;
-
-      container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-
-      if (Math.abs(diffX) > threshold || (Math.abs(diffX) > 20 && timeDiff < timeThreshold)) {
-        if (diffX > 0 && this.currentCardIndex > 0) {
-          this.navigateCard('prev');
-        } else if (diffX < 0 && this.currentCardIndex < this.currentRankings.length - 1) {
-          this.navigateCard('next');
-        } else {
-          this.updateCardPosition();
-        }
-      } else {
-        this.updateCardPosition();
-      }
-    };
-
-    // Mouse events
-    container.addEventListener('mousedown', handleStart);
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', handleEnd);
-
-    // Touch events
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('touchmove', handleMove, { passive: false });
-    container.addEventListener('touchend', handleEnd);
-
-    // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      if (this.currentView !== 'rankings') return;
-
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        this.navigateCard('prev');
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        this.navigateCard('next');
-      }
-    });
-  }
-
-  // Navigate to specific card
-  navigateCard(direction) {
-    if (!this.currentRankings || this.currentRankings.length === 0) return;
-
-    const maxIndex = this.currentRankings.length - 1;
-
-    if (direction === 'prev' && this.currentCardIndex > 0) {
-      this.currentCardIndex--;
-    } else if (direction === 'next' && this.currentCardIndex < maxIndex) {
-      this.currentCardIndex++;
-    } else {
-      return; // No change needed
-    }
-
-    this.updateCardPosition();
-    this.updateNavigationButtons(
-      this.currentCardIndex > 0,
-      this.currentCardIndex < maxIndex
-    );
-    this.updateCounter(this.currentCardIndex, this.currentRankings.length);
-    this.updatePaginationActive(this.currentCardIndex);
-  }
-
-  // Update card position
-  updateCardPosition() {
-    const cardsContainer = document.getElementById('user-cards-container');
-    if (cardsContainer) {
-      cardsContainer.style.transform = `translateX(-${this.currentCardIndex * 100}%)`;
-    }
-  }
-
-  // Update navigation buttons
-  updateNavigationButtons(canGoPrev, canGoNext) {
-    const prevBtn = document.getElementById('prev-user-btn');
-    const nextBtn = document.getElementById('next-user-btn');
-
-    if (prevBtn) {
-      prevBtn.disabled = !canGoPrev;
-      prevBtn.classList.toggle('disabled', !canGoPrev);
-    }
-    if (nextBtn) {
-      nextBtn.disabled = !canGoNext;
-      nextBtn.classList.toggle('disabled', !canGoNext);
-    }
-  }
 
   // Update pagination dots (delegated to ui-components utility)
   updatePagination(totalCards) {
@@ -780,15 +670,26 @@ class UIManager {
   closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
+      // Remove focus from any element inside the modal before hiding
+      const focusedElement = modal.querySelector(':focus');
+      if (focusedElement) {
+        focusedElement.blur();
+      }
+
       modal.classList.remove('active');
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
 
-      // Return focus to the element that opened the modal
-      const openButton = document.getElementById('start-quiz-btn');
-      if (openButton && modalId === 'quiz-modal') {
-        openButton.focus();
-      }
+      // Return focus to the element that opened the modal or body
+      setTimeout(() => {
+        const openButton = document.getElementById('start-quiz-btn');
+        if (openButton && modalId === 'quiz-modal') {
+          openButton.focus();
+        } else {
+          // Fallback: focus on body to ensure focus is outside modal
+          document.body.focus();
+        }
+      }, 50);
     }
   }
 
@@ -1051,237 +952,56 @@ class UIManager {
   initializePartnerSwiper() {
     if (this.partnerSwiperInitialized) return;
 
-    const cardsContainer = document.getElementById('partner-cards-container');
-    const prevBtn = document.getElementById('prev-partner-btn');
-    const nextBtn = document.getElementById('next-partner-btn');
+    // Create MobileSwiper instance for Partners
+    this.partnersSwiper = new MobileSwiper({
+      containerSelector: '#partner-cards-container',
+      prevBtnSelector: '#prev-partner-btn',
+      nextBtnSelector: '#next-partner-btn',
+      paginationSelector: '#partner-pagination',
+      counterSelector: '#partner-counter',
 
-    if (!cardsContainer || !prevBtn || !nextBtn) return;
+      onNavigate: (index, direction) => {
+        this.currentPartnerIndex = index;
+        console.log(`🔄 [Partner] Navigated to ${index} (${direction})`);
+      },
 
-    // Touch/swipe event handlers
-    this.setupPartnerSwipeEvents(cardsContainer);
+      onInteraction: () => {
+        this.isPartnerSwiping = true;
+        this.onUserInteraction();
+      },
 
-    // Navigation button handlers
-    prevBtn.addEventListener('click', () => {
-      console.log('🔼 [Button] 이전 버튼 클릭');
-      this.navigatePartnerCard('prev', false, true); // 버튼 클릭임을 표시
-    });
-    nextBtn.addEventListener('click', () => {
-      console.log('🔽 [Button] 다음 버튼 클릭');
-      this.navigatePartnerCard('next', false, true); // 버튼 클릭임을 표시
-    });
-
-    // Initial state - 애니메이션 없이 즉시 정렬
-    this.currentPartnerIndex = 0; // 인덱스 초기화
-    this.updatePartnerNavigationButtons(false, this.currentPartners.length > 1);
-    this.snapToPartnerCard(false); // 애니메이션 없이 초기 위치 설정
-
-    console.log('🎬 [Init] 파트너 카드 초기화 완료:', {
-      index: this.currentPartnerIndex,
-      totalCards: this.currentPartners.length,
-      animated: false
+      enableKeyboard: false, // Partner swiper doesn't use keyboard
+      enableVelocity: true, // Partners uses advanced velocity tracking
+      usePixelTransform: true, // Partners uses pixel-based transforms
+      considerPadding: true // Partners considers padding in calculations
     });
 
-    // 레이아웃 안정화를 위한 지연된 재정렬
+    this.currentPartnerIndex = 0;
+    this.partnersSwiper.init(this.currentPartners.length);
+
+    // Initial stabilization
     setTimeout(() => {
-      console.log('🔄 [Stabilize] 레이아웃 안정화 재정렬 실행');
-      this.snapToPartnerCard(false); // 레이아웃 완전 로드 후 위치 확정
+      this.partnersSwiper.updatePosition(false);
     }, 100);
 
-    // 힌트 타이머 시작
+    // Start hint timer
     this.startHintTimer();
 
-    // 화면 크기 변경 감지 및 재정렬
+    // Setup resize handler
     this.setupPartnerResizeHandler();
 
     this.partnerSwiperInitialized = true;
   }
 
-  // Setup partner swipe events
-  setupPartnerSwipeEvents(container) {
-    let startX = 0;
-    let currentX = 0;
-    let isDragging = false;
-    let startTime = 0;
-    let hasMovedEnough = false;
-    let velocityTracker = []; // 속도 추적을 위한 배열
-    let lastMoveTime = 0;
-
-    const handleStart = (e) => {
-      isDragging = true;
-      hasMovedEnough = false;
-      // 터치 시작 시에는 즉시 스와이프 모드로 설정하지 않음
-      startTime = Date.now();
-      lastMoveTime = startTime;
-      startX = e.touches ? e.touches[0].clientX : e.clientX;
-      currentX = startX;
-      container.style.transition = 'none';
-
-      // 속도 추적 초기화
-      velocityTracker = [{ time: startTime, x: startX }];
-
-      console.log('👆 [Touch] 터치 시작:', { startX, time: startTime });
-    };
-
-    const handleMove = (e) => {
-      if (!isDragging) return;
-
-      const now = Date.now();
-      currentX = e.touches ? e.touches[0].clientX : e.clientX;
-      const diffX = currentX - startX;
-
-      // 속도 추적을 위한 데이터 수집 (최근 100ms 내의 데이터만 유지)
-      velocityTracker.push({ time: now, x: currentX });
-      velocityTracker = velocityTracker.filter(point => now - point.time < 100);
-
-      // 일정 거리 이상 움직인 경우에만 스와이프 모드로 설정
-      if (Math.abs(diffX) > 10 && !hasMovedEnough) {
-        hasMovedEnough = true;
-        this.isPartnerSwiping = true;
-        this.onUserInteraction(); // 실제 스와이프 시작 시에만 상호작용 감지
-        console.log('🔄 [Touch] 스와이프 모드 활성화:', { diffX });
-      }
-
-      // 실제 스와이프가 시작된 경우에만 이동 처리
-      if (hasMovedEnough) {
-        e.preventDefault();
-
-        // 개선된 정확한 이동 계산 - snapToPartnerCard와 동일한 로직 사용
-        const swiperContainer = document.getElementById('mobile-partner-swiper');
-        const containerRect = swiperContainer.getBoundingClientRect();
-        const containerWidth = containerRect.width;
-
-        // CSS margin/padding 고려한 실제 카드 폭 계산
-        const computedStyle = getComputedStyle(swiperContainer);
-        const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-        const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-        const effectiveWidth = containerWidth - paddingLeft - paddingRight;
-
-        const currentPosition = -this.currentPartnerIndex * effectiveWidth;
-        const newPosition = currentPosition + diffX;
-
-        container.style.transform = `translateX(${newPosition}px)`;
-      }
-    };
-
-    const handleEnd = () => {
-      if (!isDragging) return;
-      isDragging = false;
-
-      const diffX = currentX - startX;
-      const threshold = 50;
-      const timeThreshold = 300;
-      const timeDiff = Date.now() - startTime;
-
-      console.log('🏁 [Touch] 터치 종료:', {
-        diffX,
-        timeDiff,
-        hasMovedEnough,
-        isPartnerSwiping: this.isPartnerSwiping
-      });
-
-      // 스와이프가 실제로 발생했는지 확인
-      if (hasMovedEnough) {
-        // 개선된 스와이프 거리 비율 계산 - 정확한 컨테이너 크기 사용
-        const swiperContainer = document.getElementById('mobile-partner-swiper');
-        const containerRect = swiperContainer.getBoundingClientRect();
-        const containerWidth = containerRect.width;
-
-        // CSS margin/padding 고려한 실제 카드 폭 계산
-        const computedStyle = getComputedStyle(swiperContainer);
-        const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-        const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-        const effectiveWidth = containerWidth - paddingLeft - paddingRight;
-
-        const swipeRatio = Math.abs(diffX) / effectiveWidth;
-
-        // 정교한 속도 계산 (최근 이동 데이터 기반)
-        let velocity = 0;
-        if (velocityTracker.length >= 2) {
-          const recent = velocityTracker[velocityTracker.length - 1];
-          const previous = velocityTracker[0];
-          const timeDelta = recent.time - previous.time;
-          const distanceDelta = recent.x - previous.x;
-          velocity = timeDelta > 0 ? distanceDelta / timeDelta : 0; // px/ms
-        }
-
-        // 스와이프 속도 분류 (관성 효과용)
-        const absVelocity = Math.abs(velocity);
-        const velocityThresholds = {
-          slow: 0.3,      // 느린 스와이프 (부드러운 애니메이션)
-          medium: 0.8,    // 중간 스와이프
-          fast: 1.5       // 빠른 스와이프 (스냅 효과)
-        };
-
-        let swipeType = 'slow';
-        let isFastSwipe = false;
-
-        if (absVelocity > velocityThresholds.fast) {
-          swipeType = 'fast';
-          isFastSwipe = true;
-        } else if (absVelocity > velocityThresholds.medium) {
-          swipeType = 'medium';
-        }
-
-        console.log('📱 [Swipe] 관성 효과 스와이프 감지:', {
-          diffX,
-          containerWidth,
-          swipeRatio,
-          timeDiff,
-          velocity: velocity.toFixed(3) + 'px/ms',
-          absVelocity: absVelocity.toFixed(3),
-          swipeType,
-          isFastSwipe,
-          trackerPoints: velocityTracker.length,
-          threshold: '15% 또는 25px + 300ms 또는 빠른 스와이프'
-        });
-
-        // 더 민감한 스와이프 감지: 빠른 스와이프도 고려
-        if (swipeRatio > 0.15 || (Math.abs(diffX) > 25 && timeDiff < timeThreshold) || isFastSwipe) {
-          // 스와이프 동작 감지 - 이미 onUserInteraction은 move에서 호출됨
-
-          if (diffX > 0 && this.currentPartnerIndex > 0) {
-            this.navigatePartnerCard('prev', { isFastSwipe, swipeType, velocity: absVelocity });
-          } else if (diffX < 0 && this.currentPartnerIndex < this.currentPartners.length - 1) {
-            this.navigatePartnerCard('next', { isFastSwipe, swipeType, velocity: absVelocity });
-          } else {
-            this.snapToPartnerCard(true, { isFastSwipe, swipeType, velocity: absVelocity });
-          }
-
-          // 실제 스와이프 발생 시에만 딜레이 적용
-          setTimeout(() => {
-            this.isPartnerSwiping = false;
-            console.log('✅ [Touch] 스와이프 플래그 해제 (딜레이)');
-          }, 150);
-        } else {
-          // 스와이프 거리가 부족한 경우 원위치
-          this.snapToPartnerCard();
-          this.isPartnerSwiping = false;
-          console.log('✅ [Touch] 스와이프 플래그 해제 (거리 부족)');
-        }
-      } else {
-        // 실제 스와이프가 발생하지 않은 경우 (단순 탭) - 즉시 플래그 해제
-        this.isPartnerSwiping = false;
-        console.log('✅ [Touch] 단순 탭 감지 - 스와이프 플래그 즉시 해제');
-      }
-    };
-
-    // Mouse events
-    container.addEventListener('mousedown', handleStart);
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', handleEnd);
-
-    // Touch events
-    container.addEventListener('touchstart', handleStart, { passive: false });
-    container.addEventListener('touchmove', handleMove, { passive: false });
-    container.addEventListener('touchend', handleEnd);
-  }
 
   // Setup resize handler for partner swiper
   setupPartnerResizeHandler() {
     // ⚡ 성능 최적화: debounce 적용
     const resizeHandler = () => {
       console.log('📱 [Resize] 화면 크기 변경 감지, 카드 위치 재조정');
-      this.snapToPartnerCard(false); // 리사이즈 시에는 애니메이션 없이 즉시 이동
+      if (this.partnersSwiper) {
+        this.partnersSwiper.updatePosition(false); // 리사이즈 시에는 애니메이션 없이 즉시 이동
+      }
     };
 
     // debounce가 로드되었으면 사용, 아니면 기본 setTimeout 방식
@@ -1294,7 +1014,9 @@ class UIManager {
     // orientationchange도 debounce 적용
     const orientationHandler = () => {
       console.log('📱 [Orientation] 화면 방향 변경 감지, 카드 위치 재조정');
-      this.snapToPartnerCard(false);
+      if (this.partnersSwiper) {
+        this.partnersSwiper.updatePosition(false);
+      }
     };
 
     const handleOrientation = this.debounce ?
@@ -1304,256 +1026,19 @@ class UIManager {
     window.addEventListener('orientationchange', handleOrientation);
   }
 
-  // Navigate partner cards
-  navigatePartnerCard(direction, swipeInfo = false, isButtonClick = false) {
-    // 스와이프 정보 파싱 (하위 호환성 유지)
-    let isFastSwipe = false;
-    let swipeType = 'slow';
-    let velocity = 0;
 
-    if (typeof swipeInfo === 'object' && swipeInfo !== null) {
-      // 새로운 객체 형태의 스와이프 정보
-      isFastSwipe = swipeInfo.isFastSwipe || false;
-      swipeType = swipeInfo.swipeType || 'slow';
-      velocity = swipeInfo.velocity || 0;
-    } else {
-      // 기존 boolean 형태 (하위 호환성)
-      isFastSwipe = swipeInfo;
-    }
-    if (!this.currentPartners || this.currentPartners.length === 0) return;
 
-    // 사용자 상호작용 감지
-    this.onUserInteraction();
 
-    const maxIndex = this.currentPartners.length - 1;
-    const oldIndex = this.currentPartnerIndex;
-
-    if (direction === 'prev' && this.currentPartnerIndex > 0) {
-      this.currentPartnerIndex--;
-    } else if (direction === 'next' && this.currentPartnerIndex < maxIndex) {
-      this.currentPartnerIndex++;
-    } else {
-      console.log(`⚠️ [Navigation] 이동 불가: ${direction}, 현재 인덱스: ${this.currentPartnerIndex}, 최대: ${maxIndex}`);
-      return;
-    }
-
-    console.log(`🎯 [Navigation] 관성 효과 카드 이동: ${oldIndex} → ${this.currentPartnerIndex} (${direction}${isButtonClick ? ', 버튼 클릭' : ''}, ${swipeType}, v=${velocity.toFixed(2)})`);
-
-    // 버튼 클릭의 경우 더 정밀한 정렬을 위해 부드러운 애니메이션 사용
-    if (isButtonClick) {
-      this.snapToPartnerCard(true, { isFastSwipe: false, swipeType: 'slow', velocity: 0 }); // 항상 부드러운 애니메이션
-
-      // 정렬 검증을 위한 딜레이 후 재검사
-      setTimeout(() => {
-        this.verifyAndFixAlignment();
-      }, 450); // 애니메이션 완료 후
-    } else {
-      this.snapToPartnerCard(true, { isFastSwipe, swipeType, velocity });
-    }
-    this.updatePartnerNavigationButtons(
-      this.currentPartnerIndex > 0,
-      this.currentPartnerIndex < maxIndex
-    );
-    this.updatePartnerCounter(this.currentPartnerIndex, this.currentPartners.length);
-    this.updatePartnerPaginationActive(this.currentPartnerIndex);
-  }
-
-  // Snap to exact card position with smooth transition
-  snapToPartnerCard(animate = true, swipeInfo = false) {
-    // 스와이프 정보 파싱 (하위 호환성 유지)
-    let isFastSwipe = false;
-    let swipeType = 'slow';
-    let velocity = 0;
-
-    if (typeof swipeInfo === 'object' && swipeInfo !== null) {
-      // 새로운 객체 형태의 스와이프 정보
-      isFastSwipe = swipeInfo.isFastSwipe || false;
-      swipeType = swipeInfo.swipeType || 'slow';
-      velocity = swipeInfo.velocity || 0;
-    } else {
-      // 기존 boolean 형태 (하위 호환성)
-      isFastSwipe = swipeInfo;
-      swipeType = isFastSwipe ? 'fast' : 'slow';
-    }
-    const cardsContainer = document.getElementById('partner-cards-container');
-    if (!cardsContainer) return;
-
-    // 정확한 스냅 포지션 계산 - 부모 컨테이너 기준
-    const swiperContainer = document.getElementById('mobile-partner-swiper');
-    if (!swiperContainer) return;
-
-    // 크기 계산을 getBoundingClientRect()로 통일
-    const containerRect = swiperContainer.getBoundingClientRect();
-    const containerWidth = containerRect.width;
-
-    // 실제 카드 크기 확인 (margin 고려)
-    const cards = cardsContainer.querySelectorAll('.partner-card');
-    if (cards.length === 0) return;
-
-    const firstCard = cards[0];
-    const cardRect = firstCard.getBoundingClientRect();
-    const cardStyle = getComputedStyle(firstCard);
-    const cardMarginLeft = parseFloat(cardStyle.marginLeft) || 0;
-    const cardMarginRight = parseFloat(cardStyle.marginRight) || 0;
-
-    // 실제 카드 간격 = 카드 너비 + 양쪽 마진
-    const cardSpacing = cardRect.width + cardMarginLeft + cardMarginRight;
-    const targetPosition = -(this.currentPartnerIndex * cardSpacing);
-
-    // 스와이프 속도에 따른 다이나믹 애니메이션 타이밍 조정
-    const animationConfig = {
-      slow: {
-        duration: 650,     // 느린 스와이프: 더 길고 부드러운 애니메이션
-        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' // ease-out-quad (부드럽게)
-      },
-      medium: {
-        duration: 450,     // 중간 스와이프: 적당한 속도
-        easing: 'cubic-bezier(0.4, 0.0, 0.2, 1)' // ease-in-out (균형잡힌)
-      },
-      fast: {
-        duration: 280,     // 빠른 스와이프: 빠르고 반응적
-        easing: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' // ease-back (약간의 탄성)
-      }
-    };
-
-    // 속도 기반 애니메이션 설정 선택
-    const config = animationConfig[swipeType] || animationConfig.slow;
-
-    // 관성 효과: 속도가 높을수록 약간 더 빠르게 (최대 20% 단축)
-    const velocityFactor = Math.min(velocity * 0.1, 0.2); // 0~0.2 범위
-    const finalDuration = Math.round(config.duration * (1 - velocityFactor));
-
-    const duration = finalDuration;
-    const easing = config.easing;
-
-    // 카드 크기 동기화 정보 로깅 (강제 변경하지 않음)
-    console.log('🔧 [Snap] 카드 크기 분석:', {
-      containerWidth: containerWidth,
-      cardWidth: cardRect.width,
-      cardMarginLeft,
-      cardMarginRight,
-      cardSpacing,
-      targetPosition
-    });
-
-    console.log('📍 [Snap] 관성 효과 부드러운 스냅:', {
-      currentIndex: this.currentPartnerIndex,
-      containerWidth: containerWidth,
-      cardSpacing,
-      targetPosition,
-      animate,
-      swipeType,
-      velocity: velocity.toFixed(3),
-      velocityFactor: velocityFactor.toFixed(3),
-      baseDuration: config.duration + 'ms',
-      finalDuration: duration + 'ms',
-      easing: config.easing
-    });
-
-    if (animate) {
-      // 스와이프 속도에 따른 부드러운 전환
-      cardsContainer.style.transition = `transform ${duration}ms ${easing}`;
-      cardsContainer.style.transform = `translateX(${targetPosition}px)`;
-
-      // 전환 완료 후 transition 제거 및 위치 재검증
-      setTimeout(() => {
-        cardsContainer.style.transition = 'none';
-
-        // 정확한 위치 재검증 및 강제 수정
-        const finalPosition = -(this.currentPartnerIndex * cardSpacing);
-        const currentTransform = cardsContainer.style.transform;
-        const currentMatrix = new WebKitCSSMatrix(currentTransform);
-        const currentX = currentMatrix.m41; // translateX 값
-
-        // 1px 이상의 오차가 있으면 수정
-        if (Math.abs(currentX - finalPosition) > 1) {
-          console.warn('⚠️ [Snap] 애니메이션 후 위치 오차 감지 및 수정:', {
-            expected: finalPosition,
-            actual: currentX,
-            diff: Math.abs(currentX - finalPosition)
-          });
-          cardsContainer.style.transform = `translateX(${finalPosition}px)`;
-        }
-      }, duration + 50); // 약간의 여유 시간 추가
-    } else {
-      // 즉시 이동 (리사이즈 등의 경우)
-      cardsContainer.style.transition = 'none';
-      cardsContainer.style.transform = `translateX(${targetPosition}px)`;
-
-      // 즉시 모드에서도 정확성 검증
-      requestAnimationFrame(() => {
-        const currentTransform = cardsContainer.style.transform;
-        if (!currentTransform.includes(`translateX(${targetPosition}px)`)) {
-          console.warn('⚠️ [Snap] 즉시 모드 위치 오차 수정');
-          cardsContainer.style.transform = `translateX(${targetPosition}px)`;
-        }
-      });
-    }
-  }
-
-  // Update partner card position (즉시 업데이트용)
-  updatePartnerCardPosition() {
-    const cardsContainer = document.getElementById('partner-cards-container');
-    if (!cardsContainer) return;
-
-    // 부모 컨테이너 기준으로 일관된 계산 (snapToPartnerCard와 동일한 방식)
-    const swiperContainer = document.getElementById('mobile-partner-swiper');
-    if (!swiperContainer) return;
-
-    const containerRect = swiperContainer.getBoundingClientRect();
-    const containerWidth = containerRect.width;
-
-    // 실제 카드 크기 확인 (margin 고려)
-    const cards = cardsContainer.querySelectorAll('.partner-card');
-    if (cards.length === 0) return;
-
-    const firstCard = cards[0];
-    const cardRect = firstCard.getBoundingClientRect();
-    const cardStyle = getComputedStyle(firstCard);
-    const cardMarginLeft = parseFloat(cardStyle.marginLeft) || 0;
-    const cardMarginRight = parseFloat(cardStyle.marginRight) || 0;
-
-    // 실제 카드 간격 = 카드 너비 + 양쪽 마진
-    const cardSpacing = cardRect.width + cardMarginLeft + cardMarginRight;
-    const targetPosition = -(this.currentPartnerIndex * cardSpacing);
-
-    console.log('🔄 [Update] 카드 크기 통일 위치 업데이트:', {
-      currentIndex: this.currentPartnerIndex,
-      containerWidth,
-      cardSpacing,
-      targetPosition
-    });
-
-    cardsContainer.style.transition = 'none';
-    cardsContainer.style.transform = `translateX(${targetPosition}px)`;
-  }
-
-  // Update partner navigation buttons
-  updatePartnerNavigationButtons(canGoPrev, canGoNext) {
-    const prevBtn = document.getElementById('prev-partner-btn');
-    const nextBtn = document.getElementById('next-partner-btn');
-
-    if (prevBtn) {
-      prevBtn.disabled = !canGoPrev;
-      prevBtn.classList.toggle('disabled', !canGoPrev);
-    }
-    if (nextBtn) {
-      nextBtn.disabled = !canGoNext;
-      nextBtn.classList.toggle('disabled', !canGoNext);
-    }
-  }
 
   // Update partner pagination (delegated to ui-components utility)
   updatePartnerPagination(totalCards) {
     const pagination = document.getElementById('partner-swiper-pagination');
     updatePagination(pagination, totalCards, this.currentPartnerIndex, (index) => {
       this.onUserInteraction();
-      this.currentPartnerIndex = index;
-      this.snapToPartnerCard();
-      this.updatePartnerNavigationButtons(
-        index > 0,
-        index < totalCards - 1
-      );
+      if (this.partnersSwiper) {
+        this.partnersSwiper.goTo(index, true);
+      }
+      // Navigation buttons are now handled automatically by MobileSwiper
       this.updatePartnerCounter(index, totalCards);
     });
   }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>회원가입 - 누구나</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/styles/signup-v3.css?v=20251005002">
+</head>
+<body>
+    <div class="signup-screen-container">
+
+        <!-- Screen 0: Warning -->
+        <div class="screen active" id="screen-0">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety3.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title warning-title">잠깐만요! ✋</h1>
+                <div class="warning-message">
+                    <p class="warning-text">이 앱은 <strong>1년 내에 결혼하고 싶은 사람</strong>을 위한 앱이에요.</p>
+                    <p class="warning-text">진심이 아니시면 <strong>지금 당장 나가서</strong> 이 앱을 지우세요.</p>
+                </div>
+                <div class="countdown-container">
+                    <div class="countdown-number" id="countdown">10</div>
+                    <div class="countdown-label">초 드릴게요</div>
+                </div>
+                <button class="btn-primary btn-serious" id="btn-serious" disabled>
+                    <span>진심입니다 💍</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 1: Email -->
+        <div class="screen" id="screen-1">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety2.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">이메일 주소를 알려주세요 📧</h1>
+                <p class="screen-description">로그인할 때 사용할 이메일이에요</p>
+                <form class="screen-form" id="form-email">
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="example@email.com"
+                        class="input-large"
+                        required
+                        autocomplete="email"
+                    >
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 2: Password -->
+        <div class="screen" id="screen-2">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety1.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">비밀번호를 만들어주세요 🔒</h1>
+                <p class="screen-description">8자 이상으로 안전하게!</p>
+                <form class="screen-form" id="form-password">
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="비밀번호 (8자 이상)"
+                        class="input-large"
+                        minlength="8"
+                        required
+                        autocomplete="new-password"
+                    >
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 3: Name -->
+        <div class="screen" id="screen-3">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety5.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">당신을 뭐라고 부를까요? 😊</h1>
+                <p class="screen-description">이름 또는 닉네임을 알려주세요</p>
+                <form class="screen-form" id="form-name">
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="이름 또는 닉네임"
+                        class="input-large"
+                        minlength="2"
+                        maxlength="10"
+                        required
+                        autocomplete="name"
+                    >
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 4: Gender -->
+        <div class="screen" id="screen-4">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety4.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">성별을 알려주세요</h1>
+                <p class="screen-description">매칭을 위해 필요해요</p>
+                <div class="gender-selection">
+                    <button class="gender-card" data-gender="male">
+                        <div class="gender-icon">👨</div>
+                        <div class="gender-text">남성</div>
+                    </button>
+                    <button class="gender-card" data-gender="female">
+                        <div class="gender-icon">👩</div>
+                        <div class="gender-text">여성</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Birthdate -->
+        <div class="screen" id="screen-5">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety6.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">생년월일을 알려주세요 🎂</h1>
+                <p class="screen-description">나이 확인을 위해 필요해요</p>
+                <form class="screen-form" id="form-birthdate">
+                    <input
+                        type="date"
+                        id="birthdate"
+                        class="input-large"
+                        max="2010-01-01"
+                        required
+                    >
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 6: Complete -->
+        <div class="screen" id="screen-6">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety7.png" alt="베티" class="bety-img bety-bounce">
+                </div>
+                <h1 class="screen-title celebration-title">환영합니다! 🎉</h1>
+                <p class="screen-description celebration-text">
+                    <span id="welcome-name">000</span>님,<br>
+                    이제 진심으로 결혼을 원하는<br>
+                    특별한 인연을 만나보세요 💍
+                </p>
+                <button class="btn-primary btn-large" id="btn-start">
+                    <span>시작하기</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/js/signup-v3.js?v=20251005"></script>
+</body>
+</html>

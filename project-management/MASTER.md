@@ -1,0 +1,226 @@
+# 📌 현재 작업 가이드 (MASTER)
+
+**최종 업데이트**: 2025-10-05
+**현재 Phase**: 문서 시스템 전환 완료 → 다음 Phase 대기
+
+---
+
+## 🎯 현재 상태
+
+**Phase**: 문서 시스템 전환
+**작업**: 3-Document System 구축 (PROJECT.md, MASTER.md, CLAUDE.md)
+**진행률**: 90% 🟦🟦🟦🟦🟦🟦🟦🟦🟦⬜
+**다음**: 사용자와 다음 기능 논의
+
+---
+
+## ✅ 최근 완료 작업
+
+### Phase 리팩토링-3: 스와이프 리팩토링 완료 ✅ (2025-10-05)
+
+**작업 내용**:
+- `public/js/utils/mobile-swiper.js` 생성 (413줄)
+  * 터치/마우스/키보드 이벤트 처리
+  * Velocity tracking (선택적)
+  * Percentage/Pixel 기반 transform 지원
+  * Pagination & Counter 자동 관리
+  * Navigation 버튼 상태 관리
+
+**코드 메트릭**:
+- **ui.js**: 1,912줄 → 1,384줄 (-528줄, -28%)
+- **생성 파일**: mobile-swiper.js (413줄)
+- **순 감소**: ~115줄
+- **중복 제거**: 스와이프 로직 100% 통합
+
+**주요 성과**:
+- ✅ 재사용 가능한 컴포넌트
+- ✅ 유지보수성 대폭 향상
+- ✅ 일관된 스와이프 경험
+- ✅ 설정 기반 커스터마이징
+
+**Git**: (Git 저장소 미설정)
+**상태**: Phase 리팩토링-3 100% 완료 ✅
+
+---
+
+### Phase 리팩토링-2: UI Components & Formatters 통합 ✅ (2025-10-04)
+
+**작업 내용**:
+- api.js에 ErrorHandler 통합
+- ui.js에 UI Components & Formatters 통합
+- formatDate() → formatRelativeTime() 변경
+- updatePagination() 통합
+- renderEmptyState() 표준화
+
+**코드 메트릭**:
+- **api.js**: 616줄 → 570줄 (-46줄, -7.5%)
+- **ui.js**: 1,924줄 → 1,820줄 (-104줄, -5.4%)
+- **총 감소**: ~150줄 코드 제거
+- **코드 중복**: ~25% → ~15% (-40%)
+
+**Git**: (Git 저장소 미설정)
+**상태**: Phase 리팩토링-2 100% 완료 ✅
+
+---
+
+### Phase 리팩토링-1: 유틸리티 모듈 생성 ✅ (2025-10-03)
+
+**생성 파일**:
+- `public/js/utils/error-handler.js` (270줄)
+- `public/js/utils/ui-components.js` (332줄)
+- `public/js/utils/formatters.js` (294줄)
+- `public/js/utils/performance.js` (266줄) [기존]
+- `public/js/utils/cache.js` (248줄) [기존]
+
+**총 유틸리티**: ~1,410줄
+
+**Git**: (Git 저장소 미설정)
+**상태**: Phase 리팩토링-1 100% 완료 ✅
+
+---
+
+### UI/UX 개선 작업 ✅ (2025-10-04)
+
+**작업 내용**:
+1. **프리미엄 파트너 카드 디자인** (600줄)
+   - 3D 글래스모피즘 효과
+   - 그라데이션 & 애니메이션
+   - 반응형 & 다크모드 지원
+
+2. **베티 통합 스타일 시스템** (550줄)
+   - 모든 베티 스타일 통일
+   - 떠다니는 효과, 호버 효과
+   - 접근성 & 반응형 지원
+
+3. **버그 수정** (7건)
+   - 로딩 화면 멈춤 해결
+   - 베티 이미지 잘림 수정
+   - 베티 컨테이너 배경 제거
+   - 콘솔 로그 최적화
+
+**Git**: (Git 저장소 미설정)
+**상태**: UI/UX 개선 100% 완료 ✅
+
+---
+
+## 📋 다음 작업: 대기 중
+
+### 사용자와 논의 필요
+
+**현재 상황**:
+- 리팩토링 Phase 1, 2, 3 완료
+- UI/UX 개선 완료
+- 문서 시스템 전환 완료 (90%)
+
+**다음 단계 옵션**:
+
+1. **Git 저장소 초기화**
+   - `.git` 폴더 없음
+   - 버전 관리 시작
+   - GitHub 연동
+
+2. **테스트 코드 작성**
+   - 현재 테스트 커버리지 0%
+   - 유틸리티 모듈 테스트
+   - 통합 테스트 작성
+
+3. **새로운 기능 개발**
+   - 사용자 요청사항 대기
+   - 논의 후 Phase 계획
+
+4. **성능 최적화**
+   - 로딩 속도 개선
+   - 번들 크기 최적화
+   - 캐싱 전략 강화
+
+**예상 시간**: 사용자 결정 후 산정
+
+---
+
+## 🚨 작업 규칙
+
+### 1. 문서 업데이트 (필수)
+
+```bash
+# 작업 시작 전
+git pull origin main  # (Git 설정 후)
+
+# 작업 중
+- MASTER.md 진행률 업데이트
+
+# 작업 완료 후
+- PROJECT.md 업데이트 (필요 시)
+- MASTER.md 완료 표시
+- CLAUDE.md 히스토리 추가
+- Git 커밋 및 푸시
+```
+
+### 2. Git 워크플로우 (Git 설정 후)
+
+```bash
+# 매 작업 완료 시
+git add project-management/PROJECT.md project-management/MASTER.md CLAUDE.md
+git add [작업한 파일들]
+git commit -m "Phase X-X: [작업 내용]"
+git push origin main
+```
+
+### 3. 문서 동기화
+
+- **PROJECT.md**: 큰 변화 시에만 수정 (아키텍처, 기술 스택)
+- **MASTER.md**: 매 작업마다 업데이트 (현재 상태, 최근 완료, 다음 작업)
+- **CLAUDE.md**: 버전 히스토리 추가 (append only, Phase 완료 시)
+
+---
+
+## 📂 참고 문서
+
+- `project-management/PROJECT.md` - 프로젝트 전체 이해
+- `CLAUDE.md` - 작업 히스토리
+- `README.md` - 개발자 문서
+- `project-management/archive/` - 완료된 Phase 상세 (예정)
+
+---
+
+## 🔗 중요 링크
+
+- **로컬 앱**: http://localhost:3000
+- **관리자**: http://localhost:3000/admin-login.html
+- **Git**: (미설정)
+
+---
+
+## 🎯 대화 우선 접근 (Discussion-First)
+
+### 중요: 모든 개발 전에 반드시 사용자와 논의 세션을 갖습니다!
+
+**패턴**:
+```
+사용자: "[기능] 만들어줘"
+
+Claude:
+"[기능] 구현 전에 논의하겠습니다.
+
+🤔 확인 사항:
+1. [질문1]
+2. [질문2]
+
+💡 제안 설계:
+[설계 설명]
+
+📋 Phase 분할:
+- Phase X-A: [작업1]
+- Phase X-B: [작업2]
+
+이렇게 진행할까요?"
+
+사용자: "베스트야, 이렇게 해줘"
+
+Claude: [개발 시작]
+```
+
+---
+
+**작성일**: 2025-10-05
+**작성자**: Claude Code
+**문서 버전**: 1.0.0

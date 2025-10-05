@@ -118,30 +118,20 @@ class PhotoManager {
     this.showUploadProgress(0, '업로드 준비 중...');
 
     try {
-      // Step 1: Get presigned URL
-      this.updateUploadProgress(10, '업로드 URL 생성 중...');
+      // Direct upload to local storage
+      this.updateUploadProgress(10, '사진 업로드 중...');
 
-      const presignData = await api.generatePresignUrl(
-        file.name,
-        file.type,
-        'PROFILE'
+      const uploadData = await api.directUploadPhoto(
+        file,
+        'PROFILE',
+        (progress) => {
+          this.updateUploadProgress(10 + (progress * 80), '사진 업로드 중...');
+        }
       );
 
-      const { upload_url, photo_id } = presignData.data;
+      const { photo_id } = uploadData.data;
 
-      // Step 2: Upload to storage
-      this.updateUploadProgress(20, '사진 업로드 중...');
-
-      await this.uploadToStorage(upload_url, file, (progress) => {
-        this.updateUploadProgress(20 + (progress * 0.6), '사진 업로드 중...');
-      });
-
-      // Step 3: Commit photo
-      this.updateUploadProgress(85, '사진 처리 중...');
-
-      await api.commitPhoto(photo_id);
-
-      // Step 4: Complete
+      // Step 2: Complete
       this.updateUploadProgress(100, '완료!');
 
       ui.showToast('사진이 성공적으로 업로드되었습니다!', 'success');

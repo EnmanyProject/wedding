@@ -73,7 +73,11 @@
       "Bash(set PORT=3001)",
       "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT name, display_name, is_active FROM users ORDER BY name LIMIT 10;\")",
       "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT COUNT(*) as total_active_users FROM users WHERE is_active = true;\")",
-      "mcp__sequential-thinking__sequentialthinking"
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(npm install:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(rmdir:*)"
     ],
     "deny": [],
     "ask": []

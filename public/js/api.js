@@ -359,6 +359,59 @@ class APIService {
     });
   }
 
+  // Direct upload photo to local storage
+  async directUploadPhoto(file, role = 'PROFILE', onProgress = null) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+
+      // Progress tracking
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            const progress = e.loaded / e.total;
+            onProgress(progress);
+          }
+        });
+      }
+
+      // Success handler
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error('응답 파싱 실패'));
+          }
+        } else {
+          try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            reject(new Error(errorResponse.error || `업로드 실패: ${xhr.status}`));
+          } catch {
+            reject(new Error(`업로드 실패: ${xhr.status}`));
+          }
+        }
+      });
+
+      // Error handler
+      xhr.addEventListener('error', () => {
+        reject(new Error('업로드 실패'));
+      });
+
+      // Prepare request
+      xhr.open('POST', `${this.baseURL}/me/photos/upload`);
+
+      // Set headers
+      xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.setRequestHeader('x-filename', file.name);
+      xhr.setRequestHeader('x-photo-role', role);
+
+      // Send file as binary
+      xhr.send(file);
+    });
+  }
+
   async deletePhoto(photoId) {
     return this.request(`/me/photos/${photoId}`, {
       method: 'DELETE'
