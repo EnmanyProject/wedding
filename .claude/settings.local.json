@@ -77,7 +77,11 @@
       "Bash(npm install:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
-      "Bash(rmdir:*)"
+      "Bash(rmdir:*)",
+      "Bash(docker compose:*)",
+      "Bash(node:*)",
+      "Bash(start http://localhost:3001/signup-v3.html)",
+      "Bash(start http://localhost:3001/signup-v2.html)"
     ],
     "deny": [],
     "ask": []
