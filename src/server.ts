@@ -19,6 +19,7 @@ import devRouter from './routes/dev';
 import adminRouter from './routes/admin';
 import adminAuthRouter from './routes/adminAuth';
 import ringsRouter from './routes/rings';
+import ringTestRouter from './routes/ringTest';
 
 const app = express();
 // Socket.IO 임시 비활성화
@@ -126,6 +127,7 @@ app.use('/api', photosRouter);
 app.use('/api/quiz', quizRouter);
 app.use('/api/points', pointsRouter);
 app.use('/api/rings', ringsRouter);
+app.use('/api/ring-test', ringTestRouter);
 app.use('/api/affinity', affinityRouter);
 app.use('/api/meeting', meetingRouter);
 app.use('/api/profile', profileRouter);

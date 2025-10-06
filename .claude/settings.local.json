@@ -87,7 +87,16 @@
       "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -f /migrations/010_create_ring_currency_system.sql)",
       "Bash(where docker)",
       "WebSearch",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(claude --version)",
+      "Bash(claude doctor)",
+      "Bash(claude --print \"What is the current working directory structure?\")",
+      "Bash(where super-claude)",
+      "WebFetch(domain:www.superclaude.sh)",
+      "WebFetch(domain:github.com)",
+      "Bash(superclaude --verify)",
+      "Bash(superclaude --version)",
+      "Bash(superclaude commit)"
     ],
     "deny": [],
     "ask": []
