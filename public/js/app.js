@@ -634,6 +634,17 @@ Configuration:
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   window.app = new App();
+
+  // Setup recommendation refresh button
+  const refreshRecommendationsBtn = document.getElementById('refresh-recommendations-btn');
+  if (refreshRecommendationsBtn) {
+    refreshRecommendationsBtn.addEventListener('click', async () => {
+      if (window.ui) {
+        await window.ui.loadRecommendations();
+        window.ui.showToast('추천 목록을 새로고침했습니다', 'success');
+      }
+    });
+  }
 });
 
 // Cleanup on page unload

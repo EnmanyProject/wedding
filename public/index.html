@@ -45,6 +45,8 @@
     <link rel="stylesheet" href="/styles/bety-unified.css?v=20251004">
     <!-- 💍 Ring 화폐 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/ring-system.css?v=20251005">
+    <!-- ✨ 일일 추천 시스템 스타일 -->
+    <link rel="stylesheet" href="/styles/recommendations.css?v=20251006">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -188,6 +190,20 @@
                     <h2>호감도 랭킹 🏆</h2>
                     <button id="refresh-rankings-btn" class="btn btn-secondary">새로고침</button>
                 </div>
+
+                <!-- Daily Recommendations Section -->
+                <section class="recommendations-section">
+                    <div class="section-header">
+                        <h3>✨ 오늘의 추천</h3>
+                        <button id="refresh-recommendations-btn" class="btn btn-sm btn-outline">새로고침</button>
+                    </div>
+                    <div id="recommendations-list" class="recommendations-list">
+                        <div class="recommendations-placeholder">
+                            <img src="/images/Bety5.png" alt="Bety" class="bety-character character-float" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+                            <p>오늘의 추천을 불러오는 중...</p>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Rankings List Section -->
                 <section class="rankings-section">

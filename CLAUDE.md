@@ -292,6 +292,91 @@ CLAUDE.md (히스토리)
 
 ---
 
-**마지막 업데이트**: 2025-10-05
+### v1.36.0 (2025-10-06) - Phase 1B: 일일 추천 시스템 완료
+
+**작업 내용**:
+
+#### 1️⃣ 데이터베이스 스키마 (011_create_daily_recommendations.sql)
+- `daily_recommendations` 테이블 생성
+  * 일일 추천 목록 저장
+  * 점수 세부 내역 (similarity/activity/novelty)
+  * 사용자 반응 추적 (viewed/clicked/quiz_started)
+- `recommendation_history` 테이블
+  * 추천 통계 및 성과 지표
+  * view_rate, click_rate, conversion_rate 자동 계산
+- `recommendation_settings` 테이블
+  * 사용자별 추천 설정 및 가중치 조정
+- 자동 통계 업데이트 트리거 3개
+
+#### 2️⃣ 추천 알고리즘 서비스
+- `recommendationService.ts` 생성 (350+ 줄)
+  * 취향 유사도 계산 (0-50점)
+  * 활성도 점수 (0-30점)
+  * 신규도 점수 (0-20점)
+  * Top 5 추천 생성
+
+#### 3️⃣ 백엔드 API
+- `/api/recommendations` 라우트 생성
+  * GET `/today` - 오늘의 추천 조회
+  * POST `/generate` - 추천 생성
+  * POST `/:id/click` - 클릭 기록
+  * POST `/:id/quiz-started` - 퀴즈 시작 기록
+  * GET `/stats` - 추천 통계
+  * POST `/generate-all` - 전체 사용자 추천
+  * DELETE `/cleanup` - 오래된 추천 정리
+
+#### 4️⃣ 프론트엔드 UI
+- `recommendations.css` 생성 (200+ 줄)
+  * 그라데이션 카드 디자인
+  * 점수 프로그레스 바
+  * 호버 애니메이션
+  * 다크모드 지원
+- `index.html` 추천 섹션 추가
+- `ui.js` 추천 로직 구현
+- `api.js` 추천 API 클라이언트 추가
+- `app.js` 새로고침 버튼 이벤트
+
+**코드 메트릭**:
+- **추가**: ~900줄
+- **DB 테이블**: 4개
+- **API 엔드포인트**: 7개
+- **프론트엔드**: UI + 로직 통합
+
+**기술적 성과**:
+- 룰 베이스 개인화 추천 알고리즘 완성
+- 사용자 참여 유도 메커니즘 강화
+- 추천 품질 추적 시스템 구축
+- 확장 가능한 추천 인프라
+
+**다음 단계**: 사용자와 다음 기능 논의
+
+**Git**: 커밋 준비 중
+
+---
+
+### v1.35.1 (2025-10-06) - Vercel 의존성 정리
+
+**작업 내용**:
+- 불필요한 Vercel/Next.js 의존성 제거
+  * @vercel/blob, @vercel/postgres
+  * next, react, react-dom
+  * tailwindcss, autoprefixer, postcss
+- 18개 파일 삭제 (1,104줄)
+  * next.config.js, tailwind.config.js, postcss.config.js
+  * app/ 디렉토리 (Next.js App Router)
+  * MIGRATION_PLAN.md
+- package.json 정리
+- GitHub 연결 확인
+
+**기술적 성과**:
+- Express.js + Vanilla JS 아키텍처로 명확화
+- 불필요한 복잡도 제거
+- 개발 환경 단순화
+
+**Git**: ec1d314 커밋 완료
+
+---
+
+**마지막 업데이트**: 2025-10-06
 **작성자**: Claude Code
-**문서 버전**: 1.0.0
+**문서 버전**: 1.1.0

@@ -597,6 +597,34 @@ class APIService {
     return this.request('/profile/images/all');
   }
 
+  // Recommendations API
+  async getTodayRecommendations() {
+    return this.request('/recommendations/today');
+  }
+
+  async generateRecommendations() {
+    return this.request('/recommendations/generate', {
+      method: 'POST',
+      bypassCache: true
+    });
+  }
+
+  async markRecommendationClicked(recommendationId) {
+    return this.request(`/recommendations/${recommendationId}/click`, {
+      method: 'POST'
+    });
+  }
+
+  async markRecommendationQuizStarted(recommendationId) {
+    return this.request(`/recommendations/${recommendationId}/quiz-started`, {
+      method: 'POST'
+    });
+  }
+
+  async getRecommendationStats(days = 7) {
+    return this.request(`/recommendations/stats?days=${days}`);
+  }
+
   // Admin Quiz API (public endpoint)
   async getAdminQuizzes() {
     return this.request('/quiz/admin-quizzes');

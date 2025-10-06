@@ -1,20 +1,79 @@
 # 📌 현재 작업 가이드 (MASTER)
 
 **최종 업데이트**: 2025-10-06
-**현재 Phase**: Phase 1A Ring 시스템 디버깅 완료 → PowerShell 업그레이드 → Phase 1B 준비
+**현재 Phase**: Phase 1B 일일 추천 시스템 완료 ✅
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: Phase 1A Ring 시스템 디버깅 완료
-**작업**: Ring 화폐 시스템 오류 해결 및 개발 환경 개선
+**Phase**: Phase 1B 일일 추천 시스템 완료
+**작업**: 룰 베이스 알고리즘으로 개인화된 일일 파트너 추천 시스템 구축
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: PowerShell 업그레이드 → Phase 1B - AI 일일 추천 시스템
+**다음**: 다음 작업 논의
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### Phase 1B: 일일 추천 시스템 완료 ✅ (2025-10-06)
+
+**작업 내용**:
+- **데이터베이스 스키마** (011_create_daily_recommendations.sql)
+  * `daily_recommendations` - 일일 추천 목록 저장
+  * `recommendation_history` - 추천 통계 및 성과 추적
+  * `recommendation_settings` - 사용자별 추천 설정
+  * 자동 통계 업데이트 트리거 (viewed/clicked/quiz_started)
+
+- **추천 알고리즘** (recommendationService.ts)
+  * 취향 유사도 계산 (0-50점): trait_pairs 응답 비교
+  * 활성도 점수 (0-30점): 최근 로그인 기준
+  * 신규도 점수 (0-20점): 기존 호감도 기준
+  * 총점 기반 Top 5 추천
+
+- **백엔드 API** (/api/recommendations)
+  * GET `/today` - 오늘의 추천 조회
+  * POST `/generate` - 추천 생성 (수동 트리거)
+  * POST `/:id/click` - 클릭 기록
+  * POST `/:id/quiz-started` - 퀴즈 시작 기록
+  * GET `/stats` - 추천 통계 조회
+  * POST `/generate-all` - 전체 사용자 추천 (관리자)
+  * DELETE `/cleanup` - 오래된 추천 정리
+
+- **프론트엔드 UI**
+  * 추천 카드 컴포넌트 (랭킹 배지, 점수 바)
+  * 클릭 시 자동 퀴즈 시작
+  * 새로고침 버튼
+  * 로딩/빈 상태 처리
+
+**주요 성과**:
+- ✅ 룰 베이스 개인화 추천 알고리즘 구축
+- ✅ 사용자 참여 유도 메커니즘 강화
+- ✅ 추천 품질 추적 시스템 (view/click/conversion rate)
+- ✅ 확장 가능한 추천 인프라
+
+**기술적 구현**:
+- Database: 4개 테이블 + 3개 트리거 함수
+- Backend: TypeScript Service + 7개 API
+- Frontend: Vanilla JS + CSS 애니메이션
+
+**Git**: 커밋 준비 중
+**상태**: Phase 1B 일일 추천 시스템 100% 완료 ✅
+
+---
+
+### Vercel 의존성 정리 완료 ✅ (2025-10-06)
+
+**작업 내용**:
+- 불필요한 Vercel/Next.js 의존성 제거
+- 18개 파일 삭제 (1,104줄)
+- package.json 정리
+- GitHub 연결 확인
+
+**Git**: ec1d314 커밋 완료
+**상태**: 100% 완료 ✅
+
+---
 
 ### Phase 1A Ring 시스템 디버깅 완료 ✅ (2025-10-06)
 
@@ -252,37 +311,51 @@
 
 ## 🚨 작업 규칙
 
-### 1. 문서 업데이트 (필수)
+### 1. 코딩 작업 워크플로우 (필수)
 
 ```bash
-# 작업 시작 전
-git pull origin main  # (Git 설정 후)
+# 1단계: 작업 시작 전
+git pull origin main
 
-# 작업 중
-- MASTER.md 진행률 업데이트
+# 2단계: 코딩 작업
+[개발 진행...]
 
-# 작업 완료 후
-- PROJECT.md 업데이트 (필요 시)
-- MASTER.md 완료 표시
-- CLAUDE.md 히스토리 추가
-- Git 커밋 및 푸시
-```
+# 3단계: 작업 완료 후 (반드시 순서대로)
+# ① 문서 업데이트
+- PROJECT.md 업데이트 (필요 시 - 아키텍처/기술스택 변경)
+- MASTER.md 완료 표시 (현재 상태, 최근 완료, 다음 작업)
+- CLAUDE.md 히스토리 추가 (Phase 완료 시)
 
-### 2. Git 워크플로우 (Git 설정 후)
-
-```bash
-# 매 작업 완료 시
+# ② Git 커밋 및 푸시 (문서 포함)
 git add project-management/PROJECT.md project-management/MASTER.md CLAUDE.md
 git add [작업한 파일들]
-git commit -m "Phase X-X: [작업 내용]"
+git commit -m "Phase X-X: [작업 내용]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
 git push origin main
 ```
 
-### 3. 문서 동기화
+### 2. 문서 업데이트 규칙
 
-- **PROJECT.md**: 큰 변화 시에만 수정 (아키텍처, 기술 스택)
+- **PROJECT.md**: 큰 변화 시에만 수정 (아키텍처, 기술 스택, 핵심 기능)
 - **MASTER.md**: 매 작업마다 업데이트 (현재 상태, 최근 완료, 다음 작업)
 - **CLAUDE.md**: 버전 히스토리 추가 (append only, Phase 완료 시)
+
+### 3. Git 커밋 메시지 형식
+
+```
+Phase X-X: [작업 요약]
+
+- [상세 내용 1]
+- [상세 내용 2]
+- [상세 내용 3]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
 
 ---
 
@@ -299,7 +372,7 @@ git push origin main
 
 - **로컬 앱**: http://localhost:3000
 - **관리자**: http://localhost:3000/admin-login.html
-- **Git**: (미설정)
+- **GitHub**: https://github.com/EnmanyProject/wedding.git
 
 ---
 

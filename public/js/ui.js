@@ -293,12 +293,102 @@ class UIManager {
   // Load rankings data
   async loadRankingsData() {
     try {
+      // Load recommendations first
+      await this.loadRecommendations();
+
+      // Then load rankings
       const rankingsData = await api.getMyRanking();
       this.renderDetailedRankings(rankingsData.data.rankings);
     } catch (error) {
       console.error('Error loading rankings:', error);
       this.showToast('랭킹 데이터 로딩 실패', 'error');
     }
+  }
+
+  // Load daily recommendations
+  async loadRecommendations() {
+    const recommendationsList = document.getElementById('recommendations-list');
+    if (!recommendationsList) return;
+
+    try {
+      // Show loading state
+      recommendationsList.innerHTML = `
+        <div class="recommendations-loading">
+          <div class="spinner"></div>
+        </div>
+      `;
+
+      const response = await api.getTodayRecommendations();
+
+      if (response.success && response.recommendations && response.recommendations.length > 0) {
+        this.renderRecommendations(response.recommendations);
+      } else {
+        // No recommendations available
+        recommendationsList.innerHTML = `
+          <div class="recommendations-empty">
+            <img src="/images/Bety1.png" alt="Bety" class="bety-character character-float" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+            <p>아직 추천이 없습니다</p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Error loading recommendations:', error);
+      recommendationsList.innerHTML = `
+        <div class="recommendations-empty">
+          <img src="/images/Bety6.png" alt="Bety" class="bety-character" style="width: 60px; height: 60px; margin-bottom: 1rem;">
+          <p>추천을 불러오지 못했습니다</p>
+        </div>
+      `;
+    }
+  }
+
+  // Render recommendations
+  renderRecommendations(recommendations) {
+    const recommendationsList = document.getElementById('recommendations-list');
+    if (!recommendationsList) return;
+
+    recommendationsList.innerHTML = recommendations.map(rec => `
+      <div class="recommendation-card" data-id="${rec.id}" data-user-id="${rec.recommendedUserId}">
+        <div class="recommendation-rank">${rec.rank}</div>
+        <div class="recommendation-content">
+          <div class="recommendation-avatar">
+            ${rec.userDisplayName.charAt(0)}
+          </div>
+          <div class="recommendation-info">
+            <div class="recommendation-name">${rec.userDisplayName}</div>
+            <div class="recommendation-meta">
+              <span>${rec.userAge}세</span>
+              <span>${rec.userRegion}</span>
+            </div>
+            <div class="recommendation-score-bar">
+              <div class="score-label">
+                <span>매칭 점수</span>
+                <span>${rec.score}점</span>
+              </div>
+              <div class="score-progress">
+                <div class="score-fill" style="width: ${rec.score}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // Add click event listeners
+    recommendationsList.querySelectorAll('.recommendation-card').forEach(card => {
+      card.addEventListener('click', async () => {
+        const recommendationId = card.dataset.id;
+        const userId = card.dataset.userId;
+
+        // Mark as clicked
+        card.classList.add('clicked');
+        await api.markRecommendationClicked(recommendationId);
+
+        // Start quiz
+        await api.markRecommendationQuizStarted(recommendationId);
+        await this.startQuiz(userId);
+      });
+    });
   }
 
   // Load meetings data
