@@ -43,6 +43,8 @@
     <link rel="stylesheet" href="/styles/premium-partner-cards.css?v=20251004">
     <!-- 🎭 베티 캐릭터 통합 스타일 (최우선 적용) -->
     <link rel="stylesheet" href="/styles/bety-unified.css?v=20251004">
+    <!-- 💍 Ring 화폐 시스템 스타일 -->
+    <link rel="stylesheet" href="/styles/ring-system.css?v=20251005">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -82,6 +84,7 @@
                         <span id="user-points" aria-live="polite">0</span>P
                         <span class="sr-only">포인트</span>
                     </div>
+                    <!-- Ring Wallet Display will be inserted here by ring-system.js -->
                     <button class="notifications" aria-label="알림" aria-expanded="false">
                         <span class="notification-icon" aria-hidden="true">🔔</span>
                         <span id="notification-badge" class="notification-badge" style="display: none;" aria-live="polite">0</span>
@@ -397,6 +400,8 @@
     <script src="/js/bety-manager.js"></script>
     <!-- 🔄 로딩 상태 매니저 - 성능 최적화 -->
     <script src="/js/loading-manager.js"></script>
+    <!-- 💍 Ring 화폐 시스템 JavaScript -->
+    <script src="/js/utils/ring-system.js"></script>
     <script type="module" src="/js/ui.js"></script>
     <script src="/js/quiz.js"></script>
     <script src="/js/photos.js"></script>

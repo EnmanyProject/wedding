@@ -60,6 +60,9 @@ export class Database {
 
 // Migration runner
 export async function runMigrations(): Promise<void> {
+  const fs = await import('fs');
+  const path = await import('path');
+  
   const client = new Client({
     connectionString: config.DATABASE_URL,
   });
@@ -86,6 +89,53 @@ export async function runMigrations(): Promise<void> {
         );
       `);
       console.log('Created migrations table');
+    }
+
+    // Get list of executed migrations
+    const executedMigrations = await client.query(
+      'SELECT filename FROM migrations ORDER BY filename'
+    );
+    const executedSet = new Set(executedMigrations.rows.map(row => row.filename));
+
+    // Read migration files
+    const migrationsDir = path.join(process.cwd(), 'migrations');
+    if (!fs.existsSync(migrationsDir)) {
+      console.log('No migrations directory found, skipping migrations');
+      return;
+    }
+
+    const migrationFiles = fs.readdirSync(migrationsDir)
+      .filter(file => file.endsWith('.sql'))
+      .sort();
+
+    console.log(`Found ${migrationFiles.length} migration files`);
+
+    // Execute pending migrations
+    for (const filename of migrationFiles) {
+      if (executedSet.has(filename)) {
+        console.log(`⏭️  Skipping ${filename} (already executed)`);
+        continue;
+      }
+
+      console.log(`🔄 Executing migration: ${filename}`);
+      
+      const migrationPath = path.join(migrationsDir, filename);
+      const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+
+      try {
+        await client.query('BEGIN');
+        await client.query(migrationSQL);
+        await client.query(
+          'INSERT INTO migrations (filename) VALUES ($1)',
+          [filename]
+        );
+        await client.query('COMMIT');
+        console.log(`✅ Successfully executed: ${filename}`);
+      } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(`❌ Failed to execute ${filename}:`, error);
+        throw error;
+      }
     }
 
     console.log('Migrations completed successfully');

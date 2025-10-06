@@ -3,7 +3,7 @@
 > **프로젝트 헌법**: 변하지 않는 핵심 정보 보관소
 
 **최종 업데이트**: 2025-10-05
-**버전**: v1.34.02
+**버전**: v1.35.0 (Ring Currency System Added)
 
 ---
 
@@ -26,9 +26,9 @@ A&B 퀴즈 형식으로 다른 사람의 취향을 맞추면서 **호감도를 �
 
 ### 1. A&B 취향 퀴즈 시스템
 - 다른 사람의 취향을 예측하는 퀴즈
-- 정답: 호감도(Affinity) 상승 ⬆️
+- 정답: 호감도(Affinity) 상승 ⬆️ + 💍 Ring 보상
 - 오답: 포인트 패널티 💸
-- 포인트 경제로 진지한 참여 유도
+- 이중 경제 시스템 (포인트 + Ring)으로 다양한 보상 체계
 
 ### 2. 단계별 사진 해금 시스템
 
@@ -61,6 +61,29 @@ A&B 퀴즈 형식으로 다른 사람의 취향을 맞추면서 **호감도를 �
 8. 💬 실시간 채팅 & 오프라인 만남
 ```
 
+### 💍 Ring 화폐 시스템 (Phase 1A)
+
+**새로운 이중 경제 시스템**: 기존 포인트와 별개의 Ring 화폐 도입
+
+#### Ring 획득 방법
+- **회원가입 보너스**: 100 Ring
+- **일일 로그인**: 10 Ring + 연속 보너스 (최대 7일 × 5 Ring)
+- **퀴즈 정답**: 5 Ring per 정답
+- **사진 업로드**: 20 Ring (일일 최대 3장)
+- **프로필 완성**: 50 Ring (일회성)
+- **친구 초대**: 100 Ring per 성공
+
+#### Ring 사용처
+- 퀴즈 플레이 비용
+- 프리미엄 사진 해금
+- 특별 기능 이용
+- Ring 선물하기
+
+#### 기술 구현
+- **Frontend**: 실시간 balance 표시, 애니메이션 효과, 거래 내역
+- **Backend**: Ring Service API, 안전한 트랜잭션 처리
+- **Database**: Ring 전용 테이블 + 트랜잭션 로그
+
 ---
 
 ## 🏗️ 시스템 아키텍처
@@ -72,8 +95,12 @@ users (기본 사용자 정보)
 ├── user_photos (사진 메타데이터)
 │   └── photo_assets (ORIG/THUMB/BLUR1/BLUR2)
 ├── user_traits (취향 응답)
-├── user_point_balances (포인트 잔액)
-└── user_point_ledger (포인트 거래 기록)
+├── user_point_balances (기존 포인트 시스템)
+├── user_point_ledger (포인트 거래 기록)
+├── user_ring_balance (💍 Ring 화폐 잔액)
+├── ring_transactions (💍 Ring 거래 기록)
+├── user_login_streaks (로그인 연속 기록)
+└── ring_earning_rules (Ring 획득 규칙)
 
 trait_pairs (취향 질문)
 └── trait_visuals (시각 자산)
