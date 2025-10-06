@@ -21,6 +21,7 @@ import adminAuthRouter from './routes/adminAuth';
 import ringsRouter from './routes/rings';
 import ringTestRouter from './routes/ringTest';
 import recommendationsRouter from './routes/recommendations';
+import adminRecommendationsRouter from './routes/adminRecommendations';
 
 const app = express();
 // Socket.IO 임시 비활성화
@@ -135,6 +136,7 @@ app.use('/api/meeting', meetingRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/admin-auth', adminAuthRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/admin/recommendations', adminRecommendationsRouter);
 
 // Assets route for photo serving
 app.get('/api/assets/*', async (req, res) => {
@@ -212,11 +214,22 @@ const server = app.listen(config.PORT, () => {
   if (config.NODE_ENV === 'development') {
     console.log(`🛠️ Dev API: http://localhost:${config.PORT}/api/dev`);
   }
+
+  // Start recommendation scheduler
+  import('./utils/recommendationScheduler').then(({ RecommendationScheduler }) => {
+    RecommendationScheduler.start();
+  });
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
+
+  // Stop recommendation scheduler
+  import('./utils/recommendationScheduler').then(({ RecommendationScheduler }) => {
+    RecommendationScheduler.stop();
+  });
+
   // io.close(); // Socket.IO 임시 비활성화
   server.close(() => {
     console.log('Process terminated');
@@ -225,6 +238,12 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
+
+  // Stop recommendation scheduler
+  import('./utils/recommendationScheduler').then(({ RecommendationScheduler }) => {
+    RecommendationScheduler.stop();
+  });
+
   // io.close(); // Socket.IO 임시 비활성화
   server.close(() => {
     console.log('Process terminated');

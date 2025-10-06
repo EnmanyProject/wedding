@@ -545,6 +545,7 @@
         <div class="admin-nav">
             <div class="nav-tabs">
                 <button class="nav-tab active" data-tab="dashboard">대시보드</button>
+                <button class="nav-tab" data-tab="recommendations">✨ 추천 시스템</button>
                 <button class="nav-tab" data-tab="users">👥 유저 관리</button>
                 <button class="nav-tab" data-tab="trait-pairs">선호 질문</button>
                 <button class="nav-tab" data-tab="quiz-management">📝 선호 퀴즈 관리</button>
@@ -554,6 +555,79 @@
         </div>
 
         <!-- Dashboard Tab -->
+        <!-- Recommendations Tab -->
+        <div class="tab-content" id="recommendations-tab">
+            <div class="section">
+                <h2>추천 시스템 관리</h2>
+
+                <!-- Scheduler Status -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="number" id="scheduler-status">-</div>
+                        <div class="label">스케줄러 상태</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="scheduler-next-run">-</div>
+                        <div class="label">다음 실행</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="total-recommendations-today">-</div>
+                        <div class="label">오늘 추천 수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="recommendation-conversion-rate">-</div>
+                        <div class="label">전환율</div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn" onclick="generateAllRecommendations()">🔄 전체 추천 생성</button>
+                    <button class="btn" onclick="cleanupOldRecommendations()">🗑️ 오래된 추천 정리</button>
+                    <button class="btn" onclick="refreshRecommendationStats()">📊 통계 새로고침</button>
+                </div>
+
+                <!-- Today's Stats -->
+                <div class="section" style="margin-top: 2rem;">
+                    <h3>오늘의 추천 통계</h3>
+                    <div class="table-container">
+                        <table id="recommendations-today-table">
+                            <thead>
+                                <tr>
+                                    <th>지표</th>
+                                    <th>값</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recommendations-today-body">
+                                <tr><td colspan="2">로딩 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Top Performers -->
+                <div class="section" style="margin-top: 2rem;">
+                    <h3>추천 성과 상위 사용자</h3>
+                    <div class="table-container">
+                        <table id="top-performers-table">
+                            <thead>
+                                <tr>
+                                    <th>사용자</th>
+                                    <th>전환율</th>
+                                    <th>클릭율</th>
+                                    <th>조회율</th>
+                                    <th>퀴즈 시작</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-performers-body">
+                                <tr><td colspan="5">로딩 중...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="tab-content active" id="dashboard-tab">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -1071,5 +1145,145 @@
     <!-- JavaScript -->
     <script src="/js/api.js"></script>
     <script src="/js/admin.js"></script>
+    <script>
+        // Recommendation System Functions
+        async function loadRecommendationStats() {
+            try {
+                const response = await fetch('/api/admin/recommendations/overview', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    // Scheduler Status
+                    document.getElementById('scheduler-status').textContent =
+                        data.data.scheduler.isRunning ? '✅ 실행중' : '❌ 중지';
+
+                    const nextRun = new Date(data.data.scheduler.nextRun);
+                    document.getElementById('scheduler-next-run').textContent =
+                        nextRun.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+
+                    // Today's Stats
+                    document.getElementById('total-recommendations-today').textContent =
+                        data.data.today.total_recommendations || 0;
+
+                    const conversionRate = data.data.today.total_recommendations > 0
+                        ? ((data.data.today.total_quiz_started / data.data.today.total_recommendations) * 100).toFixed(1)
+                        : 0;
+                    document.getElementById('recommendation-conversion-rate').textContent =
+                        conversionRate + '%';
+
+                    // Today's Table
+                    const tbody = document.getElementById('recommendations-today-body');
+                    tbody.innerHTML = `
+                        <tr><td>추천받은 사용자</td><td>${data.data.today.total_users_with_recommendations || 0}</td></tr>
+                        <tr><td>총 추천 수</td><td>${data.data.today.total_recommendations || 0}</td></tr>
+                        <tr><td>조회됨</td><td>${data.data.today.total_viewed || 0}</td></tr>
+                        <tr><td>클릭됨</td><td>${data.data.today.total_clicked || 0}</td></tr>
+                        <tr><td>퀴즈 시작</td><td>${data.data.today.total_quiz_started || 0}</td></tr>
+                        <tr><td>평균 점수</td><td>${parseFloat(data.data.today.avg_score || 0).toFixed(1)}</td></tr>
+                    `;
+
+                    // Load top performers
+                    loadTopPerformers();
+                }
+            } catch (error) {
+                console.error('Failed to load recommendation stats:', error);
+            }
+        }
+
+        async function loadTopPerformers() {
+            try {
+                const response = await fetch('/api/admin/recommendations/top-performers', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success && data.data.length > 0) {
+                    const tbody = document.getElementById('top-performers-body');
+                    tbody.innerHTML = data.data.map(user => `
+                        <tr>
+                            <td>${user.display_name || user.name}</td>
+                            <td>${user.conversion_rate?.toFixed(1) || 0}%</td>
+                            <td>${user.click_rate?.toFixed(1) || 0}%</td>
+                            <td>${user.view_rate?.toFixed(1) || 0}%</td>
+                            <td>${user.quiz_started_count || 0}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('top-performers-body').innerHTML =
+                        '<tr><td colspan="5">데이터 없음</td></tr>';
+                }
+            } catch (error) {
+                console.error('Failed to load top performers:', error);
+            }
+        }
+
+        async function generateAllRecommendations() {
+            if (!confirm('모든 활성 사용자의 추천을 생성하시겠습니까?')) return;
+
+            try {
+                const response = await fetch('/api/admin/recommendations/generate-all', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('추천 생성이 시작되었습니다!');
+                    setTimeout(loadRecommendationStats, 2000);
+                } else {
+                    alert('추천 생성 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to generate recommendations:', error);
+                alert('추천 생성 중 오류 발생');
+            }
+        }
+
+        async function cleanupOldRecommendations() {
+            if (!confirm('30일 이상 된 추천을 삭제하시겠습니까?')) return;
+
+            try {
+                const response = await fetch('/api/admin/recommendations/cleanup', {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(data.message);
+                    loadRecommendationStats();
+                } else {
+                    alert('정리 실패: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Failed to cleanup recommendations:', error);
+                alert('정리 중 오류 발생');
+            }
+        }
+
+        function refreshRecommendationStats() {
+            loadRecommendationStats();
+        }
+
+        // Load recommendation stats when tab is activated
+        document.addEventListener('DOMContentLoaded', function() {
+            const recommendationsTab = document.querySelector('[data-tab="recommendations"]');
+            if (recommendationsTab) {
+                recommendationsTab.addEventListener('click', function() {
+                    setTimeout(loadRecommendationStats, 100);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
