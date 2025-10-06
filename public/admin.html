@@ -582,9 +582,9 @@
 
                 <!-- Control Buttons -->
                 <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
-                    <button class="btn" onclick="generateAllRecommendations()">🔄 전체 추천 생성</button>
-                    <button class="btn" onclick="cleanupOldRecommendations()">🗑️ 오래된 추천 정리</button>
-                    <button class="btn" onclick="refreshRecommendationStats()">📊 통계 새로고침</button>
+                    <button class="btn" id="btn-generate-all">🔄 전체 추천 생성</button>
+                    <button class="btn" id="btn-cleanup-old">🗑️ 오래된 추천 정리</button>
+                    <button class="btn" id="btn-refresh-stats">📊 통계 새로고침</button>
                 </div>
 
                 <!-- Today's Stats -->
@@ -1054,7 +1054,7 @@
         <div class="content-card">
             <div class="card-header">
                 <h3>프롬프트 템플릿 목록</h3>
-                <button class="btn btn-primary" onclick="showAddPromptModal()">+ 새 프롬프트 추가</button>
+                <button class="btn btn-primary" id="btn-add-prompt">+ 새 프롬프트 추가</button>
             </div>
 
             <div id="prompt-templates-list" class="list-container">
@@ -1109,7 +1109,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closePromptModal()">취소</button>
+                    <button type="button" class="btn btn-secondary" id="btn-close-modal">취소</button>
                     <button type="submit" class="btn btn-primary">저장</button>
                 </div>
             </form>
@@ -1143,8 +1143,8 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/js/api.js"></script>
-    <script src="/js/admin.js"></script>
+    <script type="module" src="/js/api.js"></script>
+    <script type="module" src="/js/admin.js"></script>
     <script>
         // Recommendation System Functions
         async function loadRecommendationStats() {
@@ -1282,6 +1282,21 @@
                 recommendationsTab.addEventListener('click', function() {
                     setTimeout(loadRecommendationStats, 100);
                 });
+            }
+
+            // Attach event listeners to recommendation control buttons
+            const btnGenerateAll = document.getElementById('btn-generate-all');
+            const btnCleanupOld = document.getElementById('btn-cleanup-old');
+            const btnRefreshStats = document.getElementById('btn-refresh-stats');
+
+            if (btnGenerateAll) {
+                btnGenerateAll.addEventListener('click', generateAllRecommendations);
+            }
+            if (btnCleanupOld) {
+                btnCleanupOld.addEventListener('click', cleanupOldRecommendations);
+            }
+            if (btnRefreshStats) {
+                btnRefreshStats.addEventListener('click', refreshRecommendationStats);
             }
         });
     </script>

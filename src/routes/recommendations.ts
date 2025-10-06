@@ -5,7 +5,11 @@
 
 import { Router, Request, Response } from 'express';
 import { RecommendationService } from '../services/recommendationService';
+import { MockRecommendationService } from '../services/mockRecommendationService';
 import { authenticateToken } from '../middleware/auth';
+
+// Mock 모드 여부
+const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
 const router = Router();
 
@@ -17,12 +21,18 @@ router.get('/today', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
 
-    const recommendations = await RecommendationService.getTodayRecommendations(userId);
+    let recommendations;
 
-    // 조회했다는 기록 (첫 번째 로드 시)
-    if (recommendations.length > 0) {
-      for (const rec of recommendations) {
-        await RecommendationService.markAsViewed(rec.id);
+    if (useMock) {
+      recommendations = await MockRecommendationService.getTodayRecommendations(userId);
+    } else {
+      recommendations = await RecommendationService.getTodayRecommendations(userId);
+
+      // 조회했다는 기록 (첫 번째 로드 시)
+      if (recommendations.length > 0) {
+        for (const rec of recommendations) {
+          await RecommendationService.markAsViewed(rec.id);
+        }
       }
     }
 

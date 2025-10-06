@@ -473,13 +473,27 @@ router.get('/categories', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
-  const categories = await db.query(
-    `SELECT category, COUNT(*) as pair_count
-     FROM trait_pairs
-     WHERE is_active = true
-     GROUP BY category
-     ORDER BY category`
-  );
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
+  let categories;
+
+  if (useMock) {
+    // Mock 카테고리 데이터
+    categories = [
+      { category: 'food', pair_count: 10 },
+      { category: 'hobby', pair_count: 8 },
+      { category: 'lifestyle', pair_count: 7 },
+      { category: 'nature', pair_count: 5 }
+    ];
+  } else {
+    categories = await db.query(
+      `SELECT category, COUNT(*) as pair_count
+       FROM trait_pairs
+       WHERE is_active = true
+       GROUP BY category
+       ORDER BY category`
+    );
+  }
 
   const response: ApiResponse = {
     success: true,
@@ -498,29 +512,51 @@ router.get('/stats', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
-  const stats = await Promise.all([
-    db.queryOne('SELECT COUNT(*) as count FROM trait_pairs WHERE is_active = true'),
-    db.queryOne('SELECT COUNT(*) as count FROM trait_visuals'),
-    db.queryOne('SELECT COUNT(*) as count FROM users WHERE is_active = true'),
-    db.queryOne('SELECT COUNT(*) as count FROM quiz_sessions'),
-    db.queryOne('SELECT COUNT(*) as count FROM user_traits'),
-    db.queryOne(`
-      SELECT category, COUNT(*) as count
-      FROM trait_pairs
-      WHERE is_active = true
-      GROUP BY category
-      ORDER BY count DESC
-      LIMIT 5
-    `),
-    db.queryOne(`
-      SELECT AVG(accuracy) as avg_accuracy, AVG(total_attempts) as avg_attempts
-      FROM user_skills
-    `)
-  ]);
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  const response: ApiResponse = {
-    success: true,
-    data: {
+  let responseData;
+
+  if (useMock) {
+    // Mock 데이터
+    responseData = {
+      active_trait_pairs: 30,
+      trait_visuals: 60,
+      active_users: 10,
+      quiz_sessions: 45,
+      trait_responses: 150,
+      top_categories: [
+        { category: 'food', count: 10 },
+        { category: 'hobby', count: 8 },
+        { category: 'lifestyle', count: 7 },
+        { category: 'nature', count: 5 }
+      ],
+      user_stats: {
+        avg_accuracy: 0.75,
+        avg_attempts: 15
+      }
+    };
+  } else {
+    const stats = await Promise.all([
+      db.queryOne('SELECT COUNT(*) as count FROM trait_pairs WHERE is_active = true'),
+      db.queryOne('SELECT COUNT(*) as count FROM trait_visuals'),
+      db.queryOne('SELECT COUNT(*) as count FROM users WHERE is_active = true'),
+      db.queryOne('SELECT COUNT(*) as count FROM quiz_sessions'),
+      db.queryOne('SELECT COUNT(*) as count FROM user_traits'),
+      db.queryOne(`
+        SELECT category, COUNT(*) as count
+        FROM trait_pairs
+        WHERE is_active = true
+        GROUP BY category
+        ORDER BY count DESC
+        LIMIT 5
+      `),
+      db.queryOne(`
+        SELECT AVG(accuracy) as avg_accuracy, AVG(total_attempts) as avg_attempts
+        FROM user_skills
+      `)
+    ]);
+
+    responseData = {
       active_trait_pairs: stats[0]?.count || 0,
       trait_visuals: stats[1]?.count || 0,
       active_users: stats[2]?.count || 0,
@@ -528,7 +564,12 @@ router.get('/stats', authenticateAdmin, asyncHandler(async (
       trait_responses: stats[4]?.count || 0,
       top_categories: stats[5] || [],
       user_stats: stats[6] || {}
-    },
+    };
+  }
+
+  const response: ApiResponse = {
+    success: true,
+    data: responseData,
     timestamp: new Date().toISOString()
   };
 

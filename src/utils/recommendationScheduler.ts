@@ -5,6 +5,7 @@
 
 import cron from 'node-cron';
 import { RecommendationService } from '../services/recommendationService';
+import { MockRecommendationService } from '../services/mockRecommendationService';
 
 export class RecommendationScheduler {
   private static cronJob: cron.ScheduledTask | null = null;
@@ -58,7 +59,14 @@ export class RecommendationScheduler {
     try {
       console.log('🚀 [Scheduler] Starting daily recommendation generation...');
 
-      await RecommendationService.generateAllDailyRecommendations();
+      // Mock 모드 사용 여부 확인
+      const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
+      if (useMock) {
+        await MockRecommendationService.generateAllDailyRecommendations();
+      } else {
+        await RecommendationService.generateAllDailyRecommendations();
+      }
 
       const duration = Date.now() - startTime;
       console.log(`✅ [Scheduler] Daily recommendations generated successfully (${duration}ms)`);
