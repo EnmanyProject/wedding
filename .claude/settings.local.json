@@ -81,7 +81,13 @@
       "Bash(docker compose:*)",
       "Bash(node:*)",
       "Bash(start http://localhost:3001/signup-v3.html)",
-      "Bash(start http://localhost:3001/signup-v2.html)"
+      "Bash(start http://localhost:3001/signup-v2.html)",
+      "Bash(start http://localhost:3000)",
+      "Bash(start http://localhost:3000/signup-v3.html)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -f /migrations/010_create_ring_currency_system.sql)",
+      "Bash(where docker)",
+      "WebSearch",
+      "WebFetch(domain:www.npmjs.com)"
     ],
     "deny": [],
     "ask": []

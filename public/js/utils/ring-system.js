@@ -35,14 +35,76 @@ class RingSystem {
     createRingHeader() {
         const headerStats = document.querySelector('.header-stats');
         if (!headerStats) {
-            console.warn('No header stats section found for ring display');
+            console.warn('No header stats section found, trying alternative selectors...');
+            // Try alternative selectors
+            const alternatives = [
+                '.app-header', 
+                'header', 
+                '.main-nav', 
+                '.header-content',
+                '.title-section'
+            ];
+            
+            let targetElement = null;
+            for (const selector of alternatives) {
+                targetElement = document.querySelector(selector);
+                if (targetElement) {
+                    console.log(`💍 Found header alternative: ${selector}`);
+                    break;
+                }
+            }
+            
+            if (!targetElement) {
+                console.warn('💍 No suitable header element found, Ring display will not be shown');
+                return;
+            }
+            
+            // Create simplified ring display for alternative locations
+            const ringDisplay = document.createElement('div');
+            ringDisplay.className = 'ring-balance-header alternative-position';
+            ringDisplay.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 25px;
+                padding: 8px 16px;
+                color: white;
+                font-weight: 600;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                cursor: pointer;
+                user-select: none;
+            `;
+            ringDisplay.innerHTML = `
+                <div class="ring-display" id="ring-display" title="링 지갑 열기">
+                    <div class="ring-icon">💍</div>
+                    <div class="ring-amount" id="ring-amount">--</div>
+                    <div class="ring-plus" id="ring-plus">+0</div>
+                </div>
+            `;
+            
+            document.body.appendChild(ringDisplay);
+            
+            // Add event listener properly (not inline)
+            const ringDisplayElement = ringDisplay.querySelector('#ring-display');
+            if (ringDisplayElement) {
+                ringDisplayElement.addEventListener('click', () => {
+                    if (window.ringSystem && window.ringSystem.openWallet) {
+                        window.ringSystem.openWallet();
+                    }
+                });
+            }
+            
+            console.log('💍 Ring display added as fixed overlay');
             return;
         }
 
         const ringDisplay = document.createElement('div');
         ringDisplay.className = 'ring-balance-header';
         ringDisplay.innerHTML = `
-            <div class="ring-display" id="ring-display" onclick="window.ringSystem?.openWallet()" title="링 지갑 열기">
+            <div class="ring-display" id="ring-display" title="링 지갑 열기">
                 <div class="ring-icon">💍</div>
                 <div class="ring-amount" id="ring-amount">--</div>
                 <div class="ring-plus" id="ring-plus">+0</div>
@@ -55,6 +117,16 @@ class RingSystem {
             pointsDisplay.insertAdjacentElement('afterend', ringDisplay);
         } else {
             headerStats.prepend(ringDisplay);
+        }
+
+        // Add event listener properly (not inline)
+        const ringDisplayElement = ringDisplay.querySelector('#ring-display');
+        if (ringDisplayElement) {
+            ringDisplayElement.addEventListener('click', () => {
+                if (window.ringSystem && window.ringSystem.openWallet) {
+                    window.ringSystem.openWallet();
+                }
+            });
         }
     }
 
@@ -218,7 +290,7 @@ class RingSystem {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-ring-primary" onclick="this.closest('.ring-modal').remove()">
+                    <button class="btn-ring-primary" type="button" id="daily-bonus-ok-btn">
                         받았습니다! ✨
                     </button>
                 </div>
@@ -226,6 +298,14 @@ class RingSystem {
         `;
 
         document.body.appendChild(modal);
+
+        // Add close event listeners
+        const okBtn = modal.querySelector('#daily-bonus-ok-btn');
+        if (okBtn) {
+            okBtn.addEventListener('click', () => {
+                modal.remove();
+            });
+        }
 
         // Auto-close after 5 seconds
         setTimeout(() => {
@@ -447,10 +527,10 @@ class RingSystem {
         const modal = document.createElement('div');
         modal.className = 'ring-modal wallet-modal';
         modal.innerHTML = `
-            <div class="ring-modal-content large">
+            <div class="ring-modal-content">
                 <div class="modal-header">
                     <h2>💍 링 지갑</h2>
-                    <button class="close-btn" onclick="this.closest('.ring-modal').remove()">×</button>
+                    <button class="close-btn" type="button">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="wallet-summary">
@@ -485,6 +565,33 @@ class RingSystem {
         `;
 
         document.body.appendChild(modal);
+
+        // Add close event listeners
+        const closeBtn = modal.querySelector('.close-btn');
+        const modalOverlay = modal;
+
+        // Close button click
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+
+        // Click outside modal to close
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modal.remove();
+            }
+        });
+
+        // ESC key to close
+        const handleEscKey = (e) => {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', handleEscKey);
+            }
+        };
+        document.addEventListener('keydown', handleEscKey);
     }
 
     // Render transaction history
@@ -536,6 +643,91 @@ class RingSystem {
     }
 }
 
+// Demo Ring System for testing without authentication
+class RingSystemDemo extends RingSystem {
+    constructor() {
+        super();
+        this.demoMode = true;
+        console.log('💍 Ring System Demo Mode activated');
+    }
+
+    async loadBalance() {
+        // Simulate loading balance in demo mode
+        this.updateBalance(150, 200, 50);
+        console.log('💍 Demo: Loaded demo balance - 150 rings');
+    }
+
+    async checkDailyLogin() {
+        // Simulate daily login bonus in demo mode
+        setTimeout(() => {
+            this.showDailyLoginBonus(25, 3);
+            this.updateBalance(175, 225, 50);
+            console.log('💍 Demo: Daily login bonus awarded - 25 rings');
+        }, 3000);
+    }
+
+    async awardQuizRings(correct, metadata = {}) {
+        if (!correct) return 0;
+        
+        // Simulate quiz reward in demo mode
+        const amount = 5;
+        this.updateBalance(this.balance + amount, this.totalEarned + amount, this.totalSpent);
+        this.showQuizReward(amount);
+        console.log('💍 Demo: Quiz reward awarded - 5 rings');
+        return amount;
+    }
+
+    async spendRings(amount, transactionType, description = '', metadata = {}) {
+        // Simulate spending rings in demo mode
+        if (this.balance >= amount) {
+            this.updateBalance(this.balance - amount, this.totalEarned, this.totalSpent + amount);
+            console.log(`💍 Demo: Spent ${amount} rings for ${description}`);
+            return true;
+        } else {
+            this.showError('링이 부족합니다 (데모 모드)');
+            return false;
+        }
+    }
+
+    async getTransactionHistory() {
+        // Return demo transaction history
+        return [
+            {
+                id: 'demo-1',
+                amount: 100,
+                transaction_type: 'SIGNUP_BONUS',
+                description: '회원가입 보너스 (데모)',
+                balance_after: 100,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'demo-2', 
+                amount: 25,
+                transaction_type: 'DAILY_LOGIN',
+                description: '일일 로그인 보너스 (데모)',
+                balance_after: 125,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'demo-3',
+                amount: 20,
+                transaction_type: 'PHOTO_UPLOAD',
+                description: '사진 업로드 보상 (데모)',
+                balance_after: 145,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: 'demo-4',
+                amount: 5,
+                transaction_type: 'QUIZ_CORRECT',
+                description: '퀴즈 정답 보상 (데모)',
+                balance_after: 150,
+                created_at: new Date().toISOString()
+            }
+        ];
+    }
+}
+
 // Initialize global ring system
 let ringSystem;
 
@@ -547,17 +739,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ringSystem = new RingSystem();
             window.ringSystem = ringSystem; // Make globally accessible
         } else {
-            console.log('💍 Ring System waiting for authentication...');
-            // Try again after auth
-            const checkAuth = setInterval(() => {
-                if (localStorage.getItem('authToken')) {
-                    ringSystem = new RingSystem();
-                    window.ringSystem = ringSystem;
-                    clearInterval(checkAuth);
-                }
-            }, 1000);
+            console.log('💍 Ring System initializing in demo mode...');
+            // Demo mode - initialize without auth for testing
+            ringSystem = new RingSystemDemo();
+            window.ringSystem = ringSystem;
         }
-    }, 1000);
+    }, 2000);
 });
 
 // Export for use in other modules
