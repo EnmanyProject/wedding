@@ -96,7 +96,8 @@
       "WebFetch(domain:github.com)",
       "Bash(superclaude --verify)",
       "Bash(superclaude --version)",
-      "Bash(superclaude commit)"
+      "Bash(superclaude commit)",
+      "Bash(winget list:*)"
     ],
     "deny": [],
     "ask": []
