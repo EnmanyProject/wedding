@@ -47,6 +47,8 @@
     <link rel="stylesheet" href="/styles/ring-system.css?v=20251005">
     <!-- ✨ 일일 추천 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/recommendations.css?v=20251006">
+    <!-- 🔐 로그인 화면 스타일 -->
+    <link rel="stylesheet" href="/styles/login-screen.css?v=20251007">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -67,6 +69,39 @@
                 <div class="loading-dots">
                     <span></span><span></span><span></span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-screen" style="display: none;">
+        <div class="login-content">
+            <div class="login-character">
+                <img src="/images/Bety2.png" alt="베티가 환영합니다" class="bety-character character-float">
+            </div>
+            <h1 class="login-title">누구나</h1>
+            <p class="login-subtitle">사진 기반 퀴즈로 만나는 특별한 인연 💕</p>
+
+            <div class="login-form">
+                <div class="input-group">
+                    <label for="login-username">아이디</label>
+                    <input type="text" id="login-username" placeholder="아이디를 입력하세요" autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">비밀번호</label>
+                    <input type="password" id="login-password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+                </div>
+                <button id="login-btn" class="login-btn">로그인</button>
+                <div class="login-error" id="login-error" style="display: none;"></div>
+            </div>
+
+            <div class="login-divider">
+                <span>또는</span>
+            </div>
+
+            <div class="login-actions">
+                <a href="/signup-v3.html" class="signup-link">✨ 회원가입하기</a>
+                <button id="guest-login-btn" class="guest-btn">🎭 체험하기 (Mock 모드)</button>
             </div>
         </div>
     </div>
@@ -468,21 +503,43 @@
 
         // App initialization on page load
         document.addEventListener('DOMContentLoaded', async function() {
-            // 즉시 로딩 화면 숨기기 (테스트용)
+            console.log('🚀 App initialization started');
+
+            // 🔐 인증 체크
+            const isAuthenticated = window.authManager && window.authManager.checkAuth();
+            console.log('🔐 Authentication status:', isAuthenticated);
+
+            // 로딩 화면 숨기기
             setTimeout(() => {
                 const loadingScreen = document.getElementById('loading-screen');
-                const appContainer = document.getElementById('app');
-
                 if (loadingScreen) {
                     loadingScreen.style.display = 'none';
-                    console.log('✅ [UI] Loading screen hidden immediately');
+                    console.log('✅ Loading screen hidden');
                 }
 
-                if (appContainer) {
-                    appContainer.style.display = 'block';
-                    appContainer.style.opacity = '1';
+                // 인증 상태에 따라 화면 표시
+                if (!isAuthenticated) {
+                    // 로그인 화면 표시
+                    if (window.authManager) {
+                        window.authManager.showLoginScreen();
+                        console.log('🔒 Showing login screen');
+                    }
+                } else {
+                    // 앱 화면 표시
+                    if (window.authManager) {
+                        window.authManager.showApp();
+                        console.log('✅ Showing main app');
+                    }
+
+                    // 로그인된 경우에만 사용자 데이터 로드
+                    initializeApp();
                 }
             }, 100);
+        });
+
+        // 앱 초기화 함수 (로그인 후에만 실행)
+        async function initializeApp() {
+            console.log('🎯 Initializing app data...');
 
             // Update user count
             try {
@@ -513,12 +570,25 @@
             } catch (error) {
                 console.warn('Could not update version:', error);
             }
-        });
+
+            // UI 초기화
+            if (window.ui) {
+                try {
+                    await window.ui.loadUserData();
+                    console.log('✅ User data loaded');
+                } catch (error) {
+                    console.error('❌ Failed to load user data:', error);
+                }
+            }
+        }
     </script>
 
     <!-- 🛠️ Utility Scripts (Load before other scripts) -->
     <script type="module" src="/js/utils/formatters.js"></script>
     <script type="module" src="/js/utils/error-handler.js"></script>
     <script type="module" src="/js/utils/ui-components.js"></script>
+
+    <!-- 🔐 Authentication Manager -->
+    <script src="/js/auth.js"></script>
 </body>
 </html>
