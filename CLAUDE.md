@@ -186,6 +186,44 @@ CLAUDE.md (히스토리)
 
 ---
 
+### v1.42.0 (2025-10-07) - Responsive Avatar Fix
+
+**작업 내용**:
+
+#### 1️⃣ 반응형 미디어 쿼리 수정
+- `@media (max-width: 768px)` 수정
+  * `.partner-avatar-large`: `!important` 플래그 추가 (150px)
+  * `.profile-image`: 모든 크기 제약에 `!important` 추가
+  * `min-width`, `max-width`, `min-height`, `max-height` 명시
+
+- `@media (max-width: 480px)` 수정
+  * `.partner-avatar-large`: `!important` 플래그 추가 (130px)
+  * `.profile-image`: 모든 크기 제약에 `!important` 추가
+
+#### 2️⃣ 해결된 문제
+- 모바일/태블릿에서 아바타 크기가 제대로 적용되지 않던 문제
+- CSS 우선순위 충돌로 이미지가 원을 채우지 못하던 문제
+- 검은색 동그라미가 보이는 문제 완전 해결
+
+**코드 메트릭**:
+- **수정**: premium-partner-cards.css (~22줄)
+- **총 변경**: 22줄
+
+**기술적 성과**:
+- ✅ 모든 화면 크기에서 일관된 아바타 렌더링
+- ✅ CSS 우선순위 충돌 해결 (`!important` 활용)
+- ✅ 반응형 레이아웃 안정성 확보
+- ✅ 데스크톱/태블릿/모바일 모두 정상 작동
+
+**해결된 문제**:
+- 🐛 반응형 환경에서 검은색 동그라미 보이는 문제
+- 🐛 미디어 쿼리 우선순위 문제
+- 🎯 모든 디바이스에서 일관된 UI
+
+**Git**: dfb6185 커밋 완료 ✅
+
+---
+
 ### v1.39.0 (2025-10-06) - Profile Image Support
 
 **작업 내용**:
