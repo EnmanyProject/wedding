@@ -111,8 +111,11 @@ coverage/
 
 # Problematic files
 nul
-.vercel
 .env*.local
+
+# Vercel
+.vercel
+vercel.json
 
 *storybook.log
 storybook-static
