@@ -343,25 +343,9 @@ class FullScreenSignup {
             completedAt: new Date().toISOString()
         }));
 
-        // Hide signup screen and show app
+        // Redirect to main app
         setTimeout(() => {
-            const signupContainer = document.getElementById('signup-container');
-            const appContainer = document.getElementById('app');
-
-            if (signupContainer) {
-                signupContainer.style.display = 'none';
-                console.log('✅ Signup screen hidden');
-            }
-
-            if (appContainer) {
-                appContainer.style.display = 'block';
-                console.log('✅ Main app displayed');
-            }
-
-            // Initialize app data
-            if (typeof initializeApp === 'function') {
-                initializeApp();
-            }
+            window.location.href = '/';
         }, 1000);
     }
 
