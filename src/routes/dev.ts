@@ -100,7 +100,22 @@ router.get('/seed/summary', checkDevMode, asyncHandler(async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
-  const summary = await seedService.getSeedSummary();
+  // Mock 모드에서는 Mock 데이터 반환
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
+  let summary;
+  if (useMock) {
+    summary = {
+      users: 10,
+      traits: 40,
+      quizzes: 30,
+      rings: 1500,
+      recommendations: 50,
+      mode: 'mock'
+    };
+  } else {
+    summary = await seedService.getSeedSummary();
+  }
 
   const response: ApiResponse<SeedSummaryResponse> = {
     success: true,

@@ -76,19 +76,31 @@ router.post('/dev-login', async (req, res) => {
       });
     }
 
-    const db = Database.getInstance();
+    const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-    // 첫 번째 활성 사용자 가져오기
-    const [user] = await db.query(
-      'SELECT id, email, name, is_active FROM users WHERE is_active = true ORDER BY created_at LIMIT 1'
-    );
+    let user;
+    if (useMock) {
+      // Mock 모드: Mock 사용자 반환
+      user = {
+        id: '1',
+        email: 'user1@test.com',
+        name: 'user1',
+        is_active: true
+      };
+    } else {
+      // Real 모드: 데이터베이스에서 조회
+      const db = Database.getInstance();
+      [user] = await db.query(
+        'SELECT id, email, name, is_active FROM users WHERE is_active = true ORDER BY created_at LIMIT 1'
+      );
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'No users found',
-        timestamp: new Date().toISOString()
-      });
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'No users found',
+          timestamp: new Date().toISOString()
+        });
+      }
     }
 
     // JWT 토큰 생성

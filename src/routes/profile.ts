@@ -192,14 +192,21 @@ router.get('/stats', asyncHandler(async (
   console.log('📊 [ProfileRoute] GET /profile/stats 요청 시작');
 
   try {
-    // Get active user count
-    const result = await db.queryOne(
-      'SELECT COUNT(*) as count FROM users WHERE is_active = true'
-    );
+    const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-    const userCount = result?.count || 0;
-
-    console.log('✅ [ProfileRoute] 사용자 통계 조회 성공:', { userCount });
+    let userCount;
+    if (useMock) {
+      // Mock 모드: Mock 데이터 반환
+      userCount = 10;
+      console.log('✅ [ProfileRoute] Mock 사용자 통계:', { userCount });
+    } else {
+      // Real 모드: 데이터베이스에서 조회
+      const result = await db.queryOne(
+        'SELECT COUNT(*) as count FROM users WHERE is_active = true'
+      );
+      userCount = result?.count || 0;
+      console.log('✅ [ProfileRoute] 사용자 통계 조회 성공:', { userCount });
+    }
 
     const response: ApiResponse = {
       success: true,
