@@ -1257,62 +1257,23 @@ class UIManager {
     console.log('✅ [Profile Modal] 모달 표시 완료');
   }
 
-  // Render verification icons
+  // Render verification icons (원형 배지 스타일)
   renderVerificationIcons(container, userData) {
     // Mock verification data (실제로는 백엔드에서 가져와야 함)
     const verifications = [
-      {
-        icon: '✅',
-        label: '본인인증',
-        verified: true,
-        status: '인증완료'
-      },
-      {
-        icon: '🎂',
-        label: '나이',
-        verified: true,
-        value: '20대'  // Mock data
-      },
-      {
-        icon: '📍',
-        label: '지역',
-        verified: true,
-        value: '서울'  // Mock data
-      },
-      {
-        icon: '🎓',
-        label: '학력',
-        verified: true,
-        status: '인증완료'
-      },
-      {
-        icon: '💰',
-        label: '소득',
-        verified: Math.random() > 0.5,
-        status: Math.random() > 0.5 ? '인증완료' : '미인증'
-      },
-      {
-        icon: '🏠',
-        label: '재산',
-        verified: Math.random() > 0.5,
-        status: Math.random() > 0.5 ? '인증완료' : '미인증'
-      },
-      {
-        icon: '💼',
-        label: '직업',
-        verified: Math.random() > 0.5,
-        status: Math.random() > 0.5 ? '인증완료' : '미인증'
-      }
+      { icon: '✅', label: '본인인증', verified: true },
+      { icon: '🎂', label: '나이', verified: true },
+      { icon: '📍', label: '지역', verified: true },
+      { icon: '🎓', label: '학력', verified: true },
+      { icon: '💰', label: '소득', verified: Math.random() > 0.5 },
+      { icon: '🏠', label: '재산', verified: Math.random() > 0.5 },
+      { icon: '💼', label: '직업', verified: Math.random() > 0.5 }
     ];
 
     const html = verifications.map(v => `
-      <div class="verification-item ${v.verified ? 'verified' : 'unverified'}">
+      <div class="verification-item ${v.verified ? 'verified' : 'unverified'}" data-label="${v.label}">
         <span class="verification-icon">${v.icon}</span>
-        <span class="verification-label">${v.label}</span>
-        ${v.value ?
-          `<span class="verification-value">${v.value}</span>` :
-          `<span class="verification-status ${v.verified ? 'verified' : 'unverified'}">${v.verified ? '✓' : '✗'}</span>`
-        }
+        <span class="verification-status ${v.verified ? 'verified' : 'unverified'}">${v.verified ? '✓' : '✗'}</span>
       </div>
     `).join('');
 
