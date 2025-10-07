@@ -47,6 +47,8 @@
     <link rel="stylesheet" href="/styles/ring-system.css?v=20251005">
     <!-- ✨ 일일 추천 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/recommendations.css?v=20251006">
+    <!-- 👤 유저 프로필 미리보기 모달 스타일 -->
+    <link rel="stylesheet" href="/styles/user-profile-modal.css?v=20251007">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -364,6 +366,39 @@
                         <button id="continue-quiz-btn" class="btn btn-primary">계속 퀴즈하기</button>
                         <button id="finish-quiz-btn" class="btn btn-secondary">완료</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Profile Preview Modal -->
+        <div id="user-profile-modal" class="modal profile-modal" role="dialog" aria-labelledby="profile-modal-title" aria-modal="true">
+            <div class="modal-content profile-modal-content">
+                <button class="modal-close" aria-label="프로필 닫기">&times;</button>
+
+                <div class="profile-preview-container">
+                    <!-- Profile Image Section (왼쪽 - 블러 이미지) -->
+                    <div class="profile-image-section">
+                        <img id="profile-preview-image" src="" alt="프로필 미리보기" class="blurred-profile-image">
+                    </div>
+
+                    <!-- Profile Verification Section (오른쪽 - 인증 아이콘들) -->
+                    <div class="profile-verification-section">
+                        <div class="verification-grid" id="verification-grid">
+                            <!-- 인증 아이콘들이 JavaScript로 동적 생성됩니다 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Matching Score Button -->
+                <button id="start-matching-btn" class="btn-matching-score">
+                    <span>매칭점수+</span>
+                    <span>🎯</span>
+                </button>
+
+                <!-- Privacy Notice -->
+                <div class="privacy-notice">
+                    <span class="lock-icon">🔒</span>
+                    <span>퀴즈를 통해 매칭 점수를 올리면 실제 프로필을 확인할 수 있습니다</span>
                 </div>
             </div>
         </div>

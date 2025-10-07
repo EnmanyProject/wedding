@@ -725,6 +725,20 @@ class UIManager {
         }
       }
     });
+
+    // Profile modal "매칭점수+" button
+    const startMatchingBtn = document.getElementById('start-matching-btn');
+    if (startMatchingBtn) {
+      startMatchingBtn.addEventListener('click', () => {
+        const userId = startMatchingBtn.dataset.userId;
+        if (userId) {
+          this.startQuizFromProfile(userId);
+        } else {
+          console.error('👤 [Profile Modal] userId가 설정되지 않음');
+          this.showToast('사용자 정보를 찾을 수 없습니다', 'error');
+        }
+      });
+    }
   }
 
   openModal(modalId) {
@@ -1179,7 +1193,145 @@ class UIManager {
   async selectUserForQuiz(userId, userName) {
     try {
       console.log('🎯 [UI] 사용자 선택:', { userId, userName });
-      console.log('🎯 [UI] quiz 객체 확인:', window.quiz);
+
+      // Find user data from currentPartners
+      const userData = this.currentPartners.find(p => p.id === userId);
+      if (!userData) {
+        console.error('🎯 [UI] 사용자 데이터를 찾을 수 없음:', userId);
+        this.showToast('사용자 정보를 불러올 수 없습니다', 'error');
+        return;
+      }
+
+      // Show profile preview modal instead of starting quiz directly
+      this.showUserProfileModal(userId, userData);
+    } catch (error) {
+      console.error('Error selecting user for quiz:', error);
+      this.showToast('오류가 발생했습니다: ' + error.message, 'error');
+    }
+  }
+
+  // Show user profile preview modal
+  showUserProfileModal(userId, userData) {
+    console.log('👤 [Profile Modal] 모달 표시:', { userId, userData });
+
+    const modal = document.getElementById('user-profile-modal');
+    const profileImage = document.getElementById('profile-preview-image');
+    const verificationGrid = document.getElementById('verification-grid');
+    const startMatchingBtn = document.getElementById('start-matching-btn');
+
+    if (!modal || !profileImage || !verificationGrid || !startMatchingBtn) {
+      console.error('👤 [Profile Modal] 모달 요소를 찾을 수 없음');
+      return;
+    }
+
+    // Set profile image
+    const displayName = userData.display_name_for_ui || userData.display_name || userData.name;
+    const femaleImageStyles = [
+      'lorelei-neutral', 'avataaars-neutral', 'adventurer-neutral',
+      'fun-emoji', 'miniavs', 'notionists-neutral', 'personas'
+    ];
+    const styleIndex = userData.name.charCodeAt(0) % femaleImageStyles.length;
+    const selectedStyle = femaleImageStyles[styleIndex];
+    const colorSchemes = [
+      'ffd1dc,ffb3ba,fce4ec', 'e1f5fe,b3e5fc,81d4fa', 'f3e5f5,e1bee7,ce93d8',
+      'fff3e0,ffcc80,ffb74d', 'f1f8e9,c8e6c9,a5d6a7', 'fce4ec,f8bbd9,f48fb1',
+      'e8f5e8,c8e6c9,a5d6a7'
+    ];
+    const colorIndex = userData.name.charCodeAt(1) % colorSchemes.length;
+    const backgroundColor = colorSchemes[colorIndex];
+
+    profileImage.src = userData.profile_image_url ||
+      `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(userData.name + 'female')}&backgroundColor=${backgroundColor}&scale=120&radius=50&backgroundType=gradientLinear&flip=false`;
+    profileImage.alt = `${displayName} 프로필`;
+
+    // Render verification icons
+    this.renderVerificationIcons(verificationGrid, userData);
+
+    // Show modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Store current user ID for matching button
+    startMatchingBtn.dataset.userId = userId;
+
+    console.log('✅ [Profile Modal] 모달 표시 완료');
+  }
+
+  // Render verification icons
+  renderVerificationIcons(container, userData) {
+    // Mock verification data (실제로는 백엔드에서 가져와야 함)
+    const verifications = [
+      {
+        icon: '✅',
+        label: '본인인증',
+        verified: true,
+        status: '인증완료'
+      },
+      {
+        icon: '🎂',
+        label: '나이',
+        verified: true,
+        value: '20대'  // Mock data
+      },
+      {
+        icon: '📍',
+        label: '지역',
+        verified: true,
+        value: '서울'  // Mock data
+      },
+      {
+        icon: '🎓',
+        label: '학력',
+        verified: true,
+        status: '인증완료'
+      },
+      {
+        icon: '💰',
+        label: '소득',
+        verified: Math.random() > 0.5,
+        status: Math.random() > 0.5 ? '인증완료' : '미인증'
+      },
+      {
+        icon: '🏠',
+        label: '재산',
+        verified: Math.random() > 0.5,
+        status: Math.random() > 0.5 ? '인증완료' : '미인증'
+      },
+      {
+        icon: '💼',
+        label: '직업',
+        verified: Math.random() > 0.5,
+        status: Math.random() > 0.5 ? '인증완료' : '미인증'
+      }
+    ];
+
+    const html = verifications.map(v => `
+      <div class="verification-item ${v.verified ? 'verified' : 'unverified'}">
+        <span class="verification-icon">${v.icon}</span>
+        <span class="verification-label">${v.label}</span>
+        ${v.value ?
+          `<span class="verification-value">${v.value}</span>` :
+          `<span class="verification-status ${v.verified ? 'verified' : 'unverified'}">${v.verified ? '✓' : '✗'}</span>`
+        }
+      </div>
+    `).join('');
+
+    container.innerHTML = html;
+  }
+
+  // Close user profile modal
+  closeUserProfileModal() {
+    console.log('❌ [Profile Modal] 모달 닫기 요청');
+    this.closeModal('user-profile-modal');
+  }
+
+  // Start quiz from profile modal
+  async startQuizFromProfile(userId) {
+    try {
+      console.log('🎯 [Profile Modal] 퀴즈 시작:', userId);
+
+      // Close profile modal
+      this.closeUserProfileModal();
 
       // Start quiz with selected user
       if (window.quiz && typeof window.quiz.startQuizWithTarget === 'function') {
@@ -1191,7 +1343,7 @@ class UIManager {
         this.showToast('퀴즈 시스템을 초기화할 수 없습니다', 'error');
       }
     } catch (error) {
-      console.error('Error starting quiz with user:', error);
+      console.error('Error starting quiz from profile:', error);
       this.showToast('퀴즈 시작 실패: ' + error.message, 'error');
     }
   }
