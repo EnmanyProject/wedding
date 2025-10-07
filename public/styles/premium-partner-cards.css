@@ -533,9 +533,20 @@
   }
 
   .partner-avatar-large {
-    width: 150px;
-    height: 150px;
+    width: 150px !important;
+    height: 150px !important;
+    min-width: 150px !important;
+    min-height: 150px !important;
     margin: 15px 0;
+  }
+
+  .partner-avatar-large .profile-image {
+    width: 150px !important;
+    height: 150px !important;
+    min-width: 150px !important;
+    min-height: 150px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
   }
 
   .partner-info h3 {
@@ -590,8 +601,19 @@
   }
 
   .partner-avatar-large {
-    width: 130px;
-    height: 130px;
+    width: 130px !important;
+    height: 130px !important;
+    min-width: 130px !important;
+    min-height: 130px !important;
+  }
+
+  .partner-avatar-large .profile-image {
+    width: 130px !important;
+    height: 130px !important;
+    min-width: 130px !important;
+    min-height: 130px !important;
+    max-width: 130px !important;
+    max-height: 130px !important;
   }
 
   .partner-info h3 {
