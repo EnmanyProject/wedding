@@ -90,6 +90,47 @@ CLAUDE.md (히스토리)
 
 ---
 
+### v1.39.0 (2025-10-06) - Profile Image Support
+
+**작업 내용**:
+
+#### 1️⃣ Mock 사용자 프로필 이미지 인프라 구축
+- `public/images/profiles/` 디렉토리 생성
+- `public/images/profiles/README.md` 생성 (47줄)
+  * 파일 이름 가이드 (user1.jpg ~ user10.jpg)
+  * 이미지 사양 (500x500px, 1:1 비율, JPG/PNG)
+  * 무료 이미지 소스 안내 (Unsplash, Pexels, UI Faces)
+  * 적용 방법 설명
+
+#### 2️⃣ Quiz API 프로필 이미지 필드 추가
+- `src/routes/quiz.ts` 수정
+  * 10명 Mock 사용자 profile_image_url 필드 추가
+  * `/images/profiles/user1.jpg` ~ `/images/profiles/user10.jpg` 경로 설정
+  * DiceBear fallback 유지
+
+#### 3️⃣ .gitignore 업데이트
+- 프로필 이미지 파일 제외 설정
+  * `*.jpg`, `*.png`, `*.jpeg` 이미지 파일 제외
+  * `README.md`는 Git에 포함
+  * 로컬 환경마다 다른 이미지 사용 가능
+
+**코드 메트릭**:
+- **추가**: README.md (47줄)
+- **수정**: quiz.ts (10개 사용자 필드), .gitignore (4줄)
+- **총 변경**: ~60줄
+
+**기술적 성과**:
+- ✅ 프로필 이미지 인프라 완성
+- ✅ Mock 사용자 맞춤 이미지 지원
+- ✅ Git 저장소에 이미지 제외 (보안/용량)
+- ✅ 개발자 가이드 문서화
+
+**다음 단계**: 실제 이미지 파일 추가 (사용자 작업)
+
+**Git**: dadd4c5 커밋 완료 ✅
+
+---
+
 ### v1.35.0 (2025-10-05) - 문서 시스템 전환
 
 **작업 내용**:
