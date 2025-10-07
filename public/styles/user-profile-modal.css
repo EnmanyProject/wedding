@@ -83,8 +83,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 30px 20px;
-    gap: 25px;
+    padding: 35px 25px 15px;
+    gap: 18px;
 }
 
 /* Profile Image Section - 상단 중앙 배치 */
@@ -96,8 +96,8 @@
 }
 
 .blurred-profile-image {
-    width: 180px;
-    height: 180px;
+    width: 140px;
+    height: 140px;
     object-fit: cover;
     border-radius: 50%;
     filter: blur(15px);
@@ -121,27 +121,27 @@
 /* Profile Verification Section - 아이콘 그리드 */
 .profile-verification-section {
     width: 100%;
-    max-width: 350px;
+    max-width: 320px;
 }
 
 .verification-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 12px;
     justify-items: center;
 }
 
 /* 원형 배지 스타일의 인증 아이템 */
 .verification-item {
     position: relative;
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(255, 20, 147, 0.15) 0%, rgba(138, 43, 226, 0.15) 100%);
-    border: 3px solid rgba(255, 20, 147, 0.3);
+    border: 2px solid rgba(255, 20, 147, 0.3);
     transition: all 0.3s ease;
     cursor: pointer;
 }
@@ -177,7 +177,7 @@
 }
 
 .verification-icon {
-    font-size: 32px;
+    font-size: 28px;
     text-align: center;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
@@ -186,14 +186,14 @@
 .verification-item::before {
     content: attr(data-label);
     position: absolute;
-    bottom: -30px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.9);
     color: white;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 10px;
     font-weight: 600;
     white-space: nowrap;
     opacity: 0;
@@ -209,14 +209,14 @@
 /* 인증 상태 배지 */
 .verification-status {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 24px;
-    height: 24px;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: #4CAF50;
     color: white;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -242,13 +242,13 @@
 
 /* Matching Score Button (매칭점수+ 버튼) */
 .btn-matching-score {
-    margin: 20px 30px 30px;
-    padding: 16px 40px;
+    margin: 15px 25px 20px;
+    padding: 14px 35px;
     background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
     color: white;
     border: 2px solid #FF1493;
     border-radius: 30px;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -272,11 +272,11 @@
 
 /* Privacy Notice */
 .privacy-notice {
-    padding: 15px 30px 20px;
+    padding: 12px 25px 18px;
     text-align: center;
     color: rgba(255, 255, 255, 0.6);
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 12px;
+    line-height: 1.4;
     border-top: 1px solid rgba(255, 20, 147, 0.2);
 }
 
