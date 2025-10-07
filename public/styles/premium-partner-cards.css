@@ -125,11 +125,18 @@
    프로필 아바타 - 3D 효과
    ========================================== */
 .partner-avatar-large {
-  width: 180px;
-  height: 180px;
+  width: 180px !important;
+  height: 180px !important;
+  min-width: 180px !important;
+  min-height: 180px !important;
   margin: 20px 0;
   position: relative;
   z-index: 1;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .partner-avatar-large::before {
@@ -162,10 +169,13 @@
 }
 
 .partner-avatar-large .profile-image {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  object-position: center !important;
   border: 4px solid rgba(255, 255, 255, 0.9);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.15),
