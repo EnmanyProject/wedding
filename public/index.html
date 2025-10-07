@@ -490,20 +490,30 @@
                     console.log('✅ Loading screen hidden');
                 }
 
-                // 개발 모드이거나 가입하지 않은 경우 가입 페이지로
-                if (DEV_MODE || !hasCompletedSignup) {
-                    // 가입 페이지로 리다이렉트
+                // 🔑 방금 가입 완료했는지 체크
+                const justCompleted = sessionStorage.getItem('justCompletedSignup');
+
+                if (justCompleted) {
+                    // 방금 가입 완료 → 메인 앱 표시
+                    console.log('✅ Just completed signup, showing main app');
+                    sessionStorage.removeItem('justCompletedSignup'); // 플래그 제거
+
+                    const appContainer = document.getElementById('app');
+                    if (appContainer) {
+                        appContainer.style.display = 'block';
+                    }
+                    initializeApp();
+                } else if (DEV_MODE || !hasCompletedSignup) {
+                    // 개발 모드이거나 가입하지 않은 경우 가입 페이지로
                     console.log('🔒 Redirecting to signup page (DEV_MODE:', DEV_MODE, ')');
                     window.location.href = '/signup-v3.html';
                 } else {
-                    // 앱 화면 표시 및 초기화
+                    // 프로덕션 모드 + 가입 완료 → 메인 앱 표시
                     const appContainer = document.getElementById('app');
                     if (appContainer) {
                         appContainer.style.display = 'block';
                         console.log('✅ Showing main app');
                     }
-
-                    // 가입 완료된 경우에만 앱 데이터 로드
                     initializeApp();
                 }
             }, 100);

@@ -407,6 +407,10 @@ class FullScreenSignup {
             completedAt: new Date().toISOString()
         }));
 
+        // 🔑 세션 플래그 설정 (이번 세션에서 방금 가입 완료함)
+        sessionStorage.setItem('justCompletedSignup', 'true');
+        console.log('✅ Session flag set: justCompletedSignup');
+
         // Redirect to main app
         setTimeout(() => {
             window.location.href = '/';
