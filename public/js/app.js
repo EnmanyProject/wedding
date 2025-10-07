@@ -5,7 +5,13 @@ class App {
     this.initialized = false;
     this.socket = null;
     this.loadingTimeout = null; // 🔧 NEW: 로딩 타임아웃
-    this.init();
+
+    // 🔐 가입 완료된 경우에만 초기화
+    if (window.hasCompletedSignup) {
+      this.init();
+    } else {
+      console.log('⏸️ App initialization skipped - signup not completed');
+    }
   }
 
   async init() {
