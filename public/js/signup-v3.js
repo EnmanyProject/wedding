@@ -6,7 +6,7 @@
 class FullScreenSignup {
     constructor() {
         this.currentScreen = 0;
-        this.totalScreens = 8; // 총 8개 화면
+        this.totalScreens = 9; // 총 9개 화면
         this.formData = {
             name: '',
             gender: '',
@@ -47,19 +47,25 @@ class FullScreenSignup {
             formAge.addEventListener('submit', (e) => this.handleAgeSubmit(e));
         }
 
-        // Screen 5: Region
+        // Screen 5: Age Feedback Continue
+        const ageContinueBtn = document.getElementById('age-continue-btn');
+        if (ageContinueBtn) {
+            ageContinueBtn.addEventListener('click', () => this.goToScreen(6));
+        }
+
+        // Screen 6: Region
         const regionCards = document.querySelectorAll('.region-card');
         regionCards.forEach(card => {
             card.addEventListener('click', () => this.handleRegionSelect(card));
         });
 
-        // Screen 6: Region Feedback Continue
+        // Screen 7: Region Feedback Continue
         const regionContinueBtn = document.getElementById('region-continue-btn');
         if (regionContinueBtn) {
-            regionContinueBtn.addEventListener('click', () => this.goToScreen(7));
+            regionContinueBtn.addEventListener('click', () => this.goToScreen(8));
         }
 
-        // Screen 7: Complete
+        // Screen 8: Complete
         const btnStart = document.getElementById('btn-start');
         if (btnStart) {
             btnStart.addEventListener('click', () => this.completeSignup());
@@ -233,16 +239,71 @@ class FullScreenSignup {
     setGenderFeedback(gender) {
         const titleElement = document.getElementById('gender-feedback-title');
         const messageElement = document.getElementById('gender-feedback-message');
-        
+
         if (gender === 'male') {
             titleElement.textContent = '우와 신랑님! 🎉';
             messageElement.innerHTML = '<span>무려 <strong>1041명</strong>의 신부감이 당신을 기다리고 있어요!</span> 💕';
         } else if (gender === 'female') {
-            titleElement.textContent = '우와! 🎉';  
+            titleElement.textContent = '우와! 🎉';
             messageElement.innerHTML = '<span>무려 <strong>843명</strong>의 신랑감이 기다리고 있어요!</span> 💕';
         }
-        
+
         console.log('💝 Gender feedback set for:', gender);
+    }
+
+    setAgeFeedback(age) {
+        const titleElement = document.getElementById('age-feedback-title');
+        const messageElement = document.getElementById('age-feedback-message');
+        const ageNum = parseInt(age);
+
+        let title = '';
+        let message = '';
+
+        if (ageNum >= 18 && ageNum <= 22) {
+            title = '와! 청춘의 활기가 넘치시네요! ✨';
+            message = '<span>20대 초반의 에너지와 열정! 앞으로 펼쳐질 <strong>무한한 가능성</strong>이 기대돼요! 💫</span>';
+        } else if (ageNum >= 23 && ageNum <= 27) {
+            title = '젊음의 매력이 최고조네요! 🌟';
+            message = '<span>가장 아름다운 20대! 이 <strong>황금같은 시기</strong>에 특별한 인연을 만나보세요! 💝</span>';
+        } else if (ageNum >= 28 && ageNum <= 32) {
+            title = '완벽한 나이시네요! 🎯';
+            message = '<span>경험과 젊음이 조화를 이루는 시기! <strong>최고의 타이밍</strong>에 오셨어요! 🌈</span>';
+        } else if (ageNum >= 33 && ageNum <= 37) {
+            title = '성숙한 매력이 돋보이시네요! 💎';
+            message = '<span>30대의 안정감과 여유! <strong>진정한 매력</strong>이 빛나는 나이예요! ⭐</span>';
+        } else if (ageNum >= 38 && ageNum <= 42) {
+            title = '원숙미가 느껴지시네요! 🌺';
+            message = '<span>삶의 깊이가 묻어나는 나이! <strong>진짜 매력</strong>은 지금부터예요! 🎨</span>';
+        } else if (ageNum >= 43 && ageNum <= 47) {
+            title = '중년의 멋이 물씬하시네요! 🎩';
+            message = '<span>경험이 쌓인 40대! <strong>가장 빛나는 시기</strong>를 맞이하셨어요! 🌟</span>';
+        } else if (ageNum >= 48 && ageNum <= 52) {
+            title = '인생의 깊이가 대단하시네요! 📚';
+            message = '<span>여유롭고 지혜로운 50대! <strong>인생의 황금기</strong>를 즐기실 시간이에요! 🏆</span>';
+        } else if (ageNum >= 53 && ageNum <= 57) {
+            title = '지혜가 넘치시네요! 🦉';
+            message = '<span>풍부한 경륜의 50대! <strong>인생의 진가</strong>를 아시는 멋진 나이예요! 🎭</span>';
+        } else if (ageNum >= 58 && ageNum <= 62) {
+            title = '경륜과 여유가 멋지시네요! 🎪';
+            message = '<span>60대의 여유로움! <strong>새로운 시작</strong>은 언제나 아름다워요! 🌸</span>';
+        } else if (ageNum >= 63 && ageNum <= 67) {
+            title = '인생의 연륜이 빛나시네요! 🌄';
+            message = '<span>풍성한 인생 경험! <strong>멋진 동반자</strong>를 찾으실 준비가 되셨네요! 💫</span>';
+        } else if (ageNum >= 68 && ageNum <= 72) {
+            title = '황금기를 맞이하셨네요! 🏅';
+            message = '<span>70대의 지혜와 품격! <strong>인생의 완성</strong>을 함께할 분을 만나보세요! 🎯</span>';
+        } else if (ageNum >= 73 && ageNum <= 80) {
+            title = '귀하고 멋진 나이시네요! 👑';
+            message = '<span>깊은 경험과 지혜! <strong>특별한 인연</strong>이 기다리고 있어요! 💝</span>';
+        } else {
+            title = '멋진 나이시네요! 🎉';
+            message = '<span><strong>새로운 시작</strong>은 언제나 아름답습니다! 💕</span>';
+        }
+
+        titleElement.textContent = title;
+        messageElement.innerHTML = message;
+
+        console.log('🎂 Age feedback set for:', age);
     }
 
     initializeAgeSelect() {
@@ -274,7 +335,10 @@ class FullScreenSignup {
         this.formData.age = age;
         console.log('🎂 Age:', age);
 
-        // Go to next screen
+        // Set age-specific feedback message
+        this.setAgeFeedback(age);
+
+        // Go to age feedback screen
         this.goToScreen(5);
     }
 
@@ -289,12 +353,12 @@ class FullScreenSignup {
         card.style.transform = 'scale(0.95)';
         setTimeout(() => {
             card.style.transform = '';
-            
+
             // Set region-specific feedback message
             this.setRegionFeedback(region);
-            
+
             // Go to feedback screen
-            this.goToScreen(6);
+            this.goToScreen(7);
         }, 200);
     }
 

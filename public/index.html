@@ -473,10 +473,14 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 App initialization started');
 
+            // 🛠️ 개발 모드 설정 (개발 중에는 true, 프로덕션에서는 false)
+            const DEV_MODE = true;
+
             // 🔐 가입 데이터 체크
             const signupData = localStorage.getItem('signupData');
             const hasCompletedSignup = !!signupData;
             console.log('🔐 Signup status:', hasCompletedSignup);
+            console.log('🛠️ Dev mode:', DEV_MODE);
 
             // 로딩 화면 숨기기
             setTimeout(() => {
@@ -486,10 +490,10 @@
                     console.log('✅ Loading screen hidden');
                 }
 
-                // 가입 상태에 따라 화면 표시
-                if (!hasCompletedSignup) {
+                // 개발 모드이거나 가입하지 않은 경우 가입 페이지로
+                if (DEV_MODE || !hasCompletedSignup) {
                     // 가입 페이지로 리다이렉트
-                    console.log('🔒 Redirecting to signup page');
+                    console.log('🔒 Redirecting to signup page (DEV_MODE:', DEV_MODE, ')');
                     window.location.href = '/signup-v3.html';
                 } else {
                     // 앱 화면 표시 및 초기화
