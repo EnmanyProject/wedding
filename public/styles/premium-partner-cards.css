@@ -133,23 +133,25 @@
   height: 180px !important;
   min-width: 180px !important;
   min-height: 180px !important;
-  margin: 20px 0;
+  margin: 10px 0 15px 0;
   position: relative;
   z-index: 1;
-  overflow: hidden !important;
-  border-radius: 50% !important;
+  overflow: visible !important;
   display: flex !important;
+  flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
+  gap: 10px;
 }
 
 .partner-avatar-large::before {
   content: '';
   position: absolute;
   top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
   background: linear-gradient(135deg,
     rgba(255, 107, 157, 0.3) 0%,
     rgba(139, 92, 246, 0.3) 100%
@@ -163,20 +165,22 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    transform: scale(1);
+    transform: translateX(-50%) scale(1);
     opacity: 0.6;
   }
   50% {
-    transform: scale(1.1);
+    transform: translateX(-50%) scale(1.1);
     opacity: 0.8;
   }
 }
 
 .partner-avatar-large .profile-image {
-  width: 100% !important;
-  height: 100% !important;
-  min-width: 100% !important;
-  min-height: 100% !important;
+  width: 180px !important;
+  height: 180px !important;
+  min-width: 180px !important;
+  min-height: 180px !important;
+  max-width: 180px !important;
+  max-height: 180px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
   object-position: center !important;
@@ -186,6 +190,8 @@
     0 0 0 1px rgba(255, 255, 255, 0.5),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block !important;
+  flex-shrink: 0 !important;
 }
 
 .partner-card:hover .partner-avatar-large .profile-image {
@@ -201,7 +207,7 @@
    ========================================== */
 .partner-info {
   text-align: center;
-  margin: 10px 0 20px;
+  margin: 0 0 10px;
   z-index: 1;
 }
 
@@ -212,19 +218,25 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0 0 8px 0;
+  margin: 0;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
 }
 
 .partner-username {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: #ff6b9d;
   margin: 0;
   opacity: 0.9;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
 }
 
 /* ==========================================
