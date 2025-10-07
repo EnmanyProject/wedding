@@ -36,18 +36,18 @@ interface TopPerformer {
   conversionRate: number;
 }
 
-// Mock 데이터
+// Mock 데이터 (여성형)
 const mockUsers = [
-  { id: '1', name: 'user1', displayName: '서울의별', age: 28, region: '서울' },
-  { id: '2', name: 'user2', displayName: '부산갈매기', age: 26, region: '부산' },
-  { id: '3', name: 'user3', displayName: '대구사과', age: 30, region: '대구' },
-  { id: '4', name: 'user4', displayName: '인천바다', age: 27, region: '인천' },
-  { id: '5', name: 'user5', displayName: '광주빛', age: 29, region: '광주' },
-  { id: '6', name: 'user6', displayName: '대전과학', age: 25, region: '대전' },
-  { id: '7', name: 'user7', displayName: '울산공장', age: 31, region: '울산' },
-  { id: '8', name: 'user8', displayName: '세종도시', age: 24, region: '세종' },
-  { id: '9', name: 'user9', displayName: '제주돌하르방', age: 33, region: '제주' },
-  { id: '10', name: 'user10', displayName: '강원산', age: 28, region: '강원' },
+  { id: '1', name: 'user1', displayName: '서울공주', age: 28, region: '서울' },
+  { id: '2', name: 'user2', displayName: '부산아가씨', age: 26, region: '부산' },
+  { id: '3', name: 'user3', displayName: '대구공주', age: 30, region: '대구' },
+  { id: '4', name: 'user4', displayName: '인천언니', age: 27, region: '인천' },
+  { id: '5', name: 'user5', displayName: '광주공주', age: 29, region: '광주' },
+  { id: '6', name: 'user6', displayName: '대전언니', age: 25, region: '대전' },
+  { id: '7', name: 'user7', displayName: '울산아가씨', age: 31, region: '울산' },
+  { id: '8', name: 'user8', displayName: '세종공주', age: 24, region: '세종' },
+  { id: '9', name: 'user9', displayName: '제주아가씨', age: 33, region: '제주' },
+  { id: '10', name: 'user10', displayName: '강원언니', age: 28, region: '강원' },
 ];
 
 // Mock 추천 데이터 저장소

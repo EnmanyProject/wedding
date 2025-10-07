@@ -313,7 +313,7 @@ router.get('/template', authenticateToken, asyncHandler(async (
       const mockTargetInfo = {
         user_id: query.target_id || '550e8400-e29b-41d4-a716-446655440002',
         name: 'user2',
-        display_name: '부산갈매기'
+        display_name: '부산아가씨'
       };
 
       template = {
@@ -458,18 +458,18 @@ router.get('/targets', authenticateToken, asyncHandler(async (
 
   let targets;
   if (useMock) {
-    // Mock 모드: 테스트용 사용자 데이터 반환 (UUID 형식)
+    // Mock 모드: 테스트용 사용자 데이터 반환 (UUID 형식, 여성형)
     const mockUsers = [
-      { id: '550e8400-e29b-41d4-a716-446655440001', name: 'user1', display_name: '서울의별', quiz_count: 5, affinity_score: 85 },
-      { id: '550e8400-e29b-41d4-a716-446655440002', name: 'user2', display_name: '부산갈매기', quiz_count: 8, affinity_score: 72 },
-      { id: '550e8400-e29b-41d4-a716-446655440003', name: 'user3', display_name: '대구사과', quiz_count: 3, affinity_score: 68 },
-      { id: '550e8400-e29b-41d4-a716-446655440004', name: 'user4', display_name: '인천바다', quiz_count: 6, affinity_score: 91 },
-      { id: '550e8400-e29b-41d4-a716-446655440005', name: 'user5', display_name: '광주빛', quiz_count: 4, affinity_score: 76 },
-      { id: '550e8400-e29b-41d4-a716-446655440006', name: 'user6', display_name: '대전과학', quiz_count: 7, affinity_score: 83 },
-      { id: '550e8400-e29b-41d4-a716-446655440007', name: 'user7', display_name: '울산공장', quiz_count: 2, affinity_score: 59 },
-      { id: '550e8400-e29b-41d4-a716-446655440008', name: 'user8', display_name: '세종도시', quiz_count: 9, affinity_score: 94 },
-      { id: '550e8400-e29b-41d4-a716-446655440009', name: 'user9', display_name: '제주돌하르방', quiz_count: 5, affinity_score: 88 },
-      { id: '550e8400-e29b-41d4-a716-44665544000a', name: 'user10', display_name: '강원산', quiz_count: 6, affinity_score: 79 },
+      { id: '550e8400-e29b-41d4-a716-446655440001', name: 'user1', display_name: '서울공주', quiz_count: 5, affinity_score: 85 },
+      { id: '550e8400-e29b-41d4-a716-446655440002', name: 'user2', display_name: '부산아가씨', quiz_count: 8, affinity_score: 72 },
+      { id: '550e8400-e29b-41d4-a716-446655440003', name: 'user3', display_name: '대구공주', quiz_count: 3, affinity_score: 68 },
+      { id: '550e8400-e29b-41d4-a716-446655440004', name: 'user4', display_name: '인천언니', quiz_count: 6, affinity_score: 91 },
+      { id: '550e8400-e29b-41d4-a716-446655440005', name: 'user5', display_name: '광주공주', quiz_count: 4, affinity_score: 76 },
+      { id: '550e8400-e29b-41d4-a716-446655440006', name: 'user6', display_name: '대전언니', quiz_count: 7, affinity_score: 83 },
+      { id: '550e8400-e29b-41d4-a716-446655440007', name: 'user7', display_name: '울산아가씨', quiz_count: 2, affinity_score: 59 },
+      { id: '550e8400-e29b-41d4-a716-446655440008', name: 'user8', display_name: '세종공주', quiz_count: 9, affinity_score: 94 },
+      { id: '550e8400-e29b-41d4-a716-446655440009', name: 'user9', display_name: '제주아가씨', quiz_count: 5, affinity_score: 88 },
+      { id: '550e8400-e29b-41d4-a716-44665544000a', name: 'user10', display_name: '강원언니', quiz_count: 6, affinity_score: 79 },
     ];
 
     // 자신을 제외한 사용자만 반환
