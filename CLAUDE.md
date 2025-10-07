@@ -90,6 +90,121 @@ CLAUDE.md (히스토리)
 
 ---
 
+### v1.38.4 (2025-10-07) - 포인트 시스템 제거
+
+**작업 내용**:
+
+#### 1️⃣ HTML 요소 제거
+- **index.html** 수정
+  * 상단 헤더에서 `.points-display` HTML 요소 완전 제거
+  * "P" 글자 및 포인트 표시 삭제
+  * Ring 시스템만 UI에 표시
+
+#### 2️⃣ JavaScript 함수 제거
+- **ui.js** 수정
+  * `updatePointsDisplay()` 메서드 완전 삭제
+  * `loadPointsData()` 간소화 (단순히 success 리턴)
+  * `initializeDefaultHomeData()`에서 포인트 업데이트 호출 제거
+
+**코드 메트릭**:
+- **제거**: ~15줄 (HTML + 함수)
+- **수정**: 2개 파일 (index.html, ui.js)
+
+**기술적 성과**:
+- ✅ 단일 화폐 시스템 (Ring 시스템만 사용)
+- ✅ UI 간소화 및 혼란 요소 제거
+- ✅ 코드 복잡도 감소
+
+**Git**: 101053f 커밋 완료 ✅
+
+---
+
+### v1.38.3 (2025-10-07) - 로그인 보너스 모달 다크 테마
+
+**작업 내용**:
+
+#### 1️⃣ 다크 테마 적용
+- **ring-system.css** 대규모 수정
+  * `.ring-modal-content`: 배경 #000000, 테두리 #FF1493 2px
+  * `.modal-header`: 배경 #000000, 하단 테두리 #FF1493
+  * `.modal-body`: 흰색 텍스트 (#ffffff)
+  * `.modal-footer`: 핑크 테두리 (#FF1493)
+
+#### 2️⃣ 모달 크기 축소
+- 일반 모달: 420px → 350px (width), 70vh → 60vh (height)
+- 큰 모달: 480px → 400px (width), 75vh → 65vh (height)
+- 모바일:
+  * 일반: 320px width, 80vh height
+  * 큰 모달: 360px width
+
+#### 3️⃣ 버튼 리디자인
+- `.btn-ring-primary`
+  * 기본: 핑크 배경 (#FF1493), 흰색 텍스트
+  * 호버: 검은색 배경, 핑크 테두리, 글로우 효과 강화
+  * 박스 섀도우: 핑크 네온 효과
+
+**코드 메트릭**:
+- **수정**: ring-system.css (~60줄)
+- **총 변경**: 60줄
+
+**기술적 성과**:
+- ✅ 메인 앱 디자인과 일관성 확보
+- ✅ 다크 테마 완성
+- ✅ 모바일 최적화 (메인 앱 크기에 맞춤)
+- ✅ 핑크 네온 브랜드 아이덴티티 강화
+
+**Git**: 271579b 커밋 완료 ✅
+
+---
+
+### v1.38.2 (2025-10-07) - 개발 모드 무한 루프 버그 수정
+
+**작업 내용**:
+
+#### 🐛 문제 진단
+- 개발 모드에서 가입 완료 후 다시 가입 페이지로 리다이렉트되는 무한 루프
+- `DEV_MODE` 플래그가 "방금 가입 완료" 상태를 고려하지 않음
+- 사용자가 메인 앱에 진입 불가
+
+#### ✅ 해결 방법
+- **index.html** 수정
+  * `justCompletedSignup` sessionStorage 플래그 체크 추가
+  * 조건 우선순위:
+    1. `justCompleted` 체크 → 메인 앱 표시
+    2. `DEV_MODE` 또는 `!hasCompletedSignup` → 가입 페이지 이동
+  * 방금 가입 완료 시 플래그 제거 후 메인 앱 표시
+
+- **signup-v3.js** 수정
+  * `completeSignup()` 메서드에 sessionStorage 플래그 설정
+  * `sessionStorage.setItem('justCompletedSignup', 'true')`
+  * localStorage에 signupData 저장
+  * 메인 앱으로 리다이렉트
+
+#### 🔄 플로우 개선
+```javascript
+// Before (무한 루프)
+DEV_MODE → 항상 가입 페이지 → 가입 완료 → 다시 가입 페이지 ❌
+
+// After (정상 플로우)
+DEV_MODE → 가입 페이지 → 가입 완료 → justCompleted 플래그 설정
+→ index.html에서 플래그 확인 → 메인 앱 표시 ✅
+→ 새로고침 → 플래그 없음 → 다시 가입 페이지 (개발 모드) ✅
+```
+
+**코드 메트릭**:
+- **수정**: index.html (~10줄), signup-v3.js (~5줄)
+- **총 변경**: 15줄
+
+**기술적 성과**:
+- ✅ 개발 모드에서 정상적인 사용자 플로우 복원
+- ✅ sessionStorage로 일회성 세션 플래그 관리
+- ✅ 개발 테스트 용이성 유지 (새로고침 시 가입 재시작)
+- ✅ 프로덕션 배포 시 DEV_MODE=false로 전환 가능
+
+**Git**: 887154d 커밋 완료 ✅
+
+---
+
 ### v1.38.0 (2025-10-06) - Phase 1E: Mock 모드 통합 & 전체 시스템 테스트
 
 **작업 내용**:
