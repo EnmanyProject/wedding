@@ -80,9 +80,9 @@ router.post('/dev-login', async (req, res) => {
 
     let user;
     if (useMock) {
-      // Mock 모드: Mock 사용자 반환
+      // Mock 모드: Mock 사용자 반환 (UUID 형식)
       user = {
-        id: '1',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         email: 'user1@test.com',
         name: 'user1',
         is_active: true

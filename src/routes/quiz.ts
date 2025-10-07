@@ -56,18 +56,45 @@ router.post('/session', authenticateToken, asyncHandler(async (
 
   console.log('✅ [QuizRoute] 타겟 유저 검증 완료');
 
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
   try {
-    console.log('🔧 [QuizRoute] quizService.startQuizSession 호출');
-    const result = await quizService.startQuizSession({
-      askerId: userId,
-      targetId: body.target_id,
-      mode: body.mode
-    });
+    let result;
+
+    if (useMock) {
+      // Mock 모드: Mock 세션 데이터 생성
+      console.log('🎭 [QuizRoute] Mock 모드로 퀴즈 세션 생성');
+      const { v4: uuidv4 } = require('uuid');
+      const sessionId = uuidv4();
+
+      result = {
+        session: {
+          id: sessionId,
+          asker_id: userId,
+          target_id: body.target_id,
+          mode: body.mode || 'TRAIT_PHOTO',
+          status: 'ACTIVE',
+          started_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        pointsRemaining: 100 // Mock 포인트
+      };
+    } else {
+      // Real 모드: 데이터베이스 조회
+      console.log('🔧 [QuizRoute] quizService.startQuizSession 호출');
+      result = await quizService.startQuizSession({
+        askerId: userId,
+        targetId: body.target_id,
+        mode: body.mode
+      });
+    }
 
     console.log('✅ [QuizRoute] 퀴즈 세션 생성 성공:', {
       sessionId: result.session.id,
       pointsRemaining: result.pointsRemaining,
-      mode: result.session.mode
+      mode: result.session.mode,
+      useMock
     });
 
     const response: ApiResponse<QuizSessionResponse> = {
@@ -326,18 +353,18 @@ router.get('/targets', authenticateToken, asyncHandler(async (
 
   let targets;
   if (useMock) {
-    // Mock 모드: 테스트용 사용자 데이터 반환
+    // Mock 모드: 테스트용 사용자 데이터 반환 (UUID 형식)
     const mockUsers = [
-      { id: '1', name: 'user1', display_name: '서울의별', quiz_count: 5, affinity_score: 85 },
-      { id: '2', name: 'user2', display_name: '부산갈매기', quiz_count: 8, affinity_score: 72 },
-      { id: '3', name: 'user3', display_name: '대구사과', quiz_count: 3, affinity_score: 68 },
-      { id: '4', name: 'user4', display_name: '인천바다', quiz_count: 6, affinity_score: 91 },
-      { id: '5', name: 'user5', display_name: '광주빛', quiz_count: 4, affinity_score: 76 },
-      { id: '6', name: 'user6', display_name: '대전과학', quiz_count: 7, affinity_score: 83 },
-      { id: '7', name: 'user7', display_name: '울산공장', quiz_count: 2, affinity_score: 59 },
-      { id: '8', name: 'user8', display_name: '세종도시', quiz_count: 9, affinity_score: 94 },
-      { id: '9', name: 'user9', display_name: '제주돌하르방', quiz_count: 5, affinity_score: 88 },
-      { id: '10', name: 'user10', display_name: '강원산', quiz_count: 6, affinity_score: 79 },
+      { id: '550e8400-e29b-41d4-a716-446655440001', name: 'user1', display_name: '서울의별', quiz_count: 5, affinity_score: 85 },
+      { id: '550e8400-e29b-41d4-a716-446655440002', name: 'user2', display_name: '부산갈매기', quiz_count: 8, affinity_score: 72 },
+      { id: '550e8400-e29b-41d4-a716-446655440003', name: 'user3', display_name: '대구사과', quiz_count: 3, affinity_score: 68 },
+      { id: '550e8400-e29b-41d4-a716-446655440004', name: 'user4', display_name: '인천바다', quiz_count: 6, affinity_score: 91 },
+      { id: '550e8400-e29b-41d4-a716-446655440005', name: 'user5', display_name: '광주빛', quiz_count: 4, affinity_score: 76 },
+      { id: '550e8400-e29b-41d4-a716-446655440006', name: 'user6', display_name: '대전과학', quiz_count: 7, affinity_score: 83 },
+      { id: '550e8400-e29b-41d4-a716-446655440007', name: 'user7', display_name: '울산공장', quiz_count: 2, affinity_score: 59 },
+      { id: '550e8400-e29b-41d4-a716-446655440008', name: 'user8', display_name: '세종도시', quiz_count: 9, affinity_score: 94 },
+      { id: '550e8400-e29b-41d4-a716-446655440009', name: 'user9', display_name: '제주돌하르방', quiz_count: 5, affinity_score: 88 },
+      { id: '550e8400-e29b-41d4-a716-44665544000a', name: 'user10', display_name: '강원산', quiz_count: 6, affinity_score: 79 },
     ];
 
     // 자신을 제외한 사용자만 반환
