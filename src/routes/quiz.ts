@@ -322,8 +322,16 @@ router.get('/targets', authenticateToken, asyncHandler(async (
   res: Response
 ) => {
   const userId = req.userId!;
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  const targets = await quizService.getAvailableQuizTargets(userId);
+  let targets;
+  if (useMock) {
+    // Mock 모드: 빈 배열 반환 (실제 DB 조회 없음)
+    targets = [];
+  } else {
+    // Real 모드: 데이터베이스에서 조회
+    targets = await quizService.getAvailableQuizTargets(userId);
+  }
 
   const response: ApiResponse = {
     success: true,

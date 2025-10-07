@@ -27,8 +27,32 @@ router.get('/me/points', authenticateToken, asyncHandler(async (
   res: Response
 ) => {
   const userId = req.userId!;
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  const pointsData = await pointsService.getUserPoints(userId);
+  let pointsData;
+  if (useMock) {
+    // Mock 모드: Mock 포인트 데이터
+    pointsData = {
+      balance: 100,
+      recentTransactions: [
+        {
+          id: '1',
+          amount: 50,
+          reason: 'DAILY_BONUS',
+          created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: '2',
+          amount: 50,
+          reason: 'TRAIT_ADD',
+          created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+        }
+      ]
+    };
+  } else {
+    // Real 모드: 데이터베이스에서 조회
+    pointsData = await pointsService.getUserPoints(userId);
+  }
 
   const response: ApiResponse<UserPointsResponse> = {
     success: true,
