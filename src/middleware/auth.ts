@@ -32,28 +32,40 @@ export const authenticateToken = async (
 
     const decoded = jwt.verify(token, config.JWT_SECRET) as any;
 
-    // Verify user still exists and is active
-    const db = Database.getInstance();
-    const [user] = await db.query(
-      'SELECT id, email, name, is_active FROM users WHERE id = $1',
-      [decoded.userId]
-    );
+    const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-    if (!user || !user.is_active) {
-      res.status(401).json({
-        success: false,
-        error: 'Invalid or expired token',
-        timestamp: new Date().toISOString()
-      });
-      return;
+    if (useMock) {
+      // Mock 모드: JWT 토큰만 검증, DB 조회 건너뛰기
+      req.userId = decoded.userId;
+      req.user = {
+        id: decoded.userId,
+        email: decoded.email,
+        name: `user${decoded.userId}`
+      };
+    } else {
+      // Real 모드: 데이터베이스에서 사용자 검증
+      const db = Database.getInstance();
+      const [user] = await db.query(
+        'SELECT id, email, name, is_active FROM users WHERE id = $1',
+        [decoded.userId]
+      );
+
+      if (!user || !user.is_active) {
+        res.status(401).json({
+          success: false,
+          error: 'Invalid or expired token',
+          timestamp: new Date().toISOString()
+        });
+        return;
+      }
+
+      req.userId = user.id;
+      req.user = {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      };
     }
-
-    req.userId = user.id;
-    req.user = {
-      id: user.id,
-      email: user.email,
-      name: user.name
-    };
 
     next();
   } catch (error) {
@@ -76,19 +88,32 @@ export const optionalAuth = async (
 
     if (token) {
       const decoded = jwt.verify(token, config.JWT_SECRET) as any;
-      const db = Database.getInstance();
-      const [user] = await db.query(
-        'SELECT id, email, name, is_active FROM users WHERE id = $1',
-        [decoded.userId]
-      );
+      const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-      if (user && user.is_active) {
-        req.userId = user.id;
+      if (useMock) {
+        // Mock 모드: JWT 토큰만 검증
+        req.userId = decoded.userId;
         req.user = {
-          id: user.id,
-          email: user.email,
-          name: user.name
+          id: decoded.userId,
+          email: decoded.email,
+          name: `user${decoded.userId}`
         };
+      } else {
+        // Real 모드: 데이터베이스에서 사용자 검증
+        const db = Database.getInstance();
+        const [user] = await db.query(
+          'SELECT id, email, name, is_active FROM users WHERE id = $1',
+          [decoded.userId]
+        );
+
+        if (user && user.is_active) {
+          req.userId = user.id;
+          req.user = {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          };
+        }
       }
     }
 

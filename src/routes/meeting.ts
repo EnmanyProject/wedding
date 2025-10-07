@@ -29,65 +29,76 @@ router.get('/me/meeting-state', authenticateToken, asyncHandler(async (
   res: Response
 ) => {
   const userId = req.userId!;
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  // Get available meetings (high affinity scores)
-  const availableMeetings = await db.query(
-    `SELECT
-       a.target_id,
-       u.name as target_name,
-       a.score as affinity_score,
-       ms.unlocked_at
-     FROM affinity a
-     JOIN users u ON a.target_id = u.id
-     LEFT JOIN meeting_states ms ON (
-       (ms.user1_id = $1 AND ms.user2_id = a.target_id) OR
-       (ms.user2_id = $1 AND ms.user1_id = a.target_id)
-     )
-     WHERE a.viewer_id = $1
-       AND a.score >= $2
-       AND u.is_active = true
-       AND (ms.state IS NULL OR ms.state = 'AVAILABLE')
-     ORDER BY a.score DESC
-     LIMIT 10`,
-    [userId, config.AFFINITY_T3_THRESHOLD]
-  );
+  let availableMeetings: any[] = [];
+  let activeChats: any[] = [];
 
-  // Get active chats
-  const activeChats = await db.query(
-    `SELECT
-       ms.id as meeting_id,
-       CASE
-         WHEN ms.user1_id = $1 THEN ms.user2_id
-         ELSE ms.user1_id
-       END as target_id,
-       CASE
-         WHEN ms.user1_id = $1 THEN u2.name
-         ELSE u1.name
-       END as target_name,
-       cm.message as last_message,
-       cm.created_at as last_message_at,
-       (
-         SELECT COUNT(*)
-         FROM chat_messages cm2
-         WHERE cm2.meeting_id = ms.id
-           AND cm2.sender_id != $1
-           AND cm2.read_at IS NULL
-       ) as unread_count
-     FROM meeting_states ms
-     JOIN users u1 ON ms.user1_id = u1.id
-     JOIN users u2 ON ms.user2_id = u2.id
-     LEFT JOIN LATERAL (
-       SELECT message, created_at
-       FROM chat_messages
-       WHERE meeting_id = ms.id
-       ORDER BY created_at DESC
-       LIMIT 1
-     ) cm ON true
-     WHERE (ms.user1_id = $1 OR ms.user2_id = $1)
-       AND ms.state IN ('CONNECTED', 'CHATTING')
-     ORDER BY COALESCE(cm.created_at, ms.connected_at) DESC`,
-    [userId]
-  );
+  if (useMock) {
+    // Mock 모드: 빈 배열 반환
+    availableMeetings = [];
+    activeChats = [];
+  } else {
+    // Real 모드: 데이터베이스에서 조회
+    // Get available meetings (high affinity scores)
+    availableMeetings = await db.query(
+      `SELECT
+         a.target_id,
+         u.name as target_name,
+         a.score as affinity_score,
+         ms.unlocked_at
+       FROM affinity a
+       JOIN users u ON a.target_id = u.id
+       LEFT JOIN meeting_states ms ON (
+         (ms.user1_id = $1 AND ms.user2_id = a.target_id) OR
+         (ms.user2_id = $1 AND ms.user1_id = a.target_id)
+       )
+       WHERE a.viewer_id = $1
+         AND a.score >= $2
+         AND u.is_active = true
+         AND (ms.state IS NULL OR ms.state = 'AVAILABLE')
+       ORDER BY a.score DESC
+       LIMIT 10`,
+      [userId, config.AFFINITY_T3_THRESHOLD]
+    );
+
+    // Get active chats
+    activeChats = await db.query(
+      `SELECT
+         ms.id as meeting_id,
+         CASE
+           WHEN ms.user1_id = $1 THEN ms.user2_id
+           ELSE ms.user1_id
+         END as target_id,
+         CASE
+           WHEN ms.user1_id = $1 THEN u2.name
+           ELSE u1.name
+         END as target_name,
+         cm.message as last_message,
+         cm.created_at as last_message_at,
+         (
+           SELECT COUNT(*)
+           FROM chat_messages cm2
+           WHERE cm2.meeting_id = ms.id
+             AND cm2.sender_id != $1
+             AND cm2.read_at IS NULL
+         ) as unread_count
+       FROM meeting_states ms
+       JOIN users u1 ON ms.user1_id = u1.id
+       JOIN users u2 ON ms.user2_id = u2.id
+       LEFT JOIN LATERAL (
+         SELECT message, created_at
+         FROM chat_messages
+         WHERE meeting_id = ms.id
+         ORDER BY created_at DESC
+         LIMIT 1
+       ) cm ON true
+       WHERE (ms.user1_id = $1 OR ms.user2_id = $1)
+         AND ms.state IN ('CONNECTED', 'CHATTING')
+       ORDER BY COALESCE(cm.created_at, ms.connected_at) DESC`,
+      [userId]
+    );
+  }
 
   const response: ApiResponse<MeetingStateResponse> = {
     success: true,
