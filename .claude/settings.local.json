@@ -98,7 +98,9 @@
       "Bash(superclaude --version)",
       "Bash(superclaude commit)",
       "Bash(winget list:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git rm:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJlbWFpbCI6InVzZXIxQHRlc3QuY29tIiwiaWF0IjoxNzU5ODMzMjk1LCJleHAiOjE3NjA0MzgwOTV9.Tgc-gerjlDgQBe7gKEnXuxi3EhLah7lUIKh3CCPmwNk\")"
     ],
     "deny": [],
     "ask": []

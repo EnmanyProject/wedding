@@ -47,8 +47,8 @@
     <link rel="stylesheet" href="/styles/ring-system.css?v=20251005">
     <!-- ✨ 일일 추천 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/recommendations.css?v=20251006">
-    <!-- 🔐 로그인 화면 스타일 -->
-    <link rel="stylesheet" href="/styles/login-screen.css?v=20251007">
+    <!-- 🔐 가입 프로세스 스타일 -->
+    <link rel="stylesheet" href="/styles/signup-v3.css?v=20251007">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -73,37 +73,231 @@
         </div>
     </div>
 
-    <!-- Login Screen -->
-    <div id="login-screen" class="login-screen" style="display: none;">
-        <div class="login-content">
-            <div class="login-character">
-                <img src="/images/Bety2.png" alt="베티가 환영합니다" class="bety-character character-float">
-            </div>
-            <h1 class="login-title">누구나</h1>
-            <p class="login-subtitle">사진 기반 퀴즈로 만나는 특별한 인연 💕</p>
+    <!-- Signup Screen -->
+    <div class="signup-screen-container" id="signup-container" style="display: none;">
 
-            <div class="login-form">
-                <div class="input-group">
-                    <label for="login-username">아이디</label>
-                    <input type="text" id="login-username" placeholder="아이디를 입력하세요" autocomplete="username">
+        <!-- Screen 0: Warning -->
+        <div class="screen active" id="screen-0">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety3.png" alt="베티" class="bety-img">
                 </div>
-                <div class="input-group">
-                    <label for="login-password">비밀번호</label>
-                    <input type="password" id="login-password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+                <h1 class="screen-title warning-title">잠깐만요! ✋</h1>
+                <div class="warning-message">
+                    <p class="warning-text">이 앱은 <strong>결혼하고 싶은 사람</strong>을 위한 앱이에요.</p>
+                    <p class="warning-text">진심이 아니시면 <strong>지금 당장 나가서</strong> 이 앱을 지우세요.</p>
                 </div>
-                <button id="login-btn" class="login-btn">로그인</button>
-                <div class="login-error" id="login-error" style="display: none;"></div>
-            </div>
-
-            <div class="login-divider">
-                <span>또는</span>
-            </div>
-
-            <div class="login-actions">
-                <a href="/signup-v3.html" class="signup-link">✨ 회원가입하기</a>
-                <button id="guest-login-btn" class="guest-btn">🎭 체험하기 (Mock 모드)</button>
+                <div class="countdown-container">
+                    <div class="countdown-number" id="countdown">10</div>
+                    <div class="countdown-label">초 드릴게요</div>
+                </div>
+                <button class="btn-primary btn-serious" id="btn-serious" disabled>
+                    <span>진심입니다 💍</span>
+                </button>
             </div>
         </div>
+
+        <!-- Screen 1: Gender -->
+        <div class="screen" id="screen-1">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety4.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">성별을 알려주세요</h1>
+                <p class="screen-description">매칭을 위해 필요해요</p>
+                <div class="gender-selection">
+                    <button class="gender-card" data-gender="male">
+                        <div class="gender-icon">👨</div>
+                        <div class="gender-text">남성</div>
+                    </button>
+                    <button class="gender-card" data-gender="female">
+                        <div class="gender-icon">👩</div>
+                        <div class="gender-text">여성</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Gender Feedback -->
+        <div class="screen" id="screen-2">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety2.png" alt="베티" class="bety-img bety-excited">
+                </div>
+                <h1 class="screen-title celebration-title" id="gender-feedback-title">우와! 🎉</h1>
+                <div class="celebration-text" id="gender-feedback-message">
+                    <!-- 성별에 따른 메시지가 여기에 표시됩니다 -->
+                </div>
+                <button class="btn-primary btn-large" id="gender-continue-btn">
+                    <span>계속하기</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Name -->
+        <div class="screen" id="screen-3">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety5.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">당신을 뭐라고 부를까요? 😊</h1>
+                <p class="screen-description">이름 또는 닉네임을 알려주세요</p>
+                <form class="screen-form" id="form-name">
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="이름 또는 닉네임"
+                        class="input-large"
+                        minlength="2"
+                        maxlength="10"
+                        required
+                        autocomplete="name"
+                    >
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 4: Age -->
+        <div class="screen" id="screen-4">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety6.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">나이를 알려주세요 🎂</h1>
+                <p class="screen-description">매칭을 위해 필요해요</p>
+                <form class="screen-form" id="form-age">
+                    <select id="age-select" class="input-large" required>
+                        <option value="">나이를 선택해주세요</option>
+                    </select>
+                    <button type="submit" class="btn-primary">
+                        <span>다음</span>
+                        <span class="arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Screen 5: Region -->
+        <div class="screen" id="screen-5">
+            <div class="screen-content">
+                <div class="bety-medium">
+                    <img src="/images/Bety3.png" alt="베티" class="bety-img">
+                </div>
+                <h1 class="screen-title">어느 지역에 사시나요? 🏙️</h1>
+                <p class="screen-description">지역별 매칭을 위해 필요해요</p>
+                <div class="region-selection" id="region-selection">
+                    <button class="region-card" data-region="seoul">
+                        <div class="region-icon">🏙️</div>
+                        <div class="region-text">서울특별시</div>
+                    </button>
+                    <button class="region-card" data-region="busan">
+                        <div class="region-icon">🌊</div>
+                        <div class="region-text">부산광역시</div>
+                    </button>
+                    <button class="region-card" data-region="incheon">
+                        <div class="region-icon">✈️</div>
+                        <div class="region-text">인천광역시</div>
+                    </button>
+                    <button class="region-card" data-region="daegu">
+                        <div class="region-icon">🍎</div>
+                        <div class="region-text">대구광역시</div>
+                    </button>
+                    <button class="region-card" data-region="daejeon">
+                        <div class="region-icon">🔬</div>
+                        <div class="region-text">대전광역시</div>
+                    </button>
+                    <button class="region-card" data-region="gwangju">
+                        <div class="region-icon">🎨</div>
+                        <div class="region-text">광주광역시</div>
+                    </button>
+                    <button class="region-card" data-region="ulsan">
+                        <div class="region-icon">🏭</div>
+                        <div class="region-text">울산광역시</div>
+                    </button>
+                    <button class="region-card" data-region="sejong">
+                        <div class="region-icon">🏛️</div>
+                        <div class="region-text">세종특별자치시</div>
+                    </button>
+                    <button class="region-card" data-region="gyeonggi">
+                        <div class="region-icon">🌳</div>
+                        <div class="region-text">경기도</div>
+                    </button>
+                    <button class="region-card" data-region="gangwon">
+                        <div class="region-icon">⛰️</div>
+                        <div class="region-text">강원도</div>
+                    </button>
+                    <button class="region-card" data-region="chungbuk">
+                        <div class="region-icon">🏞️</div>
+                        <div class="region-text">충청북도</div>
+                    </button>
+                    <button class="region-card" data-region="chungnam">
+                        <div class="region-icon">🌾</div>
+                        <div class="region-text">충청남도</div>
+                    </button>
+                    <button class="region-card" data-region="jeonbuk">
+                        <div class="region-icon">🍚</div>
+                        <div class="region-text">전라북도</div>
+                    </button>
+                    <button class="region-card" data-region="jeonnam">
+                        <div class="region-icon">🌿</div>
+                        <div class="region-text">전라남도</div>
+                    </button>
+                    <button class="region-card" data-region="gyeongbuk">
+                        <div class="region-icon">🏯</div>
+                        <div class="region-text">경상북도</div>
+                    </button>
+                    <button class="region-card" data-region="gyeongnam">
+                        <div class="region-icon">🌸</div>
+                        <div class="region-text">경상남도</div>
+                    </button>
+                    <button class="region-card" data-region="jeju">
+                        <div class="region-icon">🍊</div>
+                        <div class="region-text">제주특별자치도</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6: Region Feedback -->
+        <div class="screen" id="screen-6">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety2.png" alt="베티" class="bety-img bety-excited">
+                </div>
+                <h1 class="screen-title celebration-title" id="region-feedback-title">멋진 곳이네요! 🎉</h1>
+                <div class="celebration-text" id="region-feedback-message">
+                    <!-- 지역에 따른 메시지가 여기에 표시됩니다 -->
+                </div>
+                <button class="btn-primary btn-large" id="region-continue-btn">
+                    <span>계속하기</span>
+                    <span class="arrow">→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 7: Complete -->
+        <div class="screen" id="screen-7">
+            <div class="screen-content">
+                <div class="bety-large">
+                    <img src="/images/Bety7.png" alt="베티" class="bety-img bety-bounce">
+                </div>
+                <h1 class="screen-title celebration-title">환영합니다! 🎉</h1>
+                <p class="screen-description celebration-text">
+                    <span id="welcome-name">000</span>님,<br>
+                    이제 진심으로 결혼을 원하는<br>
+                    특별한 인연을 만나보세요 💍
+                </p>
+                <button class="btn-primary btn-large" id="btn-start">
+                    <span>시작하기</span>
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <!-- Main App Container -->
@@ -505,9 +699,10 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 App initialization started');
 
-            // 🔐 인증 체크
-            const isAuthenticated = window.authManager && window.authManager.checkAuth();
-            console.log('🔐 Authentication status:', isAuthenticated);
+            // 🔐 가입 데이터 체크
+            const signupData = localStorage.getItem('signupData');
+            const hasCompletedSignup = !!signupData;
+            console.log('🔐 Signup status:', hasCompletedSignup);
 
             // 로딩 화면 숨기기
             setTimeout(() => {
@@ -517,21 +712,23 @@
                     console.log('✅ Loading screen hidden');
                 }
 
-                // 인증 상태에 따라 화면 표시
-                if (!isAuthenticated) {
-                    // 로그인 화면 표시
-                    if (window.authManager) {
-                        window.authManager.showLoginScreen();
-                        console.log('🔒 Showing login screen');
+                // 가입 상태에 따라 화면 표시
+                if (!hasCompletedSignup) {
+                    // 가입 화면 표시
+                    const signupContainer = document.getElementById('signup-container');
+                    if (signupContainer) {
+                        signupContainer.style.display = 'block';
+                        console.log('🔒 Showing signup screen');
                     }
                 } else {
                     // 앱 화면 표시
-                    if (window.authManager) {
-                        window.authManager.showApp();
+                    const appContainer = document.getElementById('app');
+                    if (appContainer) {
+                        appContainer.style.display = 'block';
                         console.log('✅ Showing main app');
                     }
 
-                    // 로그인된 경우에만 사용자 데이터 로드
+                    // 가입 완료된 경우에만 앱 데이터 로드
                     initializeApp();
                 }
             }, 100);
@@ -588,7 +785,7 @@
     <script type="module" src="/js/utils/error-handler.js"></script>
     <script type="module" src="/js/utils/ui-components.js"></script>
 
-    <!-- 🔐 Authentication Manager -->
-    <script src="/js/auth.js"></script>
+    <!-- 🔐 Signup Manager -->
+    <script src="/js/signup-v3.js?v=20251007"></script>
 </body>
 </html>
