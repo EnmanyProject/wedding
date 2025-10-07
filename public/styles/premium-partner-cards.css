@@ -59,17 +59,19 @@
   width: 100%;
   height: 95%;
   background: linear-gradient(135deg,
-    #ffffff 0%,
-    #fefefe 50%,
-    #f8f9fa 100%
+    #1a1a1a 0%,
+    #0a0a0a 50%,
+    #000000 100%
   );
   border-radius: 20px;
   pointer-events: auto;
   padding: 40px 30px;
+  border: 3px solid #ff6b9d;
   box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 10px 40px rgba(255, 107, 157, 0.4),
+    0 2px 8px rgba(255, 107, 157, 0.3),
+    0 0 30px rgba(255, 107, 157, 0.2),
+    inset 0 1px 0 rgba(255, 107, 157, 0.3);
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -82,10 +84,12 @@
 /* 카드 호버 효과 */
 .partner-card:hover .card-content {
   transform: translateY(-4px);
+  border-color: #ff8ab5;
   box-shadow:
-    0 15px 50px rgba(0, 0, 0, 0.15),
-    0 5px 15px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    0 15px 50px rgba(255, 107, 157, 0.6),
+    0 5px 15px rgba(255, 107, 157, 0.4),
+    0 0 40px rgba(255, 107, 157, 0.3),
+    inset 0 1px 0 rgba(255, 107, 157, 0.4);
 }
 
 /* 카드 배경 패턴 */
@@ -204,13 +208,23 @@
 .partner-info h3 {
   font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #ffb6d9 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0;
+  margin: 0 0 8px 0;
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
+.partner-username {
+  font-size: 16px;
+  font-weight: 500;
+  color: #ff6b9d;
+  margin: 0;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================
@@ -232,22 +246,28 @@
   gap: 8px;
   padding: 16px 24px;
   background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(250, 250, 250, 0.9) 100%
+    rgba(255, 107, 157, 0.15) 0%,
+    rgba(139, 92, 246, 0.15) 100%
   );
   border-radius: 16px;
+  border: 1px solid rgba(255, 107, 157, 0.3);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 4px 12px rgba(255, 107, 157, 0.2),
+    inset 0 1px 0 rgba(255, 107, 157, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 100px;
 }
 
 .partner-stat-item:hover {
   transform: translateY(-2px);
+  border-color: rgba(255, 107, 157, 0.5);
+  background: linear-gradient(135deg,
+    rgba(255, 107, 157, 0.25) 0%,
+    rgba(139, 92, 246, 0.25) 100%
+  );
   box-shadow:
-    0 6px 20px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
+    0 6px 20px rgba(255, 107, 157, 0.3),
+    inset 0 1px 0 rgba(255, 107, 157, 0.3);
 }
 
 .partner-stat-icon {
@@ -258,17 +278,19 @@
 .partner-stat-value {
   font-size: 24px;
   font-weight: 700;
-  background: linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #ff8ab5 0%, #a78bfa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(255, 107, 157, 0.3));
 }
 
 .partner-stat-label {
   font-size: 13px;
-  color: #666;
+  color: #e0e0e0;
   font-weight: 500;
   letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================

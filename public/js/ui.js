@@ -980,6 +980,7 @@ class UIManager {
             </div>
             <div class="partner-info">
               <h3>${displayName}</h3>
+              <p class="partner-username">@${target.name}</p>
             </div>
             <div class="partner-quiz-stats">
               <div class="partner-stat-item">
