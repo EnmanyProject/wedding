@@ -326,8 +326,22 @@ router.get('/targets', authenticateToken, asyncHandler(async (
 
   let targets;
   if (useMock) {
-    // Mock 모드: 빈 배열 반환 (실제 DB 조회 없음)
-    targets = [];
+    // Mock 모드: 테스트용 사용자 데이터 반환
+    const mockUsers = [
+      { id: '1', name: 'user1', display_name: '서울의별', quiz_count: 5, affinity_score: 85 },
+      { id: '2', name: 'user2', display_name: '부산갈매기', quiz_count: 8, affinity_score: 72 },
+      { id: '3', name: 'user3', display_name: '대구사과', quiz_count: 3, affinity_score: 68 },
+      { id: '4', name: 'user4', display_name: '인천바다', quiz_count: 6, affinity_score: 91 },
+      { id: '5', name: 'user5', display_name: '광주빛', quiz_count: 4, affinity_score: 76 },
+      { id: '6', name: 'user6', display_name: '대전과학', quiz_count: 7, affinity_score: 83 },
+      { id: '7', name: 'user7', display_name: '울산공장', quiz_count: 2, affinity_score: 59 },
+      { id: '8', name: 'user8', display_name: '세종도시', quiz_count: 9, affinity_score: 94 },
+      { id: '9', name: 'user9', display_name: '제주돌하르방', quiz_count: 5, affinity_score: 88 },
+      { id: '10', name: 'user10', display_name: '강원산', quiz_count: 6, affinity_score: 79 },
+    ];
+
+    // 자신을 제외한 사용자만 반환
+    targets = mockUsers.filter(u => u.id !== userId);
   } else {
     // Real 모드: 데이터베이스에서 조회
     targets = await quizService.getAvailableQuizTargets(userId);
