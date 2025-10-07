@@ -102,6 +102,12 @@ docker-data/
 uploads/
 storage/
 
+# Profile images (local only, not in git)
+public/images/profiles/*.jpg
+public/images/profiles/*.png
+public/images/profiles/*.jpeg
+!public/images/profiles/README.md
+
 # Test results
 test-results/
 coverage/
