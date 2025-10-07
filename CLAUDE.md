@@ -127,13 +127,19 @@ CLAUDE.md (히스토리)
 
 **다음 단계**: 실제 이미지 파일 추가 (사용자 작업)
 
-**Git**: dadd4c5, a569478 커밋 완료 ✅
+**Git**: dadd4c5, a569478, 11d0c43, 124d930 커밋 완료 ✅
 
 **테스트 결과**:
 - ✅ user1.jpg (147KB) - HTTP 200 OK
 - ✅ user2.png (122KB) - HTTP 200 OK
 - ✅ 모든 10개 프로필 이미지 서빙 확인
 - ✅ 브라우저에서 실제 이미지 표시 가능
+
+**UI 개선 (124d930)**:
+- ✅ 프로필 이미지가 둥근 영역을 완전히 채움
+- ✅ `overflow: hidden` + `border-radius: 50%` 원형 컨테이너
+- ✅ `object-fit: cover` + `object-position: center` 이미지 최적화
+- ✅ `min-width/min-height: 100%` 완벽한 채우기
 
 ---
 
