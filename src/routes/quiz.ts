@@ -141,14 +141,23 @@ router.post('/:sessionId/answer', authenticateToken, asyncHandler(async (
     body
   });
 
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
   // Validate session belongs to user (additional security check)
   console.log('🔍 [QuizRoute] 세션 소유권 확인 중...');
-  const session = await quizService.database.queryOne(
-    'SELECT asker_id FROM quiz_sessions WHERE id = $1',
-    [sessionId]
-  );
 
-  console.log('📊 [QuizRoute] 세션 검색 결과:', session);
+  let session;
+  if (useMock) {
+    // Mock 모드: 세션 소유권 자동 승인
+    console.log('🎭 [QuizRoute] Mock 모드 - 세션 소유권 자동 승인');
+    session = { asker_id: userId };
+  } else {
+    session = await quizService.database.queryOne(
+      'SELECT asker_id FROM quiz_sessions WHERE id = $1',
+      [sessionId]
+    );
+    console.log('📊 [QuizRoute] 세션 검색 결과:', session);
+  }
 
   if (!session || session.asker_id !== userId) {
     console.error('❌ [QuizRoute] 세션 소유권 검증 실패:', {
@@ -162,13 +171,51 @@ router.post('/:sessionId/answer', authenticateToken, asyncHandler(async (
   console.log('✅ [QuizRoute] 세션 소유권 확인 완료');
 
   try {
-    console.log('🔧 [QuizRoute] quizService.submitAnswer 호출');
-    const result = await quizService.submitAnswer({
-      sessionId,
-      pairId: body.quiz_id, // quiz_id is now used as pairId for compatibility
-      guess: body.guess,
-      selectedPhotoId: body.selected_photo_id
-    });
+    let result;
+
+    if (useMock) {
+      // Mock 모드: Mock 답변 결과 생성
+      console.log('🎭 [QuizRoute] Mock 모드로 답변 처리');
+
+      // 랜덤으로 정답/오답 결정 (70% 정답률)
+      const correct = Math.random() > 0.3;
+      const targetChoice = correct ? body.guess : (body.guess === 'LEFT' ? 'RIGHT' : 'LEFT');
+
+      result = {
+        correct,
+        targetChoice: targetChoice as 'LEFT' | 'RIGHT',
+        deltaAffinity: correct ? 5 : -2,
+        deltaPoints: correct ? 10 : -5,
+        affinityScore: 50 + (correct ? 5 : -2),
+        stagesUnlocked: [],
+        quizItem: {
+          id: `${sessionId}-item`,
+          session_id: sessionId,
+          pair_id: body.quiz_id,
+          option_type: null,
+          asker_guess: body.guess,
+          target_choice: targetChoice as 'LEFT' | 'RIGHT',
+          is_correct: correct,
+          delta_affinity: correct ? 5 : -2,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      };
+
+      console.log('✅ [QuizRoute] Mock 답변 처리 완료:', {
+        correct: result.correct,
+        targetChoice: result.targetChoice,
+        deltaAffinity: result.deltaAffinity
+      });
+    } else {
+      console.log('🔧 [QuizRoute] quizService.submitAnswer 호출');
+      result = await quizService.submitAnswer({
+        sessionId,
+        pairId: body.quiz_id, // quiz_id is now used as pairId for compatibility
+        guess: body.guess,
+        selectedPhotoId: body.selected_photo_id
+      });
+    }
 
     console.log('✅ [QuizRoute] 답안 제출 성공:', {
       correct: result.correct,
