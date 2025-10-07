@@ -224,15 +224,8 @@ class UIManager {
 
   // 🔧 NEW: 개별 데이터 로딩 메서드들
   async loadPointsData() {
-    try {
-      const pointsData = await api.getMyPoints();
-      this.updatePointsDisplay(pointsData.data.balance);
-      return { success: true };
-    } catch (error) {
-      console.warn('⚠️ Points failed:', error);
-      this.updatePointsDisplay(0);
-      throw error;
-    }
+    // Points display removed - using Ring system instead
+    return { success: true };
   }
 
   async loadUserAvatarsData() {
@@ -273,7 +266,6 @@ class UIManager {
   // 🛡️ 기본값으로 홈 화면 초기화
   initializeDefaultHomeData() {
     console.log('🔄 [UI] 기본값으로 홈 화면 초기화');
-    this.updatePointsDisplay(0);
     this.updateUserAvatars([]);
     this.updateHomeRankings([]);
     this.updateHomeMeetings([]);
@@ -403,13 +395,6 @@ class UIManager {
     }
   }
 
-  // Update points display
-  updatePointsDisplay(points) {
-    const pointsElement = document.getElementById('user-points');
-    if (pointsElement) {
-      pointsElement.textContent = points.toLocaleString();
-    }
-  }
 
   // Update user avatars display with fallback
   updateUserAvatars(avatars) {
