@@ -78,10 +78,6 @@ class QuizManager {
       console.log('🎯 [Quiz] 세션 데이터 수신:', sessionData);
       this.currentSession = sessionData.data.session;
 
-      // Update points display
-      console.log('🎯 [Quiz] 포인트 업데이트:', sessionData.data.points_remaining);
-      ui.updatePointsDisplay(sessionData.data.points_remaining);
-
       // Get quiz template
       console.log('🎯 [Quiz] 퀴즈 템플릿 로드 시작');
       await this.loadQuizTemplate();
@@ -308,19 +304,6 @@ class QuizManager {
       } else {
         unlockMessage.style.display = 'none';
       }
-    }
-
-    // Update points if penalty applied
-    if (delta_points < 0) {
-      // Get current points and update display
-      setTimeout(async () => {
-        try {
-          const pointsData = await api.getMyPoints();
-          ui.updatePointsDisplay(pointsData.data.balance);
-        } catch (error) {
-          console.error('Error updating points:', error);
-        }
-      }, 500);
     }
 
     // Show result modal
