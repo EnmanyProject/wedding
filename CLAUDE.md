@@ -133,7 +133,56 @@ CLAUDE.md (히스토리)
 - 👁️ 어두운 배경에서 텍스트 가독성 최적화
 - 🎯 핑크 테마로 일관된 브랜드 아이덴티티
 
-**Git**: 01061e2 커밋 완료 ✅
+**Git**: 01061e2, 114fcbb 커밋 완료 ✅
+
+---
+
+### v1.41.0 (2025-10-07) - Avatar Layout Improvements
+
+**작업 내용**:
+
+#### 1️⃣ 아바타 위치 조정
+- 아바타 위치를 위로 이동 (margin: 20px → 10px)
+- 카드 내 공간 활용도 개선
+
+#### 2️⃣ 사용자 ID 위치 변경
+- `partner-username`을 `partner-info`에서 `partner-avatar-large`로 이동
+- 아바타 이미지 바로 아래에 ID 표시
+- `position: absolute`로 이미지 하단 중앙 배치
+
+#### 3️⃣ 이미지 채우기 문제 해결
+- 프로필 이미지가 원을 완전히 채우지 못하던 문제 수정
+- 고정 크기 적용: `width/height: 180px !important`
+- `max-width/max-height: 180px !important` 추가
+- `display: block` + `flex-shrink: 0` 강제 적용
+- 검은색 동그라미가 보이는 문제 완전 해결
+
+#### 4️⃣ 레이아웃 구조 개선
+- `partner-avatar-large`: `flex-direction: column` 적용
+- 이미지와 username의 수직 배치
+- `gap: 10px`으로 간격 조정
+- 글로우 효과 위치 조정 (이미지 중심)
+
+#### 5️⃣ 애니메이션 수정
+- `pulse-glow` 애니메이션에 `translateX(-50%)` 추가
+- 글로우 효과가 항상 이미지 중앙에 유지
+
+**코드 메트릭**:
+- **수정**: ui.js (HTML 구조), premium-partner-cards.css (~25줄)
+- **총 변경**: ~26줄
+
+**기술적 성과**:
+- ✅ 이미지가 원형 영역을 100% 채움
+- ✅ 아이디가 아바타 바로 아래 표시
+- ✅ 깔끔한 레이아웃 구조
+- ✅ 반응형 유지
+
+**해결된 문제**:
+- 🐛 검은색 동그라미 보이는 문제
+- 🐛 이미지 크기 불일치 문제
+- 🎯 사용자 ID 위치 최적화
+
+**Git**: e3b2a1e 커밋 완료 ✅
 
 ---
 
