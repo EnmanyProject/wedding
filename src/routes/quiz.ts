@@ -224,10 +224,68 @@ router.get('/template', authenticateToken, asyncHandler(async (
   const query = templateSchema.parse(req.query) as QuizTemplateRequest;
   console.log('✅ [QuizRoute] 파라미터 검증 완료:', query);
 
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
   try {
-    console.log('🔧 [QuizRoute] quizService.getQuizTemplate 호출');
-    const template = await quizService.getQuizTemplate(query.quiz_id, query.target_id);
-    console.log('✅ [QuizRoute] 템플릿 생성 성공');
+    let template;
+
+    if (useMock) {
+      // Mock 모드: Mock 퀴즈 템플릿 생성
+      console.log('🎭 [QuizRoute] Mock 모드로 퀴즈 템플릿 생성');
+
+      // Mock 퀴즈 데이터 (AB Quiz)
+      const mockQuizzes = [
+        {
+          id: '650e8400-e29b-41d4-a716-446655440001',
+          category: 'food',
+          title: '점심 메뉴는?',
+          description: '점심시간 메뉴 고르기',
+          option_a_title: '파스타',
+          option_a_description: '크림 파스타',
+          option_b_title: '라면',
+          option_b_description: '매운 라면',
+          is_active: true
+        },
+        {
+          id: '650e8400-e29b-41d4-a716-446655440002',
+          category: 'hobby',
+          title: '주말 활동',
+          description: '주말에 하고 싶은 것',
+          option_a_title: '독서',
+          option_a_description: '조용한 독서',
+          option_b_title: '운동',
+          option_b_description: '활발한 운동',
+          is_active: true
+        }
+      ];
+
+      // 랜덤 퀴즈 선택
+      const randomQuiz = mockQuizzes[Math.floor(Math.random() * mockQuizzes.length)];
+
+      // Mock 타겟 정보
+      const mockTargetInfo = {
+        user_id: query.target_id || '550e8400-e29b-41d4-a716-446655440002',
+        name: 'user2',
+        display_name: '부산갈매기'
+      };
+
+      template = {
+        quiz: randomQuiz,
+        targetInfo: mockTargetInfo,
+        pair: null, // 구 시스템 호환성
+        visual: null
+      };
+
+      console.log('✅ [QuizRoute] Mock 템플릿 생성 완료:', {
+        quizId: randomQuiz.id,
+        quizTitle: randomQuiz.title,
+        targetId: mockTargetInfo.user_id
+      });
+    } else {
+      console.log('🔧 [QuizRoute] quizService.getQuizTemplate 호출');
+      template = await quizService.getQuizTemplate(query.quiz_id, query.target_id);
+      console.log('✅ [QuizRoute] 템플릿 생성 성공');
+    }
 
     const response: ApiResponse<QuizTemplateResponse> = {
       success: true,
