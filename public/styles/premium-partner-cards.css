@@ -129,10 +129,10 @@
    프로필 아바타 - 3D 효과
    ========================================== */
 .partner-avatar-large {
-  width: 180px !important;
-  height: 180px !important;
-  min-width: 180px !important;
-  min-height: 180px !important;
+  width: 144px !important;
+  height: 144px !important;
+  min-width: 144px !important;
+  min-height: 144px !important;
   margin: 10px 0 35px 0;
   position: relative;
   z-index: 1;
@@ -149,8 +149,8 @@
   top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 200px;
+  width: 164px;
+  height: 164px;
   background: linear-gradient(135deg,
     rgba(255, 107, 157, 0.3) 0%,
     rgba(139, 92, 246, 0.3) 100%
@@ -174,12 +174,12 @@
 }
 
 .partner-avatar-large .profile-image {
-  width: 180px !important;
-  height: 180px !important;
-  min-width: 180px !important;
-  min-height: 180px !important;
-  max-width: 180px !important;
-  max-height: 180px !important;
+  width: 144px !important;
+  height: 144px !important;
+  min-width: 144px !important;
+  min-height: 144px !important;
+  max-width: 144px !important;
+  max-height: 144px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
   object-position: center !important;
@@ -529,22 +529,22 @@
   }
 
   .partner-avatar-large {
-    width: 150px !important;
-    height: 150px !important;
-    min-width: 150px !important;
-    min-height: 150px !important;
+    width: 120px !important;
+    height: 120px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
     margin: 10px 0 30px 0;
     border-radius: 50% !important;
     overflow: hidden !important;
   }
 
   .partner-avatar-large .profile-image {
-    width: 150px !important;
-    height: 150px !important;
-    min-width: 150px !important;
-    min-height: 150px !important;
-    max-width: 150px !important;
-    max-height: 150px !important;
+    width: 120px !important;
+    height: 120px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
   }
 
   .partner-info h3 {
@@ -599,22 +599,22 @@
   }
 
   .partner-avatar-large {
-    width: 130px !important;
-    height: 130px !important;
-    min-width: 130px !important;
-    min-height: 130px !important;
+    width: 104px !important;
+    height: 104px !important;
+    min-width: 104px !important;
+    min-height: 104px !important;
     margin: 10px 0 25px 0;
     border-radius: 50% !important;
     overflow: hidden !important;
   }
 
   .partner-avatar-large .profile-image {
-    width: 130px !important;
-    height: 130px !important;
-    min-width: 130px !important;
-    min-height: 130px !important;
-    max-width: 130px !important;
-    max-height: 130px !important;
+    width: 104px !important;
+    height: 104px !important;
+    min-width: 104px !important;
+    min-height: 104px !important;
+    max-width: 104px !important;
+    max-height: 104px !important;
   }
 
   .partner-info h3 {
