@@ -977,8 +977,8 @@ class UIManager {
           <div class="card-content">
             <div class="partner-avatar-large">
               <img src="${profileImageUrl}" alt="${displayName}" class="profile-image">
-              <p class="partner-username">@${target.name}</p>
             </div>
+            <p class="partner-username">@${target.name}</p>
             <div class="partner-info">
               <h3>${displayName}</h3>
             </div>
