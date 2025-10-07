@@ -4,13 +4,20 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { RecommendationService } from '../services/recommendationService';
 import { MockRecommendationService } from '../services/mockRecommendationService';
 import { RecommendationScheduler } from '../utils/recommendationScheduler';
 import { pool } from '../utils/database';
 
 // Mock 모드 여부
 const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+
+// Dynamic import for RecommendationService (only in non-mock mode)
+let RecommendationService: any = null;
+if (!useMock) {
+  import('../services/recommendationService').then(module => {
+    RecommendationService = module.RecommendationService;
+  });
+}
 
 const router = Router();
 

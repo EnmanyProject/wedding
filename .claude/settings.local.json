@@ -97,7 +97,8 @@
       "Bash(superclaude --verify)",
       "Bash(superclaude --version)",
       "Bash(superclaude commit)",
-      "Bash(winget list:*)"
+      "Bash(winget list:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

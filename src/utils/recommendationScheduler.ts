@@ -4,8 +4,16 @@
  */
 
 import cron from 'node-cron';
-import { RecommendationService } from '../services/recommendationService';
 import { MockRecommendationService } from '../services/mockRecommendationService';
+
+// Dynamic import for RecommendationService (only in non-mock mode)
+let RecommendationService: any = null;
+const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+if (!useMock) {
+  import('../services/recommendationService').then(module => {
+    RecommendationService = module.RecommendationService;
+  });
+}
 
 export class RecommendationScheduler {
   private static cronJob: cron.ScheduledTask | null = null;
