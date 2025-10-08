@@ -358,7 +358,7 @@ body {
 /* Welcome Section */
 .welcome-section {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .welcome-content {
@@ -367,7 +367,7 @@ body {
   justify-content: flex-start; /* 베티를 왼쪽으로 */
   gap: 20px;
   background: transparent; /* 투명 배경 */
-  padding: 20px;
+  padding: 15px 20px;
   border-radius: 15px;
 }
 
@@ -646,10 +646,99 @@ body {
 .user-avatars-section {
   background: var(--card-color);
   border-radius: var(--border-radius);
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 20px;
+  margin-bottom: 18px;
   box-shadow: var(--shadow);
   border: 1px solid var(--border-color);
+}
+
+/* D-Bety 100명 선보기 Section */
+.dbety-showcase-section {
+  margin-bottom: 24px;
+}
+
+.dbety-showcase-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 20, 147, 0.1) 0%, rgba(138, 43, 226, 0.1) 100%);
+  border: 2px solid #FF1493;
+  border-radius: 20px;
+  padding: 25px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(255, 20, 147, 0.3);
+  transition: all 0.3s ease;
+}
+
+.dbety-showcase-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(255, 20, 147, 0.4);
+}
+
+.dbety-showcase-img {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(255, 20, 147, 0.4));
+  animation: dbetyFloat 3s ease-in-out infinite;
+}
+
+@keyframes dbetyFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.dbety-showcase-text {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: blinkText 0.8s ease-in-out;
+  animation-iteration-count: 12; /* 10초 동안 (0.8초 × 12 ≈ 10초) */
+}
+
+@keyframes blinkText {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 480px) {
+  .dbety-showcase-card {
+    min-height: 100px;
+    padding: 20px;
+  }
+
+  .dbety-showcase-img {
+    width: 50px;
+    height: 50px;
+    top: 12px;
+    left: 12px;
+  }
+
+  .dbety-showcase-text {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .dbety-showcase-text {
+    font-size: 22px;
+  }
 }
 
 .user-avatars-section .section-header {
