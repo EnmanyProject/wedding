@@ -49,6 +49,8 @@
     <link rel="stylesheet" href="/styles/recommendations.css?v=20251006">
     <!-- 👤 유저 프로필 미리보기 모달 스타일 -->
     <link rel="stylesheet" href="/styles/user-profile-modal.css?v=20251007">
+    <!-- 💎 D-베티 특별 추천 모달 스타일 -->
+    <link rel="stylesheet" href="/styles/dbety-specials.css?v=20251008">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -421,7 +423,50 @@
                 <span class="nav-icon" aria-hidden="true">💕</span>
                 <span class="nav-label">만남</span>
             </button>
+            <button class="nav-item" id="dbety-special-btn" aria-label="특별 추천 페이지">
+                <img src="/images/d-bety.png" alt="베티 특별 추천" class="nav-icon-img" aria-hidden="true">
+                <span class="nav-label">특별 추천</span>
+            </button>
         </nav>
+    </div>
+
+    <!-- D-Bety Special Recommendations Modal -->
+    <div id="dbety-special-modal" class="dbety-modal" role="dialog" aria-labelledby="dbety-modal-title" aria-modal="true" style="display: none;">
+        <div class="dbety-modal-overlay"></div>
+        <div class="dbety-modal-content">
+            <div class="dbety-modal-header">
+                <h2 id="dbety-modal-title">베티의 특별 추천 💎</h2>
+                <button class="dbety-modal-close" aria-label="닫기">&times;</button>
+            </div>
+            <div class="dbety-modal-body">
+                <!-- Recommendation 1: 자산가 -->
+                <div class="dbety-recommendation-card">
+                    <div class="dbety-rec-title">일주일간 자산가 추천</div>
+                    <button class="dbety-rec-button" data-type="wealthy">
+                        <span class="dbety-ring-icon">💍</span>
+                        <span class="dbety-ring-cost">100</span>
+                    </button>
+                </div>
+
+                <!-- Recommendation 2: 미인 -->
+                <div class="dbety-recommendation-card">
+                    <div class="dbety-rec-title">일주일간 미인 추천</div>
+                    <button class="dbety-rec-button" data-type="beauty">
+                        <span class="dbety-ring-icon">💍</span>
+                        <span class="dbety-ring-cost">100</span>
+                    </button>
+                </div>
+
+                <!-- Recommendation 3: 10살차이 OK -->
+                <div class="dbety-recommendation-card">
+                    <div class="dbety-rec-title">일주일간 10살차이 ok</div>
+                    <button class="dbety-rec-button" data-type="age-gap">
+                        <span class="dbety-ring-icon">💍</span>
+                        <span class="dbety-ring-cost">100</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notifications -->
@@ -448,6 +493,8 @@
     <script src="/js/loading-manager.js"></script>
     <!-- 💍 Ring 화폐 시스템 JavaScript -->
     <script src="/js/utils/ring-system.js"></script>
+    <!-- 💎 D-베티 특별 추천 JavaScript -->
+    <script src="/js/dbety-specials.js"></script>
     <script type="module" src="/js/ui.js"></script>
     <script src="/js/quiz.js"></script>
     <script src="/js/photos.js"></script>
