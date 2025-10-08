@@ -83,7 +83,10 @@ class UIManager {
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const view = item.dataset.view;
-        this.switchView(view);
+        // Only switch view if data-view attribute exists
+        if (view) {
+          this.switchView(view);
+        }
       });
     });
 

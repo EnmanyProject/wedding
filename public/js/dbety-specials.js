@@ -64,8 +64,14 @@
     /**
      * Open modal
      */
-    function openModal() {
+    function openModal(event) {
         console.log('🔓 [D-Bety Special] Opening modal...');
+
+        // Prevent navigation event from firing
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         if (!modal) {
             console.error('❌ [D-Bety Special] Modal not initialized');

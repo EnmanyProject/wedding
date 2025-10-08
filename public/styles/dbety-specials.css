@@ -5,8 +5,8 @@
 
 /* D-Bety Navigation Icon Styling */
 .nav-icon-img {
-    width: 24px;
-    height: 24px;
+    width: 29px;
+    height: 29px;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     transition: all 0.3s ease;
@@ -20,22 +20,22 @@
 
 @media (max-width: 480px) {
     .nav-icon-img {
-        width: 20px;
-        height: 20px;
-    }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-    .nav-icon-img {
         width: 24px;
         height: 24px;
     }
 }
 
+@media (min-width: 481px) and (max-width: 768px) {
+    .nav-icon-img {
+        width: 29px;
+        height: 29px;
+    }
+}
+
 @media (min-width: 769px) {
     .nav-icon-img {
-        width: 26px;
-        height: 26px;
+        width: 31px;
+        height: 31px;
     }
 }
 
