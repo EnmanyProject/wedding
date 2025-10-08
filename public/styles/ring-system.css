@@ -190,12 +190,12 @@
 }
 
 .modal-body {
-    padding: 25px;
+    padding: 20px;
     color: white;
 }
 
 .modal-footer {
-    padding: 20px 25px;
+    padding: 15px 20px;
     border-top: 1px solid #FF1493;
     text-align: center;
     color: white;
@@ -204,13 +204,13 @@
 /* Daily Login Bonus Modal */
 .daily-login-modal .bonus-animation {
     text-align: center;
-    margin: 30px 0;
+    margin: 20px 0;
 }
 
 .ring-icon-large {
-    font-size: 80px;
+    font-size: 65px;
     animation: ringBounce 1s ease-in-out infinite;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 @keyframes ringBounce {
@@ -219,7 +219,7 @@
 }
 
 .bonus-amount {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 900;
     color: #4CAF50;
     text-shadow: 2px 2px 4px rgba(76, 175, 80, 0.3);
@@ -234,14 +234,14 @@
 
 .streak-info {
     text-align: center;
-    margin-top: 25px;
+    margin-top: 18px;
 }
 
 .streak-text {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     color: #ffffff;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .streak-bar {
@@ -278,8 +278,8 @@
     color: white;
     border: 2px solid #FF1493;
     border-radius: 25px;
-    padding: 12px 30px;
-    font-size: 16px;
+    padding: 10px 25px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
