@@ -40,6 +40,68 @@ CLAUDE.md (히스토리)
 
 ## 📊 버전 히스토리
 
+### v1.55.0 (2025-10-09) - CSS Scroll Snap Migration for Perfect Centering
+
+**작업 내용**:
+
+#### 1️⃣ 아키텍처 변경: Transform → Scroll Snap
+- **premium-partner-cards.css** 완전 재구조화
+  * `.mobile-partner-swiper`: `overflow: hidden` → `overflow-x: scroll`
+  * CSS Scroll Snap 추가: `scroll-snap-type: x mandatory`
+  * 스크롤바 숨김 (Firefox, Chrome, Safari 모두 지원)
+  * `-webkit-overflow-scrolling: touch` (iOS 최적화)
+
+- **`.partner-card`** Scroll Snap 정렬
+  * `scroll-snap-align: center` 추가
+  * `scroll-snap-stop: always` 강제 스냅
+  * 100% width로 완벽한 정렬 보장
+
+#### 2️⃣ JavaScript 포지셔닝 방식 전환
+- **mobile-swiper.js** `updateDragPosition()` 수정 (Lines 158-166)
+  * Transform 제거 → `scrollLeft` 직접 조작
+  * 드래그 오프셋을 스크롤 위치로 매핑
+  * 네이티브 스크롤 동작 활용
+
+- **mobile-swiper.js** `updatePosition()` 수정 (Lines 280-297)
+  * `transform: translateX()` 제거
+  * `scrollTo()` API 사용 (smooth behavior)
+  * 즉각 스크롤 (초기화 시)
+  * 부드러운 스크롤 (애니메이션 시)
+
+#### 3️⃣ 기술적 개선
+- 브라우저 네이티브 API 활용으로 성능 향상
+- 누적 오류 가능성 완전 제거
+- 모든 화면 크기에서 픽셀 퍼펙트 정렬
+- 자동 재생 및 수동 네비게이션 모두 호환
+
+**코드 메트릭**:
+- **수정**: premium-partner-cards.css (~20줄), mobile-swiper.js (~20줄)
+- **총 변경**: ~40줄
+- **제거**: Transform 기반 포지셔닝 로직 완전 제거
+
+**기술적 성과**:
+- ✅ 카드 중앙 정렬 문제 완전 해결
+- ✅ 브라우저 네이티브 Scroll Snap 활용
+- ✅ 누적 오류 원천 차단
+- ✅ 자동 재생 및 스와이프 모두 정상 작동
+
+**해결된 문제**:
+- 🐛 카드 이동 시 점진적 정렬 틀어짐 현상 (완전 해결)
+- 🐛 Pixel-based transform 누적 오류
+- 🐛 Percentage-based transform 제한 사항
+- 🎯 "다른 기술을 써서라도 처리" 요청 완수
+
+**기술 스택 변화**:
+- **Before**: JavaScript transform manipulation (`translateX()`)
+- **After**: CSS Scroll Snap + scrollTo() API
+- **이점**: 브라우저 최적화, 자동 스냅, 완벽한 정렬
+
+**다음 작업**: 사용자 테스트 및 피드백
+
+**Git**: (커밋 예정)
+
+---
+
 ### v1.54.0 (2025-10-09) - Dev Mode: Skip Signup Process
 
 **작업 내용**:

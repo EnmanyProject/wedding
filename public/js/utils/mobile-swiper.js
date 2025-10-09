@@ -156,24 +156,13 @@ export class MobileSwiper {
    * Update position during drag
    */
   updateDragPosition(diffX) {
-    if (this.config.usePixelTransform && this.config.considerPadding) {
-      // Advanced pixel-based transform (Partners swiper)
-      const containerRect = this.container.parentElement.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const computedStyle = getComputedStyle(this.container.parentElement);
-      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-      const effectiveWidth = containerWidth - paddingLeft - paddingRight;
+    // Use scrollLeft for native scroll snap behavior
+    const scrollContainer = this.container.parentElement;
+    const cardWidth = scrollContainer.clientWidth;
+    const currentScroll = this.currentIndex * cardWidth;
 
-      const currentPosition = -this.currentIndex * effectiveWidth;
-      const newPosition = currentPosition + diffX;
-      this.container.style.transform = `translateX(${newPosition}px)`;
-    } else {
-      // Simple percentage-based transform (Rankings swiper)
-      const currentTransform = -this.currentIndex * 100;
-      const offset = (diffX / this.container.offsetWidth) * 100;
-      this.container.style.transform = `translateX(${currentTransform + offset}%)`;
-    }
+    // Apply drag offset (inverted because scrollLeft increases to the right)
+    scrollContainer.scrollLeft = currentScroll - diffX;
   }
 
   /**
@@ -286,31 +275,24 @@ export class MobileSwiper {
   }
 
   /**
-   * Update card position
+   * Update card position using native scroll snap
    */
   updatePosition(animated = true) {
     if (!this.container) return;
 
+    const scrollContainer = this.container.parentElement;
+    const cardWidth = scrollContainer.clientWidth;
+    const targetScroll = this.currentIndex * cardWidth;
+
+    // Use scrollTo with smooth behavior for animation
     if (animated) {
-      this.container.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      scrollContainer.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      });
     } else {
-      this.container.style.transition = 'none';
-    }
-
-    if (this.config.usePixelTransform && this.config.considerPadding) {
-      // Pixel-based transform with padding consideration
-      const containerRect = this.container.parentElement.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const computedStyle = getComputedStyle(this.container.parentElement);
-      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
-      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
-      const effectiveWidth = containerWidth - paddingLeft - paddingRight;
-
-      const position = -this.currentIndex * effectiveWidth;
-      this.container.style.transform = `translateX(${position}px)`;
-    } else {
-      // Simple percentage transform
-      this.container.style.transform = `translateX(-${this.currentIndex * 100}%)`;
+      // Instant scroll for initialization
+      scrollContainer.scrollLeft = targetScroll;
     }
   }
 
