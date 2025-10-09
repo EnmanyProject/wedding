@@ -1715,7 +1715,7 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
 
 // 모든 유저 목록 조회
 router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
-  const { page = 1, limit = 20, search = '', status = 'all' } = req.query;
+  const { page = 1, limit = 20, search = '', status = 'all', gender = 'all' } = req.query;
   const offset = (Number(page) - 1) * Number(limit);
 
   let whereClause = 'WHERE 1=1';
@@ -1734,12 +1734,20 @@ router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthentica
     whereClause += ` AND is_active = false`;
   }
 
+  // 성별 필터
+  if (gender === 'male') {
+    whereClause += ` AND u.gender = 'male'`;
+  } else if (gender === 'female') {
+    whereClause += ` AND u.gender = 'female'`;
+  }
+
   const query = `
     SELECT
       u.id,
       u.name,
       u.display_name,
       u.email,
+      u.gender,
       u.is_active,
       u.created_at,
       u.last_login_at,
@@ -1754,7 +1762,7 @@ router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthentica
     LEFT JOIN user_traits ut ON u.id = ut.user_id
     LEFT JOIN affinity a ON u.id = a.target_id
     ${whereClause}
-    GROUP BY u.id, u.name, u.display_name, u.email, u.is_active, u.created_at, u.last_login_at
+    GROUP BY u.id, u.name, u.display_name, u.email, u.gender, u.is_active, u.created_at, u.last_login_at
     ORDER BY u.created_at DESC
     LIMIT $${params.length + 1} OFFSET $${params.length + 2}
   `;

@@ -1206,6 +1206,16 @@ AdminManager.prototype.setupUsersEventListeners = function() {
     });
   }
 
+  // 성별 필터
+  const genderFilter = document.getElementById('user-gender-filter');
+  if (genderFilter) {
+    genderFilter.addEventListener('change', () => {
+      this.currentFilters.gender = genderFilter.value;
+      this.currentPage = 1;
+      this.loadUsers();
+    });
+  }
+
   // 새로고침 버튼
   const refreshBtn = document.getElementById('refresh-users-btn');
   if (refreshBtn) {
@@ -1250,6 +1260,28 @@ AdminManager.prototype.setupUsersEventListeners = function() {
       }
     });
   }
+
+  // 유저 테이블 이벤트 위임
+  const usersTable = document.getElementById('users-list');
+  if (usersTable) {
+    usersTable.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-action]');
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const userId = button.dataset.userId;
+      const newStatus = button.dataset.newStatus;
+
+      switch (action) {
+        case 'view-user-detail':
+          this.viewUserDetail(userId);
+          break;
+        case 'toggle-user-status':
+          this.toggleUserStatus(userId, newStatus === 'true');
+          break;
+      }
+    });
+  }
 };
 
 AdminManager.prototype.loadUsers = async function() {
@@ -1258,7 +1290,8 @@ AdminManager.prototype.loadUsers = async function() {
       page: this.currentPage,
       limit: 20,
       search: this.currentFilters.search || '',
-      status: this.currentFilters.status || 'all'
+      status: this.currentFilters.status || 'all',
+      gender: this.currentFilters.gender || 'all'
     });
 
     const response = await api.get(`/admin/users?${params}`);
@@ -1266,7 +1299,7 @@ AdminManager.prototype.loadUsers = async function() {
     if (response.success) {
       this.renderUsers(response.data.users);
       this.renderUsersPagination(response.data.pagination);
-      this.updateUsersStats(response.data.users);
+      this.updateUsersStats(response.data.users, response.data.pagination);
     }
   } catch (error) {
     console.error('유저 목록 로드 실패:', error);
@@ -1323,11 +1356,11 @@ AdminManager.prototype.renderUsers = function(users) {
       </td>
       <td>
         <div class="user-actions">
-          <button class="btn btn-secondary btn-sm" onclick="adminManager.viewUserDetail('${user.id}')">
+          <button class="btn btn-secondary btn-sm" data-action="view-user-detail" data-user-id="${user.id}">
             상세
           </button>
           <button class="btn ${user.is_active ? 'btn-danger' : 'btn-success'} btn-sm"
-                  onclick="adminManager.toggleUserStatus('${user.id}', ${!user.is_active})">
+                  data-action="toggle-user-status" data-user-id="${user.id}" data-new-status="${!user.is_active}">
             ${user.is_active ? '비활성화' : '활성화'}
           </button>
         </div>
@@ -1361,13 +1394,13 @@ AdminManager.prototype.renderUsersPagination = function(pagination) {
   }
 };
 
-AdminManager.prototype.updateUsersStats = function(users) {
+AdminManager.prototype.updateUsersStats = function(users, pagination) {
   const totalUsers = document.getElementById('total-users');
   const activeUsers = document.getElementById('active-users');
   const usersWithPhotos = document.getElementById('users-with-photos');
   const quizParticipants = document.getElementById('quiz-participants');
 
-  if (totalUsers) totalUsers.textContent = users.length;
+  if (totalUsers) totalUsers.textContent = pagination ? pagination.total_count : users.length;
   if (activeUsers) activeUsers.textContent = users.filter(u => u.is_active).length;
   if (usersWithPhotos) usersWithPhotos.textContent = users.filter(u => u.stats.photo_count > 0).length;
   if (quizParticipants) quizParticipants.textContent = users.filter(u => u.stats.quiz_responses > 0).length;
@@ -1457,6 +1490,61 @@ AdminManager.prototype.renderUserDetailModal = function(data) {
                 <small style="color: #666; margin-left: 1rem;">${new Date(trait.created_at).toLocaleDateString()}</small>
               </div>
             `).join('') : '<div>아직 선호 응답이 없습니다</div>'
+          }
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <h4>📸 사진 목록</h4>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+          ${data.photos && data.photos.length > 0 ?
+            (() => {
+              // 사진 ID별로 그룹화 (여러 variant가 있을 수 있음)
+              const photoMap = new Map();
+              data.photos.forEach(photo => {
+                if (!photoMap.has(photo.id)) {
+                  photoMap.set(photo.id, {
+                    id: photo.id,
+                    moderation_status: photo.moderation_status,
+                    created_at: photo.created_at,
+                    assets: []
+                  });
+                }
+                if (photo.variant && photo.storage_key) {
+                  photoMap.get(photo.id).assets.push({
+                    variant: photo.variant,
+                    storage_key: photo.storage_key
+                  });
+                }
+              });
+
+              // ORIG 또는 첫 번째 variant 선택
+              return Array.from(photoMap.values()).map(photo => {
+                const origAsset = photo.assets.find(a => a.variant === 'ORIG');
+                const asset = origAsset || photo.assets[0];
+                const statusBadge = photo.moderation_status === 'APPROVED' ?
+                  '<span class="status-badge status-active">승인</span>' :
+                  photo.moderation_status === 'PENDING' ?
+                  '<span class="status-badge" style="background: #f39c12;">대기</span>' :
+                  '<span class="status-badge status-inactive">거절</span>';
+
+                return `
+                  <div style="display: inline-block; margin: 0.5rem; text-align: center;">
+                    ${asset ? `
+                      <img src="${asset.storage_key}" alt="사진"
+                           style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; display: block; margin-bottom: 0.5rem;">
+                    ` : '<div style="width: 120px; height: 120px; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">No Image</div>'}
+                    <div style="font-size: 0.8rem;">
+                      ${statusBadge}
+                      <div style="color: #666; margin-top: 0.25rem;">
+                        ${new Date(photo.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+            })()
+            : '<div>등록된 사진이 없습니다</div>'
           }
         </div>
       </div>
@@ -1552,9 +1640,17 @@ AdminManager.prototype.showError = function(message) {
   alertDiv.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <span>${message}</span>
-      <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #721c24;">&times;</button>
+      <button class="close-alert-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #721c24;">&times;</button>
     </div>
   `;
+
+  // Add close button event listener
+  const closeBtn = alertDiv.querySelector('.close-alert-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      alertDiv.remove();
+    });
+  }
 
   // Auto-remove after 5 seconds
   setTimeout(() => {
@@ -1593,9 +1689,17 @@ AdminManager.prototype.showSuccess = function(message) {
   alertDiv.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <span>${message}</span>
-      <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #155724;">&times;</button>
+      <button class="close-alert-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #155724;">&times;</button>
     </div>
   `;
+
+  // Add close button event listener
+  const closeBtn = alertDiv.querySelector('.close-alert-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      alertDiv.remove();
+    });
+  }
 
   // Auto-remove after 3 seconds
   setTimeout(() => {
@@ -1746,11 +1850,11 @@ AdminManager.prototype.renderQuizList = function() {
           ID: ${quiz.id}
         </div>
         <div style="display: flex; gap: 0.5rem;">
-          <button onclick="adminManager.toggleQuizStatus('${quiz.id}', ${!quiz.is_active})"
+          <button data-action="toggle-quiz-status" data-quiz-id="${quiz.id}" data-new-status="${!quiz.is_active}"
                   style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
             ${quiz.is_active ? '비활성화' : '활성화'}
           </button>
-          <button onclick="adminManager.viewQuizDetails('${quiz.id}')"
+          <button data-action="view-quiz-details" data-quiz-id="${quiz.id}"
                   style="background: #3498db; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
             상세보기
           </button>
@@ -1785,6 +1889,28 @@ AdminManager.prototype.setupQuizEventListeners = function() {
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       this.loadQuizzes();
+    });
+  }
+
+  // 퀴즈 리스트 이벤트 위임
+  const quizListContainer = document.querySelector('#quiz-list');
+  if (quizListContainer) {
+    quizListContainer.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-action]');
+      if (!button) return;
+
+      const action = button.dataset.action;
+      const quizId = button.dataset.quizId;
+      const newStatus = button.dataset.newStatus;
+
+      switch (action) {
+        case 'toggle-quiz-status':
+          this.toggleQuizStatus(quizId, newStatus === 'true');
+          break;
+        case 'view-quiz-details':
+          this.viewQuizDetails(quizId);
+          break;
+      }
     });
   }
 };
@@ -1857,11 +1983,11 @@ AdminManager.prototype.viewQuizDetails = function(quizId) {
       </div>
 
       <div style="text-align: right;">
-        <button onclick="this.closest('.modal').style.display='none'"
+        <button data-action="close-quiz-detail-modal"
                 style="background: #95a5a6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-right: 0.5rem;">
           닫기
         </button>
-        <button onclick="adminManager.toggleQuizStatus('${quiz.id}', ${!quiz.is_active}); this.closest('.modal').style.display='none'"
+        <button data-action="toggle-quiz-status-modal" data-quiz-id="${quiz.id}" data-new-status="${!quiz.is_active}"
                 style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
           ${quiz.is_active ? '비활성화' : '활성화'}
         </button>
@@ -1893,6 +2019,21 @@ AdminManager.prototype.viewQuizDetails = function(quizId) {
   // Close on background click
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+
+    // Handle button clicks in modal
+    const button = e.target.closest('button[data-action]');
+    if (!button) return;
+
+    const action = button.dataset.action;
+
+    if (action === 'close-quiz-detail-modal') {
+      modal.style.display = 'none';
+    } else if (action === 'toggle-quiz-status-modal') {
+      const quizId = button.dataset.quizId;
+      const newStatus = button.dataset.newStatus === 'true';
+      this.toggleQuizStatus(quizId, newStatus);
       modal.style.display = 'none';
     }
   });

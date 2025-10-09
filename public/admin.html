@@ -672,8 +672,13 @@
                     <h2 class="section-title">👥 유저 관리</h2>
                     <div class="section-actions">
                         <input type="text" id="user-search" placeholder="이름, 닉네임, 이메일 검색..." class="search-input">
+                        <select id="user-gender-filter" class="filter-select">
+                            <option value="all">전체 성별</option>
+                            <option value="male">남성</option>
+                            <option value="female">여성</option>
+                        </select>
                         <select id="user-status-filter" class="filter-select">
-                            <option value="all">전체</option>
+                            <option value="all">전체 상태</option>
                             <option value="active">활성</option>
                             <option value="inactive">비활성</option>
                         </select>

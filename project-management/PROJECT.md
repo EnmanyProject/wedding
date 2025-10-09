@@ -7,8 +7,8 @@
 > - **MASTER.md**: "지금 무엇을 하고 있는가?" - 현재 작업 진행 상황 + 핵심 내용
 > - **CLAUDE.md**: "무엇을 완료했는가?" - 작업 히스토리만 추적
 
-**최종 업데이트**: 2025-10-07
-**버전**: v1.42.0 (UI/UX Improvements)
+**최종 업데이트**: 2025-10-09
+**버전**: v1.47.0 (System Architecture Refinement)
 
 ---
 
@@ -32,8 +32,8 @@ A&B 퀴즈 형식으로 다른 사람의 취향을 맞추면서 **호감도를 �
 ### 1. A&B 취향 퀴즈 시스템
 - 다른 사람의 취향을 예측하는 퀴즈
 - 정답: 호감도(Affinity) 상승 ⬆️ + 💍 Ring 보상
-- 오답: 포인트 패널티 💸
-- 이중 경제 시스템 (포인트 + Ring)으로 다양한 보상 체계
+- 오답: Ring 패널티 💸
+- **단일 화폐 시스템** (💍 Ring)으로 심플한 경제 구조
 
 ### 2. 단계별 사진 해금 시스템
 
@@ -100,8 +100,6 @@ users (기본 사용자 정보)
 ├── user_photos (사진 메타데이터)
 │   └── photo_assets (ORIG/THUMB/BLUR1/BLUR2)
 ├── user_traits (취향 응답)
-├── user_point_balances (기존 포인트 시스템)
-├── user_point_ledger (포인트 거래 기록)
 ├── user_ring_balance (💍 Ring 화폐 잔액)
 ├── ring_transactions (💍 Ring 거래 기록)
 ├── user_login_streaks (로그인 연속 기록)
@@ -115,6 +113,10 @@ quiz_sessions (퀴즈 세션)
 
 affinity (호감도 점수)
 └── photo_mask_states (사진 노출 상태)
+
+daily_recommendations (일일 추천 시스템)
+├── recommendation_history (추천 통계)
+└── recommendation_settings (추천 설정)
 
 meeting_states (만남 상태)
 └── chat_messages (채팅 메시지)
@@ -223,9 +225,11 @@ wedding/
 - **Redis**: 6379
 - **MinIO**: 9000 (API), 9001 (Console)
 
-### 배포 환경 (예정)
-- **프로덕션**: (미설정)
-- **스테이징**: (미설정)
+### 배포 환경
+- **개발**: Docker Compose (로컬 PostgreSQL, Redis, MinIO)
+- **온라인 DB 지원**: Supabase, Neon, Railway (DATABASE_MIGRATION_GUIDE.md 참조)
+- **프로덕션**: (예정)
+- **스테이징**: (예정)
 
 ---
 
@@ -244,9 +248,11 @@ wedding/
 - ✅ 사진 단계별 해금 (T1, T2, T3)
 - ✅ 랭킹 & 파트너 (양방향 호감도)
 - ✅ 실시간 채팅 (Socket.IO)
-- ✅ 포인트 경제 (획득, 사용, 거래)
-- ✅ 관리자 시스템 (사진 모더레이션)
+- ✅ **Ring 화폐 시스템** (단일 경제, 획득/사용/거래)
+- ✅ **일일 추천 시스템** (자동 추천 생성, 통계 추적)
+- ✅ 관리자 시스템 (사진 모더레이션, 추천 관리)
 - ✅ PWA 지원 (오프라인, 설치)
+- ✅ **온라인 DB 지원** (Supabase/Neon/Railway)
 
 ---
 
