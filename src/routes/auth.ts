@@ -152,31 +152,50 @@ router.post('/signup', async (req, res) => {
     const password = crypto.randomBytes(16).toString('hex');
     const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
 
-    const db = Database.getInstance();
+    const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
+    let newUser;
 
-    // 이메일 중복 체크
-    const [existingUser] = await db.query(
-      'SELECT id FROM users WHERE email = $1',
-      [email]
-    );
+    if (useMock) {
+      // Mock 모드: 가짜 사용자 생성 (UUID 형식)
+      const mockUserId = crypto.randomUUID();
+      newUser = {
+        id: mockUserId,
+        email,
+        name,
+        age: parseInt(age),
+        gender,
+        location: region,
+        created_at: new Date()
+      };
+      console.log('✅ [Mock] User created:', newUser);
+    } else {
+      // Real 모드: 데이터베이스에 실제 저장
+      const db = Database.getInstance();
 
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        error: 'User already exists',
-        timestamp: new Date().toISOString()
-      });
+      // 이메일 중복 체크
+      const [existingUser] = await db.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email]
+      );
+
+      if (existingUser) {
+        return res.status(409).json({
+          success: false,
+          error: 'User already exists',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      // 사용자 생성
+      [newUser] = await db.query(
+        `INSERT INTO users (email, password_hash, name, age, gender, location, is_active)
+         VALUES ($1, $2, $3, $4, $5, $6, true)
+         RETURNING id, email, name, age, gender, location, created_at`,
+        [email, passwordHash, name, parseInt(age), gender, region]
+      );
+
+      console.log('✅ User created:', newUser);
     }
-
-    // 사용자 생성
-    const [newUser] = await db.query(
-      `INSERT INTO users (email, password_hash, name, age, gender, location, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, true)
-       RETURNING id, email, name, age, gender, location, created_at`,
-      [email, passwordHash, name, parseInt(age), gender, region]
-    );
-
-    console.log('✅ User created:', newUser);
 
     // JWT 토큰 생성
     const token = jwt.sign(

@@ -9,14 +9,50 @@
 
 ## 🎯 현재 상태
 
-**Phase**: 관리자 패널 Mock 모드 완성
-**작업**: 유저 상세 정보 Mock 모드 지원 완료
+**Phase**: 회원가입 Mock 모드 완성
+**작업**: 회원가입 API Mock 모드 지원 완료
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
 **다음**: 사용자와 다음 기능 논의
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### v1.49.0: Signup Mock Mode Support ✅ (2025-10-09)
+
+**작업 내용**:
+
+#### 1️⃣ 회원가입 API Mock 모드 지원
+- **auth.ts** (`/api/auth/signup`) Mock 모드 추가
+  * `USE_MOCK_RING_SERVICE=true` 환경 변수로 모드 전환
+  * Mock 모드: UUID 형식 가짜 사용자 생성
+  * Real 모드: PostgreSQL에 실제 저장
+  * 중복 체크 로직 유지 (Real 모드에만 적용)
+
+#### 2️⃣ Mock 사용자 데이터 구조
+- UUID 형식 사용자 ID 생성 (`crypto.randomUUID()`)
+- 사용자 입력 데이터 그대로 사용 (name, gender, age, region)
+- 자동 이메일 생성 (`${name}@wedding.app`)
+- JWT 토큰 정상 발급
+
+**기술적 성과**:
+- ✅ PostgreSQL 없이 회원가입 완전 작동
+- ✅ 개발 환경 데이터베이스 의존성 제거
+- ✅ Mock/Real 모드 자동 전환
+- ✅ JWT 인증 시스템 정상 작동
+
+**코드 메트릭**:
+- **수정**: src/routes/auth.ts (Lines 137-231, ~20줄 추가)
+- **Mock 지원**: 회원가입 전체 플로우
+
+**해결된 문제**:
+- 🐛 `/api/auth/signup` 500 Internal Server Error
+- 🐛 PostgreSQL ECONNREFUSED 오류 회피
+- ✅ Mock 모드에서 회원가입 정상 작동
+
+**Git**: (커밋 예정) ✅
+
+---
 
 ### v1.48.0: Admin Mock Mode - User Detail Endpoint ✅ (2025-10-09)
 

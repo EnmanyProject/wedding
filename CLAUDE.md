@@ -40,6 +40,48 @@ CLAUDE.md (히스토리)
 
 ## 📊 버전 히스토리
 
+### v1.49.0 (2025-10-09) - Signup Mock Mode Support
+
+**작업 내용**:
+
+#### 1️⃣ 회원가입 API Mock 모드 지원
+- **auth.ts** (`/api/auth/signup`) Mock 모드 추가
+  * `USE_MOCK_RING_SERVICE=true` 환경 변수로 모드 전환
+  * Mock 모드: UUID 형식 가짜 사용자 생성 (`crypto.randomUUID()`)
+  * Real 모드: PostgreSQL에 실제 저장
+  * 중복 체크 로직 유지 (Real 모드에만 적용)
+
+#### 2️⃣ Mock 사용자 데이터 구조
+- UUID 형식 사용자 ID 생성
+- 사용자 입력 데이터 그대로 사용 (name, gender, age, region)
+- 자동 이메일 생성: `${name}@wedding.app`
+- JWT 토큰 정상 발급
+- 임시 비밀번호 해시 생성 (SHA256)
+
+**기술적 성과**:
+- ✅ PostgreSQL 없이 회원가입 완전 작동
+- ✅ 개발 환경 데이터베이스 의존성 완전 제거
+- ✅ Mock/Real 모드 자동 전환
+- ✅ JWT 인증 시스템 정상 작동
+- ✅ 서버 정상 실행 (포트 3002)
+
+**코드 메트릭**:
+- **수정**: src/routes/auth.ts (Lines 137-231, ~30줄 추가)
+- **Mock 지원**: 회원가입 전체 플로우
+- **패턴 일관성**: dev-login과 동일한 Mock 패턴 사용
+
+**해결된 문제**:
+- 🐛 `/api/auth/signup` 500 Internal Server Error
+- 🐛 PostgreSQL ECONNREFUSED 오류 회피
+- 🐛 signup-v3.js:441 "Signup failed" 에러 해결
+- ✅ Mock 모드에서 회원가입 완전 작동
+
+**다음 작업**: 사용자와 다음 기능 논의
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.48.0 (2025-10-09) - Admin Mock Mode - User Detail Endpoint
 
 **작업 내용**:
