@@ -56,7 +56,7 @@
 - 🐛 PostgreSQL ECONNREFUSED 오류 회피
 - ✅ 관리자 패널 정상 작동 (Mock 모드)
 
-**Git**: (커밋 예정) ✅
+**Git**: a7620c5 커밋 완료 ✅
 
 ---
 
