@@ -102,7 +102,19 @@
       "Bash(git rm:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJlbWFpbCI6InVzZXIxQHRlc3QuY29tIiwiaWF0IjoxNzU5ODMzMjk1LCJleHAiOjE3NjA0MzgwOTV9.Tgc-gerjlDgQBe7gKEnXuxi3EhLah7lUIKh3CCPmwNk\")",
       "Bash(start http://localhost:3000/clear-storage.html)",
+<<<<<<< HEAD
       "Bash(git restore:*)"
+=======
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" ps)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" pull minio/minio:latest)",
+      "Bash(start http://localhost:3002/admin.html)",
+      "Bash(wsl:*)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT COUNT(*) as total_users FROM users WHERE is_active = true;\")",
+      "Bash(start http://localhost:3002/signup-v3.html)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT id, name, display_name, age, region, gender, photo_url, is_active, created_at FROM users ORDER BY created_at DESC LIMIT 1;\")",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"\\d users\")",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" compose exec -T postgres psql -U postgres -d wedding_app -c \"SELECT id, name, email, age, gender, location, is_active, created_at FROM users ORDER BY created_at DESC LIMIT 5;\")"
+>>>>>>> 201883cdb271c51241a4b22b0b2cc3d56970ba06
     ],
     "deny": [],
     "ask": []
