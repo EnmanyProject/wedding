@@ -7,7 +7,7 @@ import { pool } from '../utils/database';
 
 interface UserTraits {
   userId: string;
-  traits: Map<string, string>; // trait_pair_id -> choice (A/B)
+  traits: Map<string, string>; // quiz_id -> choice (A/B)
 }
 
 interface RecommendationCandidate {
@@ -35,13 +35,13 @@ export class RecommendationService {
    */
   private static async getUserTraits(userId: string): Promise<UserTraits> {
     const result = await pool.query(
-      `SELECT trait_pair_id, choice FROM user_traits WHERE user_id = $1`,
+      `SELECT quiz_id, choice FROM ab_quiz_responses WHERE user_id = $1`,
       [userId]
     );
 
     const traits = new Map<string, string>();
     result.rows.forEach(row => {
-      traits.set(row.trait_pair_id, row.choice);
+      traits.set(row.quiz_id, row.choice);
     });
 
     return { userId, traits };
@@ -61,11 +61,11 @@ export class RecommendationService {
     let matchCount = 0;
     let totalCount = 0;
 
-    // 공통 trait_pairs만 비교
-    userTraits.traits.forEach((choice, traitPairId) => {
-      if (candidateTraits.traits.has(traitPairId)) {
+    // 공통 quiz만 비교
+    userTraits.traits.forEach((choice, quizId) => {
+      if (candidateTraits.traits.has(quizId)) {
         totalCount++;
-        if (candidateTraits.traits.get(traitPairId) === choice) {
+        if (candidateTraits.traits.get(quizId) === choice) {
           matchCount++;
         }
       }
@@ -132,18 +132,32 @@ export class RecommendationService {
     userTraits: UserTraits,
     limit: number = 20
   ): Promise<RecommendationCandidate[]> {
-    // 추천 후보 쿼리
+    // 현재 사용자의 성별 조회
+    const currentUserResult = await pool.query(
+      `SELECT gender FROM users WHERE id = $1`,
+      [currentUserId]
+    );
+
+    if (currentUserResult.rows.length === 0) {
+      return [];
+    }
+
+    const currentUserGender = currentUserResult.rows[0].gender;
+    const targetGender = currentUserGender === 'male' ? 'female' : 'male';
+
+    // 추천 후보 쿼리 (반대 성별만)
     const candidatesResult = await pool.query(
       `SELECT DISTINCT u.id
        FROM users u
        WHERE u.id != $1
        AND u.is_active = true
+       AND u.gender = $2
        AND NOT EXISTS (
          SELECT 1 FROM affinity a
          WHERE a.user_id = $1 AND a.target_user_id = u.id AND a.score >= 60
        )
-       LIMIT $2`,
-      [currentUserId, limit * 2] // 여유있게 가져오기
+       LIMIT $3`,
+      [currentUserId, targetGender, limit * 2] // 여유있게 가져오기
     );
 
     const candidates: RecommendationCandidate[] = [];

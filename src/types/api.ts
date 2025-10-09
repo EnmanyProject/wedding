@@ -57,7 +57,7 @@ export interface QuizSessionRequest {
 
 export interface QuizSessionResponse {
   session: QuizSession;
-  points_remaining: number;
+  rings_remaining: number;
 }
 
 export interface QuizAnswerRequest {
@@ -70,7 +70,7 @@ export interface QuizAnswerResponse {
   correct: boolean;
   target_choice: 'LEFT' | 'RIGHT';
   delta_affinity: number;
-  delta_points: number;
+  delta_rings: number;
   affinity_score: number;
   stages_unlocked: string[];
   quiz_item: QuizItem;
@@ -96,8 +96,8 @@ export interface QuizTemplateResponse {
   instructions: string;
 }
 
-// Points API types
-export interface UserPointsResponse {
+// Rings API types
+export interface UserRingsResponse {
   balance: number;
   recent_transactions: Array<{
     id: string;
@@ -107,12 +107,12 @@ export interface UserPointsResponse {
   }>;
 }
 
-export interface EarnPointsRequest {
+export interface EarnRingsRequest {
   reason: 'TRAIT_ADD' | 'DAILY_BONUS';
   ref_id?: string;
 }
 
-export interface EarnPointsResponse {
+export interface EarnRingsResponse {
   delta: number;
   new_balance: number;
   transaction_id: string;

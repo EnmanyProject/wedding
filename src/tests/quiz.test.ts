@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Database } from '../utils/database';
 import { quizService } from '../services/quizService';
-import { pointsService } from '../services/pointsService';
+import { ringsService } from '../services/ringsService';
 import { config } from '../utils/config';
 
 describe('Quiz System Tests (QZ1-QZ3)', () => {
@@ -16,8 +16,8 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
     // Clean up test data
     await db.query('DELETE FROM quiz_items');
     await db.query('DELETE FROM quiz_sessions');
-    await db.query('DELETE FROM user_point_ledger');
-    await db.query('DELETE FROM user_point_balances');
+    await db.query('DELETE FROM user_ring_ledger');
+    await db.query('DELETE FROM user_ring_balances');
     await db.query('DELETE FROM user_traits');
     await db.query('DELETE FROM affinity');
     await db.query('DELETE FROM trait_pairs WHERE key LIKE \'test-%\'');
@@ -39,8 +39,8 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
     targetId = target.id;
 
     // Initialize point balances
-    await pointsService.initializeUserPoints(askerId, 100);
-    await pointsService.initializeUserPoints(targetId, 100);
+    await ringsService.initializeUserPoints(askerId, 100);
+    await ringsService.initializeUserPoints(targetId, 100);
 
     // Create test trait pair
     const [traitPair] = await db.query(
@@ -62,8 +62,8 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
     // Clean up test data
     await db.query('DELETE FROM quiz_items');
     await db.query('DELETE FROM quiz_sessions');
-    await db.query('DELETE FROM user_point_ledger');
-    await db.query('DELETE FROM user_point_balances');
+    await db.query('DELETE FROM user_ring_ledger');
+    await db.query('DELETE FROM user_ring_balances');
     await db.query('DELETE FROM user_traits');
     await db.query('DELETE FROM affinity');
     await db.query('DELETE FROM trait_pairs WHERE key LIKE \'test-%\'');
@@ -73,7 +73,7 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
   describe('QZ1: Session creation with point deduction', () => {
     it('should create quiz session and deduct points', async () => {
       // Get initial points
-      const initialPoints = await pointsService.getUserPoints(askerId);
+      const initialPoints = await ringsService.getUserPoints(askerId);
       expect(initialPoints.balance).toBe(100);
 
       // Start quiz session
@@ -93,7 +93,7 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
 
       // Verify point ledger entry
       const transactions = await db.query(
-        'SELECT * FROM user_point_ledger WHERE user_id = $1 AND reason = $2',
+        'SELECT * FROM user_ring_ledger WHERE user_id = $1 AND reason = $2',
         [askerId, 'QUIZ_ENTER']
       );
 
@@ -104,7 +104,7 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
     it('should fail to create session with insufficient points', async () => {
       // Reduce user's points to below quiz cost
       await db.query(
-        'UPDATE user_point_balances SET balance = $1 WHERE user_id = $2',
+        'UPDATE user_ring_balances SET balance = $1 WHERE user_id = $2',
         [config.QUIZ_ENTER_COST - 1, askerId]
       );
 
@@ -192,7 +192,7 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
 
       // Verify point penalty was applied
       const transactions = await db.query(
-        'SELECT * FROM user_point_ledger WHERE user_id = $1 AND reason = $2',
+        'SELECT * FROM user_ring_ledger WHERE user_id = $1 AND reason = $2',
         [askerId, 'QUIZ_WRONG']
       );
 
@@ -200,7 +200,7 @@ describe('Quiz System Tests (QZ1-QZ3)', () => {
       expect(transactions[0].delta).toBe(-config.QUIZ_WRONG_PENALTY);
 
       // Verify points balance
-      const pointsData = await pointsService.getUserPoints(askerId);
+      const pointsData = await ringsService.getUserPoints(askerId);
       const expectedBalance = 100 - config.QUIZ_ENTER_COST - config.QUIZ_WRONG_PENALTY;
       expect(pointsData.balance).toBe(expectedBalance);
     });

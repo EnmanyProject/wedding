@@ -55,7 +55,7 @@ export class QuizService {
     return await this.db.transaction(async (client) => {
       // Check if user has enough points
       const balanceResult = await client.query(
-        'SELECT balance FROM user_point_balances WHERE user_id = $1',
+        'SELECT balance FROM user_ring_balances WHERE user_id = $1',
         [request.askerId]
       );
       const balance = balanceResult.rows?.[0];
@@ -66,13 +66,13 @@ export class QuizService {
 
       // Deduct points
       await client.query(
-        'UPDATE user_point_balances SET balance = balance - $1, updated_at = NOW() WHERE user_id = $2',
+        'UPDATE user_ring_balances SET balance = balance - $1, updated_at = NOW() WHERE user_id = $2',
         [config.QUIZ_ENTER_COST, request.askerId]
       );
 
       // Record transaction
       await client.query(
-        `INSERT INTO user_point_ledger (id, user_id, delta, reason, ref_id, created_at)
+        `INSERT INTO user_ring_ledger (id, user_id, delta, reason, ref_id, created_at)
          VALUES ($1, $2, $3, $4, $5, NOW())`,
         [uuidv4(), request.askerId, -config.QUIZ_ENTER_COST, 'QUIZ_ENTER', null]
       );
@@ -216,12 +216,12 @@ export class QuizService {
       // Apply points penalty if wrong
       if (deltaPoints < 0) {
         await client.query(
-          'UPDATE user_point_balances SET balance = balance + $1, updated_at = NOW() WHERE user_id = $2',
+          'UPDATE user_ring_balances SET balance = balance + $1, updated_at = NOW() WHERE user_id = $2',
           [deltaPoints, session.asker_id]
         );
 
         await client.query(
-          `INSERT INTO user_point_ledger (id, user_id, delta, reason, ref_id, created_at)
+          `INSERT INTO user_ring_ledger (id, user_id, delta, reason, ref_id, created_at)
            VALUES ($1, $2, $3, $4, $5, NOW())`,
           [uuidv4(), session.asker_id, deltaPoints, 'QUIZ_WRONG', quizItemId]
         );

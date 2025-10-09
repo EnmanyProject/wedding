@@ -122,7 +122,7 @@ describe('Seeding System Tests (SD1-SD2)', () => {
 
       // Verify point balances were initialized
       const pointBalances = await db.query(
-        'SELECT balance FROM user_point_balances'
+        'SELECT balance FROM user_ring_balances'
       );
 
       expect(pointBalances).toHaveLength(3);
@@ -405,7 +405,7 @@ describe('Seeding System Tests (SD1-SD2)', () => {
         // Verify data integrity
         const users = await db.query('SELECT id FROM users');
         const photos = await db.query('SELECT user_id FROM user_photos');
-        const pointBalances = await db.query('SELECT user_id FROM user_point_balances');
+        const pointBalances = await db.query('SELECT user_id FROM user_ring_balances');
 
         expect(users).toHaveLength(userCount);
         expect(photos).toHaveLength(userCount * 2);

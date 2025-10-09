@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { AuthenticatedRequest, authenticateToken } from '../middleware/auth';
 import { asyncHandler, createError } from '../middleware/errorHandler';
-import { affinityService } from '../services/pointsService';
+import { affinityService } from '../services/affinityService';
 import {
   AffinityResponse,
   UserRankingResponse,

@@ -19,7 +19,8 @@ const seedSchema = z.object({
   trait_pairs: z.number().min(10).max(100).optional().default(50),
   photos_per_user: z.number().min(1).max(10).optional().default(4),
   quiz_sessions: z.number().min(10).max(200).optional().default(50),
-  reset_first: z.boolean().optional().default(false)
+  reset_first: z.boolean().optional().default(false),
+  gender: z.enum(['male', 'female']).optional()
 });
 
 // Middleware to check if dev mode is enabled
@@ -52,7 +53,8 @@ router.post('/seed', checkDevMode, requireAdmin, asyncHandler(async (
     traitPairs: body.trait_pairs,
     photosPerUser: body.photos_per_user,
     quizSessions: body.quiz_sessions,
-    resetFirst: body.reset_first
+    resetFirst: body.reset_first,
+    gender: body.gender
   });
 
   console.log('Seeding completed:', result.stats);

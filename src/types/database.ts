@@ -77,13 +77,13 @@ export interface UserTrait {
   updated_at: Date;
 }
 
-export interface UserPointBalance {
+export interface UserRingBalance {
   user_id: string;
   balance: number;
   updated_at: Date;
 }
 
-export interface UserPointLedger {
+export interface UserRingLedger {
   id: string;
   user_id: string;
   delta: number;
@@ -97,7 +97,7 @@ export interface QuizSession {
   asker_id: string;
   target_id: string;
   mode: 'TRAIT_PHOTO' | 'PREFERENCE';
-  points_spent: number;
+  rings_spent: number;
   started_at: Date;
   ended_at?: Date;
 }
@@ -110,7 +110,7 @@ export interface QuizItem {
   asker_guess?: 'LEFT' | 'RIGHT';
   correct?: boolean;
   delta_affinity: number;
-  delta_points: number;
+  delta_rings: number;
   selected_photo_id?: string;
   assets?: Record<string, any>;
   created_at: Date;

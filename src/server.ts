@@ -11,7 +11,6 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRouter from './routes/auth';
 import photosRouter from './routes/photos';
 import quizRouter from './routes/quiz';
-import pointsRouter from './routes/points';
 import affinityRouter from './routes/affinity';
 import meetingRouter from './routes/meeting';
 import profileRouter from './routes/profile';
@@ -127,7 +126,6 @@ app.use('/uploads', express.static('public/uploads', {
 app.use('/api/auth', authRouter);
 app.use('/api', photosRouter);
 app.use('/api/quiz', quizRouter);
-app.use('/api/points', pointsRouter);
 app.use('/api/rings', ringsRouter);
 app.use('/api/ring-test', ringTestRouter);
 app.use('/api/recommendations', recommendationsRouter);
