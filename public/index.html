@@ -51,6 +51,8 @@
     <link rel="stylesheet" href="/styles/user-profile-modal.css?v=20251007">
     <!-- 💎 D-베티 특별 추천 모달 스타일 -->
     <link rel="stylesheet" href="/styles/dbety-specials.css?v=20251008">
+    <!-- 🏦 전당포 시스템 스타일 -->
+    <link rel="stylesheet" href="/styles/pawnshop.css?v=20251009">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -149,44 +151,23 @@
 
             </div>
 
-            <!-- Photos View -->
-            <div id="photos-view" class="view">
+            <!-- Pawnshop View -->
+            <div id="pawnshop-view" class="view">
                 <div class="view-header">
-                    <h2>내 사진 관리 📸</h2>
-                    <button id="add-photo-btn" class="btn btn-secondary">사진 추가</button>
+                    <h2>전당포 🏦</h2>
+                    <button id="pawnshop-info-btn" class="btn btn-secondary">이용 안내</button>
                 </div>
 
-                <div class="photos-grid" id="user-photos-grid">
-                    <div class="photo-placeholder">
-                        <img src="/images/Bety5.png" alt="Bety" class="bety-character character-dance character-clickable" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-                        <p>첫 번째 사진을 추가해보세요</p>
+                <div class="pawnshop-content">
+                    <div class="pawnshop-welcome">
+                        <img src="/images/Bety5.png" alt="Bety" class="bety-character character-float" style="width: 80px; height: 80px; margin-bottom: 1rem;">
+                        <h3>전당포에 오신 것을 환영합니다!</h3>
+                        <p>원하는 상대방의 정보를 미리 확인할 수 있어요 💎</p>
                     </div>
-                </div>
 
-                <!-- Photo Upload Modal -->
-                <div id="photo-upload-modal" class="modal" role="dialog" aria-labelledby="upload-modal-title" aria-modal="true" aria-hidden="true">
-                    <div class="modal-overlay" aria-hidden="true"></div>
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 id="upload-modal-title">사진 업로드</h3>
-                            <button class="modal-close" aria-label="업로드 창 닫기">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="upload-area" id="photo-upload-area" role="button" tabindex="0" aria-label="사진 업로드 영역" aria-describedby="upload-instructions">
-                                <div class="upload-icon" aria-hidden="true">📁</div>
-                                <p id="upload-instructions">사진을 선택하거나 여기로 드래그하세요</p>
-                                <label for="photo-file-input" class="file-input-label sr-only">업로드할 사진 파일 선택</label>
-                                <input type="file" id="photo-file-input" accept="image/*" aria-describedby="file-input-help" style="display: none;">
-                                <div id="file-input-help" class="sr-only">JPG, PNG, GIF 형식의 이미지 파일만 업로드 가능합니다</div>
-                                <button id="select-photo-btn" class="btn btn-primary">사진 선택</button>
-                            </div>
-                            <div id="upload-progress" class="upload-progress" style="display: none;" role="status" aria-live="polite">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-labelledby="upload-status">
-                                    <div class="progress-fill" id="upload-progress-fill"></div>
-                                </div>
-                                <p id="upload-status">업로드 중...</p>
-                            </div>
-                        </div>
+                    <!-- Pawnshop Items Grid -->
+                    <div class="pawnshop-items-grid" id="pawnshop-items-grid">
+                        <!-- Items will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -419,9 +400,9 @@
                 <span class="nav-icon" aria-hidden="true">🏠</span>
                 <span class="nav-label">홈</span>
             </button>
-            <button class="nav-item" data-view="photos" aria-label="내 취향 관리 페이지">
-                <span class="nav-icon" aria-hidden="true">💖</span>
-                <span class="nav-label">내 취향</span>
+            <button class="nav-item" data-view="pawnshop" aria-label="전당포 페이지">
+                <span class="nav-icon" aria-hidden="true">🏦</span>
+                <span class="nav-label">전당포</span>
             </button>
             <button class="nav-item" data-view="rankings" aria-label="호감도 랭킹 페이지">
                 <span class="nav-icon" aria-hidden="true">🏆</span>
@@ -476,6 +457,69 @@
         </div>
     </div>
 
+    <!-- Pawnshop Modal -->
+    <div id="pawnshop-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawnshop-modal-title" aria-modal="true" style="display: none;">
+        <div class="pawnshop-modal-overlay"></div>
+        <div class="pawnshop-modal-content">
+            <div class="pawnshop-modal-header">
+                <h2 id="pawnshop-modal-title">정보 미리보기 🏦</h2>
+                <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
+            </div>
+            <div class="pawnshop-modal-body">
+                <!-- User Info Preview -->
+                <div class="pawnshop-user-info">
+                    <div class="pawnshop-user-avatar">
+                        <img id="pawnshop-user-image" src="" alt="사용자 프로필">
+                    </div>
+                    <div class="pawnshop-user-details">
+                        <h3 id="pawnshop-user-name">이름</h3>
+                        <p id="pawnshop-user-age">나이</p>
+                        <p id="pawnshop-user-region">지역</p>
+                    </div>
+                </div>
+
+                <!-- Available Information Items -->
+                <div class="pawnshop-info-items">
+                    <!-- Item 1: 이상형 정보 -->
+                    <div class="pawnshop-info-item">
+                        <div class="pawnshop-item-title">💝 이상형 정보 엿보기</div>
+                        <button class="pawnshop-unlock-btn" data-type="ideal-type">
+                            <span class="pawnshop-ring-icon">💍</span>
+                            <span class="pawnshop-ring-cost">50</span>
+                        </button>
+                    </div>
+
+                    <!-- Item 2: 직업 & 학력 정보 -->
+                    <div class="pawnshop-info-item">
+                        <div class="pawnshop-item-title">🎓 직업 & 학력 정보</div>
+                        <button class="pawnshop-unlock-btn" data-type="career-education">
+                            <span class="pawnshop-ring-icon">💍</span>
+                            <span class="pawnshop-ring-cost">30</span>
+                        </button>
+                    </div>
+
+                    <!-- Item 3: 취미 & 관심사 -->
+                    <div class="pawnshop-info-item">
+                        <div class="pawnshop-item-title">🎨 취미 & 관심사</div>
+                        <button class="pawnshop-unlock-btn" data-type="hobbies">
+                            <span class="pawnshop-ring-icon">💍</span>
+                            <span class="pawnshop-ring-cost">20</span>
+                        </button>
+                    </div>
+
+                    <!-- Item 4: 추가 사진 1장 -->
+                    <div class="pawnshop-info-item">
+                        <div class="pawnshop-item-title">📸 추가 사진 1장 해금</div>
+                        <button class="pawnshop-unlock-btn" data-type="photo">
+                            <span class="pawnshop-ring-icon">💍</span>
+                            <span class="pawnshop-ring-cost">100</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="알림 메시지"></div>
 
@@ -502,6 +546,8 @@
     <script src="/js/utils/ring-system.js"></script>
     <!-- 💎 D-베티 특별 추천 JavaScript -->
     <script src="/js/dbety-specials.js"></script>
+    <!-- 🏦 전당포 시스템 JavaScript -->
+    <script src="/js/pawnshop.js"></script>
     <script type="module" src="/js/ui.js"></script>
     <script src="/js/quiz.js"></script>
     <script src="/js/photos.js"></script>

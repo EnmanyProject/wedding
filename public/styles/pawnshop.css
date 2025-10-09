@@ -1,0 +1,417 @@
+/**
+ * 전당포 시스템 스타일
+ *
+ * 정보 미리보기 기능
+ * - 링 화폐로 상대방의 정보를 미리 확인할 수 있는 기능
+ * - 다크 테마 + 골드 강조 디자인
+ */
+
+/* ===== Pawnshop View ===== */
+#pawnshop-view {
+  padding: 1rem;
+  padding-bottom: 80px;
+}
+
+.pawnshop-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.pawnshop-welcome {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-radius: 16px;
+  border: 2px solid #FFD700;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+}
+
+.pawnshop-welcome h3 {
+  color: #FFD700;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pawnshop-welcome p {
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+/* ===== Pawnshop Items Grid ===== */
+.pawnshop-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.pawnshop-user-card {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-radius: 16px;
+  border: 2px solid #FFD700;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+}
+
+.pawnshop-user-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+  border-color: #FFA500;
+}
+
+.pawnshop-card-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  border: 3px solid #FFD700;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.pawnshop-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pawnshop-card-name {
+  text-align: center;
+  color: #FFD700;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pawnshop-card-info {
+  text-align: center;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ===== Pawnshop Modal ===== */
+.pawnshop-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.pawnshop-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.pawnshop-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-radius: 24px;
+  border: 3px solid #FFD700;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow:
+    0 20px 60px rgba(255, 215, 0, 0.3),
+    0 0 0 1px rgba(255, 215, 0, 0.2),
+    inset 0 1px 0 rgba(255, 215, 0, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===== Modal Header ===== */
+.pawnshop-modal-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #FFD700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.1), transparent);
+}
+
+.pawnshop-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pawnshop-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #FFD700;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.pawnshop-modal-close:hover {
+  background: rgba(255, 215, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+/* ===== Modal Body ===== */
+.pawnshop-modal-body {
+  padding: 1.5rem;
+}
+
+/* User Info Section */
+.pawnshop-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-radius: 16px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  margin-bottom: 2rem;
+}
+
+.pawnshop-user-avatar {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+.pawnshop-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pawnshop-user-details {
+  flex: 1;
+}
+
+.pawnshop-user-details h3 {
+  margin: 0 0 0.5rem 0;
+  color: #FFD700;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.pawnshop-user-details p {
+  margin: 0.25rem 0;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+}
+
+/* Info Items */
+.pawnshop-info-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pawnshop-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border-radius: 12px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.pawnshop-info-item:hover {
+  border-color: #FFD700;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.pawnshop-item-title {
+  flex: 1;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.pawnshop-unlock-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.pawnshop-unlock-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+}
+
+.pawnshop-unlock-btn:active {
+  transform: translateY(0);
+}
+
+.pawnshop-ring-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.pawnshop-ring-cost {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .pawnshop-items-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .pawnshop-modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+
+  .pawnshop-user-info {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pawnshop-info-item {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .pawnshop-unlock-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .pawnshop-welcome h3 {
+    font-size: 1.25rem;
+  }
+
+  .pawnshop-welcome p {
+    font-size: 0.9rem;
+  }
+
+  .pawnshop-modal-content {
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    max-height: 90vh;
+  }
+
+  .pawnshop-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .pawnshop-card-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pawnshop-user-avatar {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* ===== Scrollbar Styling ===== */
+.pawnshop-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pawnshop-modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 4px;
+}
+
+.pawnshop-modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FFD700, #FFA500);
+  border-radius: 4px;
+}
+
+.pawnshop-modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #FFA500, #FFD700);
+}
+
+/* ===== Accessibility ===== */
+.pawnshop-unlock-btn:focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+}
+
+.pawnshop-modal-close:focus-visible {
+  outline: 3px solid #FFD700;
+  outline-offset: 2px;
+}
+
+/* ===== Loading State ===== */
+.pawnshop-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #FFD700;
+}
+
+.pawnshop-loading-text {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #e0e0e0;
+}
