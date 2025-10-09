@@ -1065,8 +1065,8 @@ class UIManager {
 
       enableKeyboard: false, // Partner swiper doesn't use keyboard
       enableVelocity: true, // Partners uses advanced velocity tracking
-      usePixelTransform: true, // Partners uses pixel-based transforms
-      considerPadding: true // Partners considers padding in calculations
+      usePixelTransform: false, // Use percentage-based transforms for accuracy
+      considerPadding: false // No padding calculation needed
     });
 
     this.currentPartnerIndex = 0;
