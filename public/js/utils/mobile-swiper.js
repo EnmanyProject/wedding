@@ -89,6 +89,9 @@ export class MobileSwiper {
       this.currentX = this.startX;
       this.container.style.transition = 'none';
 
+      // Stop auto play on user interaction
+      this.pauseAutoPlay();
+
       if (this.config.enableVelocity) {
         this.velocityTracker = [{ time: this.startTime, x: this.startX }];
       }
@@ -215,8 +218,14 @@ export class MobileSwiper {
    * Setup navigation button events
    */
   setupNavigationButtons() {
-    this.prevBtn.addEventListener('click', () => this.navigate('prev'));
-    this.nextBtn.addEventListener('click', () => this.navigate('next'));
+    this.prevBtn.addEventListener('click', () => {
+      this.pauseAutoPlay();
+      this.navigate('prev');
+    });
+    this.nextBtn.addEventListener('click', () => {
+      this.pauseAutoPlay();
+      this.navigate('next');
+    });
   }
 
   /**
@@ -380,9 +389,59 @@ export class MobileSwiper {
   }
 
   /**
+   * Start auto play
+   */
+  startAutoPlay(intervalMs = 3000) {
+    this.stopAutoPlay(); // Clear any existing interval
+
+    this.autoPlayInterval = setInterval(() => {
+      // Move to next card, or loop back to first
+      if (this.currentIndex < this.totalItems - 1) {
+        this.navigate('next');
+      } else {
+        this.goTo(0, true); // Loop back to first card
+      }
+    }, intervalMs);
+
+    console.log(`🔄 [MobileSwiper] Auto-play started (${intervalMs}ms interval)`);
+  }
+
+  /**
+   * Stop auto play
+   */
+  stopAutoPlay() {
+    if (this.autoPlayInterval) {
+      clearInterval(this.autoPlayInterval);
+      this.autoPlayInterval = null;
+      console.log('⏸️ [MobileSwiper] Auto-play stopped');
+    }
+  }
+
+  /**
+   * Pause auto play temporarily (resume with resumeAutoPlay)
+   */
+  pauseAutoPlay() {
+    if (this.autoPlayInterval) {
+      this.stopAutoPlay();
+      this.autoPlayWasPaused = true;
+    }
+  }
+
+  /**
+   * Resume auto play if it was paused
+   */
+  resumeAutoPlay(intervalMs = 3000) {
+    if (this.autoPlayWasPaused) {
+      this.startAutoPlay(intervalMs);
+      this.autoPlayWasPaused = false;
+    }
+  }
+
+  /**
    * Destroy swiper and cleanup
    */
   destroy() {
+    this.stopAutoPlay();
     // Remove event listeners (would need to store handlers for proper cleanup)
     this.isInitialized = false;
     this.container = null;

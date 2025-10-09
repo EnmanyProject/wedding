@@ -1075,6 +1075,14 @@ class UIManager {
     // Initial stabilization
     setTimeout(() => {
       this.partnersSwiper.updatePosition(false);
+
+      // Start auto-play after 3 seconds (3000ms interval)
+      console.log('🎬 [Partner Swiper] Auto-play starting in 3 seconds...');
+      setTimeout(() => {
+        if (this.currentPartners.length > 1) {
+          this.partnersSwiper.startAutoPlay(3000);
+        }
+      }, 3000);
     }, 100);
 
     // Start hint timer
