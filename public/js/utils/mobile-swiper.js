@@ -38,6 +38,10 @@ export class MobileSwiper {
     this.startTime = 0;
     this.hasMovedEnough = false;
     this.velocityTracker = [];
+
+    // Auto-play resume timer
+    this.resumeTimer = null;
+    this.autoPlayIntervalMs = 3000; // Store interval for resume
   }
 
   /**
@@ -393,6 +397,7 @@ export class MobileSwiper {
    */
   startAutoPlay(intervalMs = 3000) {
     this.stopAutoPlay(); // Clear any existing interval
+    this.autoPlayIntervalMs = intervalMs; // Store for resume
 
     this.autoPlayInterval = setInterval(() => {
       // Move to next card, or loop back to first
@@ -419,11 +424,33 @@ export class MobileSwiper {
 
   /**
    * Pause auto play temporarily (resume with resumeAutoPlay)
+   * Automatically resumes after 10 seconds of inactivity
    */
   pauseAutoPlay() {
     if (this.autoPlayInterval) {
       this.stopAutoPlay();
       this.autoPlayWasPaused = true;
+
+      // Clear any existing resume timer
+      this.clearResumeTimer();
+
+      // Set timer to auto-resume after 10 seconds
+      this.resumeTimer = setTimeout(() => {
+        console.log('⏱️ [MobileSwiper] 10s inactivity - auto-resuming...');
+        this.resumeAutoPlay(this.autoPlayIntervalMs);
+      }, 10000); // 10 seconds
+
+      console.log('⏸️ [MobileSwiper] Auto-play paused (will resume in 10s)');
+    }
+  }
+
+  /**
+   * Clear resume timer
+   */
+  clearResumeTimer() {
+    if (this.resumeTimer) {
+      clearTimeout(this.resumeTimer);
+      this.resumeTimer = null;
     }
   }
 
@@ -431,6 +458,8 @@ export class MobileSwiper {
    * Resume auto play if it was paused
    */
   resumeAutoPlay(intervalMs = 3000) {
+    this.clearResumeTimer(); // Clear any pending resume timer
+
     if (this.autoPlayWasPaused) {
       this.startAutoPlay(intervalMs);
       this.autoPlayWasPaused = false;
@@ -442,6 +471,7 @@ export class MobileSwiper {
    */
   destroy() {
     this.stopAutoPlay();
+    this.clearResumeTimer();
     // Remove event listeners (would need to store handlers for proper cleanup)
     this.isInitialized = false;
     this.container = null;
