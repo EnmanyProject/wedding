@@ -40,6 +40,84 @@ CLAUDE.md (히스토리)
 
 ## 📊 버전 히스토리
 
+### v1.45.0 (2025-10-09) - 실제 DB 테스트 환경 구축
+
+**작업 내용**:
+
+#### 1️⃣ 개발 환경 설정
+- **WSL 업데이트**: Windows Subsystem for Linux 업데이트
+  * 기존 버전: 5.10.102.1
+  * 업데이트 버전: 2.6.1.0 (최신)
+  * Docker Desktop 호환성 확보
+
+- **Docker 컨테이너 설정**
+  * Docker Desktop 재시작
+  * PostgreSQL 15 컨테이너 실행 (wedding_db, 포트 5432)
+  * Redis 7-alpine 컨테이너 실행 (wedding_redis, 포트 6379)
+  * MinIO 컨테이너 실행 (wedding_minio, 포트 9000-9001)
+  * 모든 컨테이너 정상 작동 확인
+
+- **.env 파일 수정**
+  * `USE_MOCK_RING_SERVICE=false` (실제 DB 사용)
+  * `PORT=3002` 유지
+  * 실제 PostgreSQL DB 연결
+
+#### 2️⃣ 회원가입 API 구축
+- **백엔드** (`src/routes/auth.ts`)
+  * POST `/api/auth/signup` API 신규 추가 (80줄)
+  * 입력: name, gender, age, region
+  * 자동 이메일 생성: `{name}@wedding.app`
+  * 비밀번호 자동 생성 (SHA256 해시)
+  * 중복 이메일 체크
+  * DB에 사용자 저장 (users 테이블)
+  * JWT 토큰 생성 및 반환
+  * 에러 처리 및 로깅
+
+- **프론트엔드** (`public/js/signup-v3.js`)
+  * `completeSignup()` 메서드를 async 함수로 변경
+  * `/api/auth/signup` API 호출 로직 추가
+  * fetch POST 요청 구현
+  * 응답 처리: 토큰 및 사용자 정보 저장
+  * localStorage에 토큰 저장
+  * sessionStorage에 justCompletedSignup 플래그 설정
+  * 에러 처리 및 사용자 알림
+  * 44줄 코드 추가
+
+#### 3️⃣ 데이터베이스 연결 테스트
+- PostgreSQL 연결 성공 확인
+  * 활성 사용자 카운트 쿼리 성공
+  * users 테이블 스키마 확인
+  * 컬럼: id, email, password_hash, name, age, gender, location, bio, profile_complete, is_active, last_login_at, created_at, updated_at
+
+- 서버 정상 실행
+  * 포트 3002에서 실행
+  * 추천 스케줄러 3분마다 자동 실행
+  * Health check 엔드포인트 정상
+
+**기술적 성과**:
+- ✅ Mock 모드 → 실제 DB 모드 전환 완료
+- ✅ 회원가입 전체 플로우 백엔드/프론트엔드 연결
+- ✅ Docker 개발 환경 완전 구축
+- ✅ JWT 인증 시스템 통합
+- ✅ 다른 컴퓨터에서 작업 이어가기 준비 완료
+
+**코드 메트릭**:
+- **auth.ts**: 80줄 추가 (회원가입 API)
+- **signup-v3.js**: 44줄 수정 (API 연동)
+- **.env**: 1줄 수정 (Mock 모드 OFF)
+- **총 변경**: ~125줄
+
+**다음 작업**:
+1. 테스트 유저 회원가입 완료
+2. Ring 시스템 데이터 저장 확인
+3. 추천 시스템 데이터 저장 확인
+4. 사진 업로드 기능 테스트
+5. 전체 데이터 플로우 검증
+
+**Git**: (커밋 예정)
+
+---
+
 ### v1.38.1 (2025-10-06) - Phase UI: 개발 모드 & 나이 피드백 화면
 
 **작업 내용**:

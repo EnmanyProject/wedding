@@ -2,21 +2,68 @@
 
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
-**최종 업데이트**: 2025-10-08
-**현재 Phase**: 특별 기능 추가 완료 ✅
+**최종 업데이트**: 2025-10-09
+**현재 Phase**: 실제 DB 테스트 환경 구축 완료 ✅
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: D-Bety Special Recommendations Feature
-**작업**: D-베티 특별 추천 시스템 구축 완료
-**진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: 사용자와 다음 기능 논의
+**Phase**: 실제 DB 연동 & 회원가입 API 구축
+**작업**: PostgreSQL DB 연결 및 회원가입 API 완성
+**진행률**: 95% 🟦🟦🟦🟦🟦🟦🟦🟦🟦⬜
+**다음**: 테스트 유저 생성 후 전체 데이터 플로우 검증
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### v1.45.0: 실제 DB 테스트 환경 구축 ✅ (2025-10-09)
+
+**작업 내용**:
+
+#### 1️⃣ 개발 환경 설정
+- **WSL 업데이트**: 5.10.102.1 → 2.6.1.0 (최신)
+- **Docker Desktop 재시작**: PostgreSQL, Redis, MinIO 컨테이너 실행
+- **PostgreSQL 연결 성공**: wedding_app DB 정상 작동
+- **.env 파일 수정**: `USE_MOCK_RING_SERVICE=false` (실제 DB 사용)
+
+#### 2️⃣ 회원가입 API 구축
+- **백엔드** (`src/routes/auth.ts`)
+  * POST `/api/auth/signup` API 추가
+  * name, gender, age, region → DB 저장
+  * 자동 이메일 생성 (`{name}@wedding.app`)
+  * JWT 토큰 반환
+  * 80줄 코드 추가
+
+- **프론트엔드** (`public/js/signup-v3.js`)
+  * API 호출 로직 추가 (`completeSignup` async 함수)
+  * 토큰 및 사용자 정보 localStorage 저장
+  * 에러 처리 추가
+  * 44줄 코드 추가
+
+#### 3️⃣ Docker 컨테이너 설정
+- **wedding_db**: PostgreSQL 15 (포트 5432)
+- **wedding_redis**: Redis 7-alpine (포트 6379)
+- **wedding_minio**: MinIO latest (포트 9000-9001)
+- 모든 컨테이너 정상 실행 확인
+
+**기술적 성과**:
+- ✅ 실제 DB 연동 완료 (Mock → Real)
+- ✅ 회원가입 API 백엔드/프론트엔드 연결
+- ✅ Docker 개발 환경 완전 구축
+- ✅ JWT 인증 시스템 통합
+- ✅ 다른 컴퓨터에서 작업 이어가기 가능
+
+**다음 작업**:
+1. 테스트 유저 회원가입 완료
+2. Ring 시스템 데이터 저장 확인
+3. 추천 시스템 데이터 저장 확인
+4. 전체 데이터 플로우 검증
+
+**Git**: (커밋 예정)
+
+---
 
 ### v1.44.0: D-Bety Special Recommendations Feature ✅ (2025-10-08)
 

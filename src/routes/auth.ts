@@ -133,6 +133,84 @@ router.post('/dev-login', async (req, res) => {
   }
 });
 
+// 회원가입
+router.post('/signup', async (req, res) => {
+  try {
+    const { name, gender, age, region } = req.body;
+
+    // Validation
+    if (!name || !gender || !age || !region) {
+      return res.status(400).json({
+        success: false,
+        error: 'All fields are required (name, gender, age, region)',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 임시 이메일 및 비밀번호 생성 (v3에서는 이메일/비밀번호 입력 안 받음)
+    const email = `${name}@wedding.app`;
+    const password = crypto.randomBytes(16).toString('hex');
+    const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
+
+    const db = Database.getInstance();
+
+    // 이메일 중복 체크
+    const [existingUser] = await db.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: 'User already exists',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 사용자 생성
+    const [newUser] = await db.query(
+      `INSERT INTO users (email, password_hash, name, age, gender, location, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, true)
+       RETURNING id, email, name, age, gender, location, created_at`,
+      [email, passwordHash, name, parseInt(age), gender, region]
+    );
+
+    console.log('✅ User created:', newUser);
+
+    // JWT 토큰 생성
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      config.JWT_SECRET,
+      { expiresIn: config.JWT_EXPIRES_IN }
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          age: newUser.age,
+          gender: newUser.gender,
+          location: newUser.location
+        }
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Signup failed',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // 현재 사용자 정보 조회
 router.get('/me', async (req, res) => {
   try {

@@ -397,24 +397,50 @@ class FullScreenSignup {
     // Completion
     // ============================================
 
-    completeSignup() {
+    async completeSignup() {
         console.log('🎉 Signup completed!');
         console.log('📝 Form Data:', this.formData);
 
-        // Save to localStorage
-        localStorage.setItem('signupData', JSON.stringify({
-            ...this.formData,
-            completedAt: new Date().toISOString()
-        }));
+        try {
+            // 회원가입 API 호출
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.formData)
+            });
 
-        // 🔑 세션 플래그 설정 (이번 세션에서 방금 가입 완료함)
-        sessionStorage.setItem('justCompletedSignup', 'true');
-        console.log('✅ Session flag set: justCompletedSignup');
+            const data = await response.json();
 
-        // Redirect to main app
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1000);
+            if (!response.ok) {
+                throw new Error(data.error || 'Signup failed');
+            }
+
+            console.log('✅ Signup successful:', data);
+
+            // 토큰 및 사용자 정보 저장
+            localStorage.setItem('token', data.data.token);
+            localStorage.setItem('signupData', JSON.stringify({
+                ...this.formData,
+                userId: data.data.user.id,
+                email: data.data.user.email,
+                completedAt: new Date().toISOString()
+            }));
+
+            // 🔑 세션 플래그 설정 (이번 세션에서 방금 가입 완료함)
+            sessionStorage.setItem('justCompletedSignup', 'true');
+            console.log('✅ Session flag set: justCompletedSignup');
+
+            // Redirect to main app
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+
+        } catch (error) {
+            console.error('❌ Signup error:', error);
+            alert(`회원가입 실패: ${error.message}`);
+        }
     }
 
     // ============================================
