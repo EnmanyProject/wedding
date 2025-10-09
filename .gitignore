@@ -9,6 +9,8 @@ pnpm-debug.log*
 .env
 .env.local
 .env.production
+.env.test
+# .env.online - Git에 포함 (온라인 DB 전환 템플릿)
 
 # Build outputs
 dist/
