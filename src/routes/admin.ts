@@ -1717,74 +1717,158 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
 router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
   const { page = 1, limit = 20, search = '', status = 'all', gender = 'all' } = req.query;
   const offset = (Number(page) - 1) * Number(limit);
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  let whereClause = 'WHERE 1=1';
-  const params: any[] = [];
+  let users;
+  let totalCount;
 
-  // 검색 조건
-  if (search && typeof search === 'string') {
-    whereClause += ` AND (name ILIKE $${params.length + 1} OR display_name ILIKE $${params.length + 1} OR email ILIKE $${params.length + 1})`;
-    params.push(`%${search}%`);
-  }
+  if (useMock) {
+    // Mock 데이터 - 100명의 여성 사용자
+    const KOREAN_FEMALE_NAMES = [
+      '지우', '서연', '민지', '수빈', '하은', '예은', '지민', '소율', '하윤', '채원',
+      '수아', '지유', '다은', '은서', '시은', '하린', '유나', '윤서', '채은', '서윤',
+      '가은', '나연', '다인', '라희', '마음', '바다', '사랑', '아름', '자연', '차민',
+      '현서', '유진', '소연', '미주', '은채', '하늘', '보람', '슬기', '혜인', '정은',
+      '미연', '승희', '지혜', '은지', '수정', '민경', '지선', '예린', '하영', '수현',
+      '윤아', '태희', '혜리', '선미', '나은', '유빈', '소희', '다현', '예나', '채린',
+      '민아', '서진', '유리', '하나', '보영', '지영', '수민', '예원', '다영', '서아',
+      '민서', '유경', '지연', '수연', '예지', '하연', '채영', '서영', '민영', '유미',
+      '지은', '수지', '예슬', '하빈', '채윤', '서현', '민하', '유정', '지원', '수진',
+      '예진', '하율', '채이', '서우', '민지', '유주', '지안', '수아', '예림', '하진'
+    ];
 
-  // 상태 필터
-  if (status === 'active') {
-    whereClause += ` AND is_active = true`;
-  } else if (status === 'inactive') {
-    whereClause += ` AND is_active = false`;
-  }
+    const REGIONS = [
+      '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
+      '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'
+    ];
 
-  // 성별 필터
-  if (gender === 'male') {
-    whereClause += ` AND u.gender = 'male'`;
-  } else if (gender === 'female') {
-    whereClause += ` AND u.gender = 'female'`;
-  }
+    const mockUsers = Array.from({ length: 100 }, (_, i) => {
+      const name = KOREAN_FEMALE_NAMES[i];
+      const age = 20 + Math.floor(Math.random() * 20); // 20-39세
+      const region = REGIONS[Math.floor(Math.random() * REGIONS.length)];
+      const daysAgo = Math.floor(Math.random() * 365); // 최근 1년 내 가입
+      const lastLoginDaysAgo = Math.floor(Math.random() * 30); // 최근 30일 내 로그인
+      const isActive = Math.random() > 0.1; // 90% 활성 사용자
 
-  const query = `
-    SELECT
-      u.id,
-      u.name,
-      u.display_name,
-      u.email,
-      u.gender,
-      u.is_active,
-      u.created_at,
-      u.last_login_at,
-      COUNT(up.id) as photo_count,
-      COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
-      COUNT(qr.id) as quiz_responses,
-      COUNT(ut.id) as trait_responses,
-      COALESCE(MAX(a.score), 0) as max_affinity_score
-    FROM users u
-    LEFT JOIN user_photos up ON u.id = up.user_id
-    LEFT JOIN quiz_responses qr ON u.id = qr.user_id
-    LEFT JOIN user_traits ut ON u.id = ut.user_id
-    LEFT JOIN affinity a ON u.id = a.target_id
-    ${whereClause}
-    GROUP BY u.id, u.name, u.display_name, u.email, u.gender, u.is_active, u.created_at, u.last_login_at
-    ORDER BY u.created_at DESC
-    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
-  `;
+      const createdDate = new Date();
+      createdDate.setDate(createdDate.getDate() - daysAgo);
 
-  params.push(Number(limit), offset);
+      const lastLoginDate = new Date();
+      lastLoginDate.setDate(lastLoginDate.getDate() - lastLoginDaysAgo);
 
-  const [users, totalCountResult] = await Promise.all([
-    db.query(query, params),
-    db.query(`
-      SELECT COUNT(*) as total
+      return {
+        id: String(i + 1),
+        name,
+        display_name: name,
+        email: `${name}${i + 1}@wedding.app`,
+        gender: 'female',
+        is_active: isActive,
+        created_at: createdDate,
+        last_login_at: lastLoginDate,
+        photo_count: Math.floor(Math.random() * 6) + 1, // 1-6장
+        approved_photos: Math.floor(Math.random() * 5) + 1, // 1-5장
+        quiz_responses: Math.floor(Math.random() * 50), // 0-50개
+        trait_responses: Math.floor(Math.random() * 80), // 0-80개
+        max_affinity_score: Math.floor(Math.random() * 100), // 0-100점
+        age,
+        location: region
+      };
+    });
+
+    let filteredUsers = mockUsers;
+
+    // 성별 필터
+    if (gender === 'male') {
+      filteredUsers = filteredUsers.filter(u => u.gender === 'male');
+    } else if (gender === 'female') {
+      filteredUsers = filteredUsers.filter(u => u.gender === 'female');
+    }
+
+    // 상태 필터
+    if (status === 'active') {
+      filteredUsers = filteredUsers.filter(u => u.is_active);
+    } else if (status === 'inactive') {
+      filteredUsers = filteredUsers.filter(u => !u.is_active);
+    }
+
+    // 검색 필터
+    if (search && typeof search === 'string') {
+      const searchLower = search.toLowerCase();
+      filteredUsers = filteredUsers.filter(u =>
+        u.name.toLowerCase().includes(searchLower) ||
+        u.display_name.toLowerCase().includes(searchLower) ||
+        u.email.toLowerCase().includes(searchLower)
+      );
+    }
+
+    totalCount = filteredUsers.length;
+    users = filteredUsers.slice(offset, offset + Number(limit));
+  } else {
+    let whereClause = 'WHERE 1=1';
+    const params: any[] = [];
+
+    // 검색 조건
+    if (search && typeof search === 'string') {
+      whereClause += ` AND (name ILIKE $${params.length + 1} OR display_name ILIKE $${params.length + 1} OR email ILIKE $${params.length + 1})`;
+      params.push(`%${search}%`);
+    }
+
+    // 상태 필터
+    if (status === 'active') {
+      whereClause += ` AND is_active = true`;
+    } else if (status === 'inactive') {
+      whereClause += ` AND is_active = false`;
+    }
+
+    // 성별 필터
+    if (gender === 'male') {
+      whereClause += ` AND u.gender = 'male'`;
+    } else if (gender === 'female') {
+      whereClause += ` AND u.gender = 'female'`;
+    }
+
+    const query = `
+      SELECT
+        u.id,
+        u.name,
+        u.display_name,
+        u.email,
+        u.gender,
+        u.is_active,
+        u.created_at,
+        u.last_login_at,
+        COUNT(up.id) as photo_count,
+        COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
+        COUNT(qr.id) as quiz_responses,
+        COUNT(ut.id) as trait_responses,
+        COALESCE(MAX(a.score), 0) as max_affinity_score
       FROM users u
+      LEFT JOIN user_photos up ON u.id = up.user_id
+      LEFT JOIN quiz_responses qr ON u.id = qr.user_id
+      LEFT JOIN user_traits ut ON u.id = ut.user_id
+      LEFT JOIN affinity a ON u.id = a.target_id
       ${whereClause}
-    `, params.slice(0, -2))
-  ]);
+      GROUP BY u.id, u.name, u.display_name, u.email, u.gender, u.is_active, u.created_at, u.last_login_at
+      ORDER BY u.created_at DESC
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+    `;
 
-  const totalCount = parseInt(totalCountResult[0]?.total || '0');
+    params.push(Number(limit), offset);
+
+    const [usersResult, totalCountResult] = await Promise.all([
+      db.query(query, params),
+      db.query(`
+        SELECT COUNT(*) as total
+        FROM users u
+        ${whereClause}
+      `, params.slice(0, -2))
+    ]);
+
+    users = usersResult;
+    totalCount = parseInt(totalCountResult[0]?.total || '0');
+  }
+
   const totalPages = Math.ceil(totalCount / Number(limit));
-
-  await logAdminActivity(req.adminId!, 'users_list_viewed', {
-    filters: { search, status },
-    total_users: totalCount
-  });
 
   res.json({
     success: true,
@@ -1814,105 +1898,168 @@ router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthentica
 // 특정 유저 상세 정보 조회
 router.get('/users/:userId', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
   const { userId } = req.params;
+  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  // 유저 기본 정보
-  const userQuery = `
-    SELECT
-      u.*,
-      COUNT(up.id) as total_photos,
-      COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
-      COUNT(CASE WHEN up.moderation_status = 'PENDING' THEN 1 END) as pending_photos,
-      COUNT(CASE WHEN up.moderation_status = 'REJECTED' THEN 1 END) as rejected_photos
-    FROM users u
-    LEFT JOIN user_photos up ON u.id = up.user_id
-    WHERE u.id = $1
-    GROUP BY u.id
-  `;
+  let userResult;
+  let photos;
+  let quizStats;
+  let traits;
+  let affinityTowards;
+  let affinityFrom;
 
-  const [userResult] = await db.query(userQuery, [userId]);
-  if (!userResult) {
-    throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
+  if (useMock) {
+    // Mock 데이터
+    const KOREAN_FEMALE_NAMES = ['지우', '서연', '민지', '수빈', '하은', '예은', '지민', '소율', '하윤', '채원'];
+    const userIndex = parseInt(userId) - 1;
+
+    if (userIndex < 0 || userIndex >= 100) {
+      throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
+    }
+
+    const name = KOREAN_FEMALE_NAMES[userIndex % 10];
+
+    userResult = {
+      id: userId,
+      name,
+      display_name: name,
+      email: `${name}${userId}@wedding.app`,
+      gender: 'female',
+      age: 20 + Math.floor(Math.random() * 20),
+      location: '서울',
+      bio: `안녕하세요, ${name}입니다.`,
+      profile_complete: true,
+      is_active: true,
+      created_at: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
+      last_login_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+      total_photos: 5,
+      approved_photos: 4,
+      pending_photos: 1,
+      rejected_photos: 0
+    };
+
+    photos = [
+      { id: '1', moderation_status: 'APPROVED', created_at: new Date(), variant: 'ORIG', storage_key: '/images/profiles/user1.jpg' },
+      { id: '2', moderation_status: 'APPROVED', created_at: new Date(), variant: 'ORIG', storage_key: '/images/profiles/user2.png' }
+    ];
+
+    quizStats = [
+      { total_responses: 30, option_a_count: 15, option_b_count: 15, response_date: new Date(), daily_count: 5 }
+    ];
+
+    traits = [
+      { choice: 'LEFT', left_label: '아침형', right_label: '저녁형', category: 'lifestyle', created_at: new Date() },
+      { choice: 'RIGHT', left_label: '계획적', right_label: '즉흥적', category: 'personality', created_at: new Date() }
+    ];
+
+    affinityTowards = [
+      { viewer_id: '2', viewer_name: '이수진', viewer_display_name: '수진', score: 85, stages_unlocked: 3, updated_at: new Date() },
+      { viewer_id: '3', viewer_name: '박지혜', viewer_display_name: '지혜', score: 72, stages_unlocked: 2, updated_at: new Date() }
+    ];
+
+    affinityFrom = [
+      { target_id: '2', target_name: '이수진', target_display_name: '수진', score: 90, stages_unlocked: 3, updated_at: new Date() },
+      { target_id: '4', target_name: '최민지', target_display_name: '민지', score: 65, stages_unlocked: 2, updated_at: new Date() }
+    ];
+  } else {
+    // 유저 기본 정보
+    const userQuery = `
+      SELECT
+        u.*,
+        COUNT(up.id) as total_photos,
+        COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
+        COUNT(CASE WHEN up.moderation_status = 'PENDING' THEN 1 END) as pending_photos,
+        COUNT(CASE WHEN up.moderation_status = 'REJECTED' THEN 1 END) as rejected_photos
+      FROM users u
+      LEFT JOIN user_photos up ON u.id = up.user_id
+      WHERE u.id = $1
+      GROUP BY u.id
+    `;
+
+    [userResult] = await db.query(userQuery, [userId]);
+    if (!userResult) {
+      throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
+    }
+
+    // 유저 사진 목록
+    const photosQuery = `
+      SELECT
+        up.id,
+        up.moderation_status,
+        up.created_at,
+        pa.variant,
+        pa.storage_key
+      FROM user_photos up
+      LEFT JOIN photo_assets pa ON up.id = pa.photo_id
+      WHERE up.user_id = $1
+      ORDER BY up.created_at DESC
+    `;
+    photos = await db.query(photosQuery, [userId]);
+
+    // 퀴즈 응답 통계
+    const quizStatsQuery = `
+      SELECT
+        COUNT(*) as total_responses,
+        COUNT(CASE WHEN qr.selected_option = 'A' THEN 1 END) as option_a_count,
+        COUNT(CASE WHEN qr.selected_option = 'B' THEN 1 END) as option_b_count,
+        DATE_TRUNC('day', qr.created_at) as response_date,
+        COUNT(*) as daily_count
+      FROM quiz_responses qr
+      WHERE qr.user_id = $1
+      GROUP BY DATE_TRUNC('day', qr.created_at)
+      ORDER BY response_date DESC
+      LIMIT 7
+    `;
+    quizStats = await db.query(quizStatsQuery, [userId]);
+
+    // 성향 응답 목록
+    const traitsQuery = `
+      SELECT
+        ut.choice,
+        tp.left_label,
+        tp.right_label,
+        tp.category,
+        ut.created_at
+      FROM user_traits ut
+      JOIN trait_pairs tp ON ut.pair_id = tp.id
+      WHERE ut.user_id = $1
+      ORDER BY ut.created_at DESC
+    `;
+    traits = await db.query(traitsQuery, [userId]);
+
+    // 호감도 순위 (이 유저를 향한)
+    const affinityQuery = `
+      SELECT
+        a.viewer_id,
+        u.name as viewer_name,
+        u.display_name as viewer_display_name,
+        a.score,
+        a.stages_unlocked,
+        a.updated_at
+      FROM affinity a
+      JOIN users u ON a.viewer_id = u.id
+      WHERE a.target_id = $1
+      ORDER BY a.score DESC
+      LIMIT 10
+    `;
+    affinityTowards = await db.query(affinityQuery, [userId]);
+
+    // 이 유저가 다른 사람들에게 보이는 호감도
+    const affinityFromQuery = `
+      SELECT
+        a.target_id,
+        u.name as target_name,
+        u.display_name as target_display_name,
+        a.score,
+        a.stages_unlocked,
+        a.updated_at
+      FROM affinity a
+      JOIN users u ON a.target_id = u.id
+      WHERE a.viewer_id = $1
+      ORDER BY a.score DESC
+      LIMIT 10
+    `;
+    affinityFrom = await db.query(affinityFromQuery, [userId]);
   }
-
-  // 유저 사진 목록
-  const photosQuery = `
-    SELECT
-      up.id,
-      up.moderation_status,
-      up.created_at,
-      pa.variant,
-      pa.storage_key
-    FROM user_photos up
-    LEFT JOIN photo_assets pa ON up.id = pa.photo_id
-    WHERE up.user_id = $1
-    ORDER BY up.created_at DESC
-  `;
-  const photos = await db.query(photosQuery, [userId]);
-
-  // 퀴즈 응답 통계
-  const quizStatsQuery = `
-    SELECT
-      COUNT(*) as total_responses,
-      COUNT(CASE WHEN qr.selected_option = 'A' THEN 1 END) as option_a_count,
-      COUNT(CASE WHEN qr.selected_option = 'B' THEN 1 END) as option_b_count,
-      DATE_TRUNC('day', qr.created_at) as response_date,
-      COUNT(*) as daily_count
-    FROM quiz_responses qr
-    WHERE qr.user_id = $1
-    GROUP BY DATE_TRUNC('day', qr.created_at)
-    ORDER BY response_date DESC
-    LIMIT 7
-  `;
-  const quizStats = await db.query(quizStatsQuery, [userId]);
-
-  // 성향 응답 목록
-  const traitsQuery = `
-    SELECT
-      ut.choice,
-      tp.left_label,
-      tp.right_label,
-      tp.category,
-      ut.created_at
-    FROM user_traits ut
-    JOIN trait_pairs tp ON ut.pair_id = tp.id
-    WHERE ut.user_id = $1
-    ORDER BY ut.created_at DESC
-  `;
-  const traits = await db.query(traitsQuery, [userId]);
-
-  // 호감도 순위 (이 유저를 향한)
-  const affinityQuery = `
-    SELECT
-      a.viewer_id,
-      u.name as viewer_name,
-      u.display_name as viewer_display_name,
-      a.score,
-      a.stages_unlocked,
-      a.updated_at
-    FROM affinity a
-    JOIN users u ON a.viewer_id = u.id
-    WHERE a.target_id = $1
-    ORDER BY a.score DESC
-    LIMIT 10
-  `;
-  const affinityTowards = await db.query(affinityQuery, [userId]);
-
-  // 이 유저가 다른 사람들에게 보이는 호감도
-  const affinityFromQuery = `
-    SELECT
-      a.target_id,
-      u.name as target_name,
-      u.display_name as target_display_name,
-      a.score,
-      a.stages_unlocked,
-      a.updated_at
-    FROM affinity a
-    JOIN users u ON a.target_id = u.id
-    WHERE a.viewer_id = $1
-    ORDER BY a.score DESC
-    LIMIT 10
-  `;
-  const affinityFrom = await db.query(affinityFromQuery, [userId]);
 
   await logAdminActivity(req.adminId!, 'user_detail_viewed', {
     user_id: userId,
