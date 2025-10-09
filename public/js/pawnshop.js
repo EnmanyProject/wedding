@@ -1,7 +1,8 @@
 /**
- * 전당포 시스템 - Pawnshop System
+ * 전당포 시스템 JavaScript (v2 - 올바른 개념)
  *
- * 링 화폐를 사용하여 상대방의 정보를 미리 확인하는 기능
+ * 사용자가 정보/사진을 제공 → Ring 획득
+ * 다른 사용자가 정보 열람 → 제공자가 Ring 획득
  */
 
 (function() {
@@ -12,11 +13,24 @@
    */
   class PawnshopSystem {
     constructor() {
-      this.modal = null;
-      this.modalOverlay = null;
-      this.closeBtn = null;
-      this.currentUser = null;
+      // Modals
+      this.pawnPhotoModal = null;
+      this.pawnInfoModal = null;
+      this.viewOthersModal = null;
+      this.bankbookModal = null;
+
+      // Buttons
+      this.bankbookBtn = null;
+      this.pawnPhotoBtn = null;
+      this.pawnInfoBtn = null;
+      this.viewOthersBtn = null;
+
+      // State
       this.isInitialized = false;
+      this.selectedInfoType = null;
+      this.selectedPhoto = null;
+      this.mockTransactions = [];
+      this.mockUsers = [];
 
       // Ring 화폐 시스템 참조
       this.ringSystem = window.RingSystem;
@@ -34,13 +48,23 @@
       console.log('🏦 [Pawnshop] Initializing pawnshop system...');
 
       // DOM 요소 가져오기
-      this.modal = document.getElementById('pawnshop-modal');
-      this.modalOverlay = this.modal?.querySelector('.pawnshop-modal-overlay');
-      this.closeBtn = this.modal?.querySelector('.pawnshop-modal-close');
-      this.itemsGrid = document.getElementById('pawnshop-items-grid');
+      this.bankbookBtn = document.getElementById('bankbook-btn');
+      this.pawnPhotoBtn = document.getElementById('pawn-photo-btn');
+      this.pawnInfoBtn = document.getElementById('pawn-info-btn');
+      this.viewOthersBtn = document.getElementById('view-others-btn');
 
-      if (!this.modal || !this.modalOverlay || !this.closeBtn) {
-        console.error('🏦 [Pawnshop] Required elements not found');
+      this.pawnPhotoModal = document.getElementById('pawn-photo-modal');
+      this.pawnInfoModal = document.getElementById('pawn-info-modal');
+      this.viewOthersModal = document.getElementById('view-others-modal');
+      this.bankbookModal = document.getElementById('bankbook-modal');
+
+      if (!this.bankbookBtn || !this.pawnPhotoBtn || !this.pawnInfoBtn || !this.viewOthersBtn) {
+        console.error('🏦 [Pawnshop] Required buttons not found');
+        return;
+      }
+
+      if (!this.pawnPhotoModal || !this.pawnInfoModal || !this.viewOthersModal || !this.bankbookModal) {
+        console.error('🏦 [Pawnshop] Required modals not found');
         return;
       }
 
@@ -48,7 +72,7 @@
       this.setupEventListeners();
 
       // Mock 데이터 로드
-      this.loadMockUsers();
+      this.loadMockData();
 
       this.isInitialized = true;
       console.log('✅ [Pawnshop] System initialized');
@@ -58,33 +82,255 @@
      * 이벤트 리스너 설정
      */
     setupEventListeners() {
-      // 닫기 버튼
-      this.closeBtn.addEventListener('click', () => this.close());
+      // Bankbook 버튼
+      this.bankbookBtn.addEventListener('click', () => this.openBankbook());
+
+      // Action 버튼들
+      this.pawnPhotoBtn.addEventListener('click', () => this.openPawnPhoto());
+      this.pawnInfoBtn.addEventListener('click', () => this.openPawnInfo());
+      this.viewOthersBtn.addEventListener('click', () => this.openViewOthers());
+
+      // 모달 닫기 버튼들
+      const closeButtons = document.querySelectorAll('.pawnshop-modal-close');
+      closeButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const modal = e.target.closest('.pawnshop-modal');
+          this.closeModal(modal);
+        });
+      });
 
       // 오버레이 클릭 시 닫기
-      this.modalOverlay.addEventListener('click', () => this.close());
+      const overlays = document.querySelectorAll('.pawnshop-modal-overlay');
+      overlays.forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          const modal = e.target.closest('.pawnshop-modal');
+          this.closeModal(modal);
+        });
+      });
 
       // ESC 키로 닫기
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.modal.style.display !== 'none') {
-          this.close();
+        if (e.key === 'Escape') {
+          this.closeAllModals();
         }
       });
 
-      // Unlock 버튼 이벤트 위임
-      this.modal.addEventListener('click', (e) => {
-        const unlockBtn = e.target.closest('.pawnshop-unlock-btn');
-        if (unlockBtn) {
-          this.handleUnlock(unlockBtn.dataset.type);
+      // 사진 업로드 관련
+      this.setupPhotoUpload();
+
+      // 정보 맡기기 관련
+      this.setupInfoPawn();
+    }
+
+    /**
+     * 사진 업로드 이벤트 설정
+     */
+    setupPhotoUpload() {
+      const photoInput = document.getElementById('pawn-photo-input');
+      const submitPhotoBtn = document.getElementById('submit-photo-btn');
+      const removePhotoBtn = document.getElementById('remove-photo-btn');
+
+      if (!photoInput || !submitPhotoBtn || !removePhotoBtn) return;
+
+      // 사진 선택
+      photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          this.handlePhotoSelect(file);
+          submitPhotoBtn.disabled = false;
+        }
+      });
+
+      // 사진 제거
+      removePhotoBtn.addEventListener('click', () => {
+        this.clearPhotoPreview();
+        submitPhotoBtn.disabled = true;
+      });
+
+      // 사진 제출
+      submitPhotoBtn.addEventListener('click', () => {
+        if (this.selectedPhoto) {
+          this.submitPhoto();
         }
       });
     }
 
     /**
-     * Mock 사용자 데이터 로드
+     * 정보 맡기기 이벤트 설정
      */
-    loadMockUsers() {
-      const mockUsers = [
+    setupInfoPawn() {
+      const infoTypeCards = document.querySelectorAll('.info-type-card');
+      const infoInputArea = document.getElementById('info-input-area');
+      const infoTextarea = document.getElementById('info-textarea');
+      const charCount = document.getElementById('char-count');
+      const submitInfoBtn = document.getElementById('submit-info-btn');
+
+      if (!infoInputArea || !infoTextarea || !charCount || !submitInfoBtn) return;
+
+      // 정보 타입 선택
+      infoTypeCards.forEach(card => {
+        card.addEventListener('click', () => {
+          // 선택 상태 업데이트
+          infoTypeCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+
+          // 선택된 타입 저장
+          this.selectedInfoType = card.dataset.type;
+
+          // 입력 영역 표시
+          infoInputArea.style.display = 'block';
+          infoTextarea.focus();
+        });
+      });
+
+      // 글자 수 카운터
+      infoTextarea.addEventListener('input', () => {
+        charCount.textContent = infoTextarea.value.length;
+      });
+
+      // 정보 제출
+      submitInfoBtn.addEventListener('click', () => {
+        const text = infoTextarea.value.trim();
+        if (text && this.selectedInfoType) {
+          this.submitInfo(this.selectedInfoType, text);
+        } else {
+          this.showToast('정보를 입력해주세요', 'error');
+        }
+      });
+    }
+
+    /**
+     * 사진 선택 처리
+     */
+    handlePhotoSelect(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.selectedPhoto = {
+          file: file,
+          dataURL: e.target.result
+        };
+
+        // 미리보기 표시
+        const photoPreviewArea = document.getElementById('photo-preview-area');
+        const photoPreviewImg = document.getElementById('photo-preview-img');
+        const photoUploadLabel = document.querySelector('.photo-upload-label');
+
+        if (photoPreviewArea && photoPreviewImg && photoUploadLabel) {
+          photoPreviewImg.src = e.target.result;
+          photoUploadLabel.style.display = 'none';
+          photoPreviewArea.style.display = 'block';
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /**
+     * 사진 미리보기 초기화
+     */
+    clearPhotoPreview() {
+      this.selectedPhoto = null;
+
+      const photoInput = document.getElementById('pawn-photo-input');
+      const photoPreviewArea = document.getElementById('photo-preview-area');
+      const photoUploadLabel = document.querySelector('.photo-upload-label');
+
+      if (photoInput) photoInput.value = '';
+      if (photoPreviewArea) photoPreviewArea.style.display = 'none';
+      if (photoUploadLabel) photoUploadLabel.style.display = 'flex';
+    }
+
+    /**
+     * 사진 제출
+     */
+    async submitPhoto() {
+      console.log('📸 [Pawnshop] Submitting photo...');
+
+      // Mock: Ring 지급
+      const rewardAmount = 50;
+
+      if (this.ringSystem) {
+        await this.ringSystem.earnRings(rewardAmount, '사진 맡기기');
+      }
+
+      // Mock: 거래 내역 추가
+      this.addTransaction('사진 맡기기', rewardAmount, 'earned');
+
+      this.showToast(`사진을 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
+      this.clearPhotoPreview();
+      this.closeModal(this.pawnPhotoModal);
+
+      console.log('✅ [Pawnshop] Photo submitted');
+    }
+
+    /**
+     * 정보 제출
+     */
+    async submitInfo(type, text) {
+      console.log(`📝 [Pawnshop] Submitting info (${type}):`, text);
+
+      // Mock: Ring 지급
+      const rewards = {
+        'ideal-type': 50,
+        'career': 30,
+        'hobbies': 20
+      };
+      const rewardAmount = rewards[type] || 20;
+
+      const typeNames = {
+        'ideal-type': '이상형 정보',
+        'career': '직업 & 학력 정보',
+        'hobbies': '취미 & 관심사'
+      };
+      const typeName = typeNames[type] || '정보';
+
+      if (this.ringSystem) {
+        await this.ringSystem.earnRings(rewardAmount, `${typeName} 맡기기`);
+      }
+
+      // Mock: 거래 내역 추가
+      this.addTransaction(`${typeName} 맡기기`, rewardAmount, 'earned');
+
+      this.showToast(`${typeName}를 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
+
+      // 입력 초기화
+      const infoTextarea = document.getElementById('info-textarea');
+      const infoInputArea = document.getElementById('info-input-area');
+      const infoTypeCards = document.querySelectorAll('.info-type-card');
+
+      if (infoTextarea) infoTextarea.value = '';
+      if (infoInputArea) infoInputArea.style.display = 'none';
+      infoTypeCards.forEach(c => c.classList.remove('selected'));
+      this.selectedInfoType = null;
+
+      this.closeModal(this.pawnInfoModal);
+
+      console.log('✅ [Pawnshop] Info submitted');
+    }
+
+    /**
+     * 거래 내역 추가 (Mock)
+     */
+    addTransaction(type, amount, category) {
+      this.mockTransactions.unshift({
+        id: Date.now(),
+        type: type,
+        amount: amount,
+        category: category, // 'earned' or 'spent'
+        date: new Date().toISOString()
+      });
+
+      // 최대 50개까지만 저장
+      if (this.mockTransactions.length > 50) {
+        this.mockTransactions = this.mockTransactions.slice(0, 50);
+      }
+    }
+
+    /**
+     * Mock 데이터 로드
+     */
+    loadMockData() {
+      // Mock 사용자 데이터
+      this.mockUsers = [
         { id: 1, name: '김민지', age: 28, region: '서울', image: '/images/profiles/user1.jpg' },
         { id: 2, name: '이수진', age: 26, region: '경기', image: '/images/profiles/user2.jpg' },
         { id: 3, name: '박서연', age: 30, region: '부산', image: '/images/profiles/user3.jpg' },
@@ -93,16 +339,173 @@
         { id: 6, name: '강미래', age: 25, region: '광주', image: '/images/profiles/user6.jpg' }
       ];
 
-      this.renderUserCards(mockUsers);
+      // Mock 거래 내역
+      this.mockTransactions = [
+        {
+          id: 1,
+          type: '사진 맡기기',
+          amount: 50,
+          category: 'earned',
+          date: new Date(Date.now() - 86400000).toISOString() // 1일 전
+        },
+        {
+          id: 2,
+          type: '이상형 정보 맡기기',
+          amount: 50,
+          category: 'earned',
+          date: new Date(Date.now() - 172800000).toISOString() // 2일 전
+        },
+        {
+          id: 3,
+          type: '다른 유저 정보 열람',
+          amount: 30,
+          category: 'spent',
+          date: new Date(Date.now() - 259200000).toISOString() // 3일 전
+        }
+      ];
+    }
+
+    /**
+     * Bankbook 모달 열기
+     */
+    openBankbook() {
+      console.log('🏦 [Pawnshop] Opening bankbook modal...');
+
+      // 거래 내역 렌더링
+      this.renderTransactions();
+
+      // 통계 업데이트
+      this.updateBankbookSummary();
+
+      this.openModal(this.bankbookModal);
+    }
+
+    /**
+     * Bankbook 요약 통계 업데이트
+     */
+    updateBankbookSummary() {
+      const totalEarned = this.mockTransactions
+        .filter(t => t.category === 'earned')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalSpent = this.mockTransactions
+        .filter(t => t.category === 'spent')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const netProfit = totalEarned - totalSpent;
+
+      const totalEarnedEl = document.getElementById('total-earned');
+      const totalSpentEl = document.getElementById('total-spent');
+      const netProfitEl = document.getElementById('net-profit');
+
+      if (totalEarnedEl) totalEarnedEl.textContent = `${totalEarned} 💍`;
+      if (totalSpentEl) totalSpentEl.textContent = `${totalSpent} 💍`;
+      if (netProfitEl) netProfitEl.textContent = `${netProfit} 💍`;
+    }
+
+    /**
+     * 거래 내역 렌더링
+     */
+    renderTransactions() {
+      const transactionList = document.getElementById('transaction-list');
+      if (!transactionList) return;
+
+      if (this.mockTransactions.length === 0) {
+        transactionList.innerHTML = `
+          <div class="empty-transactions">
+            <img src="/images/d-bety.png" alt="Empty" class="dbety-empty" style="width: 60px; height: 60px;">
+            <p>아직 거래 내역이 없어요</p>
+          </div>
+        `;
+        return;
+      }
+
+      transactionList.innerHTML = this.mockTransactions.map(transaction => {
+        const date = new Date(transaction.date);
+        const dateStr = this.formatDate(date);
+        const amountClass = transaction.category === 'earned' ? 'earned' : 'spent';
+        const amountPrefix = transaction.category === 'earned' ? '+' : '-';
+
+        return `
+          <div class="transaction-item">
+            <div class="transaction-info">
+              <div class="transaction-type">${transaction.type}</div>
+              <div class="transaction-date">${dateStr}</div>
+            </div>
+            <div class="transaction-amount ${amountClass}">
+              ${amountPrefix}${transaction.amount} 💍
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /**
+     * 날짜 포맷
+     */
+    formatDate(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSecs = Math.floor(diffMs / 1000);
+      const diffMins = Math.floor(diffSecs / 60);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffDays === 0) {
+        if (diffHours === 0) {
+          if (diffMins === 0) {
+            return '방금 전';
+          }
+          return `${diffMins}분 전`;
+        }
+        return `${diffHours}시간 전`;
+      } else if (diffDays === 1) {
+        return '어제';
+      } else if (diffDays < 7) {
+        return `${diffDays}일 전`;
+      } else {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        return `${month}월 ${day}일`;
+      }
+    }
+
+    /**
+     * 사진 맡기기 모달 열기
+     */
+    openPawnPhoto() {
+      console.log('📸 [Pawnshop] Opening pawn photo modal...');
+      this.openModal(this.pawnPhotoModal);
+    }
+
+    /**
+     * 정보 맡기기 모달 열기
+     */
+    openPawnInfo() {
+      console.log('📝 [Pawnshop] Opening pawn info modal...');
+      this.openModal(this.pawnInfoModal);
+    }
+
+    /**
+     * 다른 사람 정보 보기 모달 열기
+     */
+    openViewOthers() {
+      console.log('👀 [Pawnshop] Opening view others modal...');
+
+      // 사용자 카드 렌더링
+      this.renderUserCards();
+
+      this.openModal(this.viewOthersModal);
     }
 
     /**
      * 사용자 카드 렌더링
      */
-    renderUserCards(users) {
-      if (!this.itemsGrid) return;
+    renderUserCards() {
+      const itemsGrid = document.getElementById('pawnshop-items-grid');
+      if (!itemsGrid) return;
 
-      this.itemsGrid.innerHTML = users.map(user => `
+      itemsGrid.innerHTML = this.mockUsers.map(user => `
         <div class="pawnshop-user-card" data-user-id="${user.id}">
           <div class="pawnshop-card-avatar">
             <img src="${user.image}" alt="${user.name}">
@@ -115,120 +518,75 @@
       `).join('');
 
       // 카드 클릭 이벤트
-      this.itemsGrid.querySelectorAll('.pawnshop-user-card').forEach(card => {
+      itemsGrid.querySelectorAll('.pawnshop-user-card').forEach(card => {
         card.addEventListener('click', () => {
           const userId = card.dataset.userId;
-          const user = users.find(u => u.id === parseInt(userId));
-          if (user) {
-            this.open(user);
-          }
+          this.handleUserCardClick(userId);
         });
       });
     }
 
     /**
+     * 사용자 카드 클릭 처리
+     */
+    async handleUserCardClick(userId) {
+      console.log('🔍 [Pawnshop] Viewing user info:', userId);
+
+      // Mock: Ring 지출
+      const cost = 30;
+
+      if (this.ringSystem) {
+        const currentRings = this.ringSystem.getCurrentRings();
+
+        if (currentRings < cost) {
+          this.showToast(`링이 부족합니다! (필요: ${cost}💍, 보유: ${currentRings}💍)`, 'error');
+          return;
+        }
+
+        const success = await this.ringSystem.spendRings(cost, '다른 유저 정보 열람');
+
+        if (success) {
+          this.addTransaction('다른 유저 정보 열람', cost, 'spent');
+          this.showToast(`정보를 열람했습니다! (-${cost}💍)`, 'success');
+
+          // 실제로는 여기서 정보 표시
+          alert('실제 구현 시: 이 사용자의 맡긴 정보가 표시됩니다.');
+        } else {
+          this.showToast('정보 열람에 실패했습니다.', 'error');
+        }
+      } else {
+        // Ring 시스템 없을 때 Mock 처리
+        console.log(`👀 [Pawnshop] Viewing user info (${cost} rings)`);
+        this.showToast(`정보를 열람했습니다! (개발중)`, 'info');
+      }
+    }
+
+    /**
      * 모달 열기
      */
-    open(user) {
-      if (!this.modal) return;
-
-      this.currentUser = user;
-
-      // 사용자 정보 업데이트
-      const userImage = document.getElementById('pawnshop-user-image');
-      const userName = document.getElementById('pawnshop-user-name');
-      const userAge = document.getElementById('pawnshop-user-age');
-      const userRegion = document.getElementById('pawnshop-user-region');
-
-      if (userImage) userImage.src = user.image;
-      if (userName) userName.textContent = user.name;
-      if (userAge) userAge.textContent = `${user.age}세`;
-      if (userRegion) userRegion.textContent = user.region;
-
-      // 모달 표시
-      this.modal.style.display = 'flex';
+    openModal(modal) {
+      if (!modal) return;
+      modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
-
-      console.log(`🏦 [Pawnshop] Opened for user: ${user.name}`);
     }
 
     /**
      * 모달 닫기
      */
-    close() {
-      if (!this.modal) return;
-
-      this.modal.style.display = 'none';
+    closeModal(modal) {
+      if (!modal) return;
+      modal.style.display = 'none';
       document.body.style.overflow = '';
-      this.currentUser = null;
-
-      console.log('🏦 [Pawnshop] Modal closed');
     }
 
     /**
-     * 정보 해금 처리
+     * 모든 모달 닫기
      */
-    async handleUnlock(type) {
-      if (!this.currentUser) return;
-
-      // 링 가격 설정
-      const prices = {
-        'ideal-type': 50,
-        'career-education': 30,
-        'hobbies': 20,
-        'photo': 100
-      };
-
-      const price = prices[type] || 0;
-      const typeNames = {
-        'ideal-type': '이상형 정보',
-        'career-education': '직업 & 학력 정보',
-        'hobbies': '취미 & 관심사',
-        'photo': '추가 사진 1장'
-      };
-
-      const typeName = typeNames[type] || '정보';
-
-      // Ring 잔액 확인 (Ring 시스템이 있을 경우)
-      if (this.ringSystem) {
-        const currentRings = this.ringSystem.getCurrentRings();
-
-        if (currentRings < price) {
-          this.showToast(`링이 부족합니다! (필요: ${price}💍, 보유: ${currentRings}💍)`, 'error');
-          return;
-        }
-
-        // Ring 차감
-        const success = await this.ringSystem.spendRings(price, `전당포 - ${typeName} 해금`);
-
-        if (success) {
-          this.showToast(`${typeName}을(를) 해금했습니다! (-${price}💍)`, 'success');
-          this.showUnlockedInfo(type);
-        } else {
-          this.showToast('정보 해금에 실패했습니다.', 'error');
-        }
-      } else {
-        // Ring 시스템 없을 때 Mock 처리
-        console.log(`🏦 [Pawnshop] Unlocking ${typeName} (${price} rings)`);
-        this.showToast(`${typeName}을(를) 해금했습니다! (개발중)`, 'info');
-        this.showUnlockedInfo(type);
-      }
-    }
-
-    /**
-     * 해금된 정보 표시
-     */
-    showUnlockedInfo(type) {
-      const mockInfo = {
-        'ideal-type': '키 175cm 이상, 다정하고 유머러스한 성격, 운동을 즐기는 분',
-        'career-education': '대학교 졸업, IT 업계 종사 (5년차 개발자)',
-        'hobbies': '요가, 독서, 영화 감상, 여행, 베이킹',
-        'photo': '추가 사진 1장이 해금되었습니다!'
-      };
-
-      const info = mockInfo[type] || '정보를 불러올 수 없습니다.';
-
-      alert(`✨ 해금된 정보:\n\n${info}`);
+    closeAllModals() {
+      this.closeModal(this.pawnPhotoModal);
+      this.closeModal(this.pawnInfoModal);
+      this.closeModal(this.viewOthersModal);
+      this.closeModal(this.bankbookModal);
     }
 
     /**

@@ -1,15 +1,64 @@
 /**
- * 전당포 시스템 스타일
+ * 전당포 시스템 스타일 (v2 - 올바른 개념)
  *
- * 정보 미리보기 기능
- * - 링 화폐로 상대방의 정보를 미리 확인할 수 있는 기능
- * - 다크 테마 + 골드 강조 디자인
+ * 사용자가 정보/사진을 제공 → Ring 획득
+ * 다른 사용자가 정보 열람 → 제공자가 Ring 획득
+ *
+ * 골드 테마 (#FFD700) + 다크 배경 (#000000, #1a1a1a)
  */
+
+/* ===== 통장 아이콘 (Header) ===== */
+.bankbook-btn {
+  background: none;
+  border: 2px solid #FFD700;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.bankbook-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 215, 0, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.bankbook-btn:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.bankbook-btn:hover {
+  border-color: #FFA500;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  transform: scale(1.1);
+}
+
+.bankbook-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+}
 
 /* ===== Pawnshop View ===== */
 #pawnshop-view {
   padding: 1rem;
   padding-bottom: 80px;
+  background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+  min-height: calc(100vh - 140px);
 }
 
 .pawnshop-content {
@@ -17,6 +66,7 @@
   margin: 0 auto;
 }
 
+/* D-Bety Welcome Section */
 .pawnshop-welcome {
   text-align: center;
   padding: 2rem 1rem;
@@ -25,24 +75,453 @@
   border: 2px solid #FFD700;
   margin-bottom: 2rem;
   box-shadow: 0 8px 24px rgba(255, 215, 0, 0.2);
+  position: relative;
+  overflow: hidden;
 }
 
-.pawnshop-welcome h3 {
+.pawnshop-welcome::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.dbety-pawnshop-float {
+  animation: float 3s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.4));
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+.dbety-speech-bubble {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.15));
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.dbety-speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #FFD700;
+}
+
+.dbety-comment {
   color: #FFD700;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Three Action Buttons */
+.pawnshop-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pawnshop-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border: 3px solid #FFD700;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.pawnshop-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+  transform: translateY(-50%);
+  transition: left 0.6s ease;
+}
+
+.pawnshop-action-btn:hover::before {
+  left: 100%;
+}
+
+.pawnshop-action-btn:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.3);
+  border-color: #FFA500;
+}
+
+.action-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.action-label {
+  flex: 1;
+  margin-left: 1rem;
+  color: #FFD700;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+/* ===== Modal Base Styles ===== */
+.pawnshop-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.pawnshop-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+}
+
+.pawnshop-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  border-radius: 24px;
+  border: 3px solid #FFD700;
+  width: 90%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow:
+    0 20px 60px rgba(255, 215, 0, 0.3),
+    0 0 0 1px rgba(255, 215, 0, 0.2),
+    inset 0 1px 0 rgba(255, 215, 0, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pawnshop-modal-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #FFD700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.1), transparent);
+}
+
+.pawnshop-modal-header h2 {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pawnshop-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #FFD700;
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.pawnshop-modal-close:hover {
+  background: rgba(255, 215, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.pawnshop-modal-body {
+  padding: 1.5rem;
+}
+
+/* ===== 1. Photo Upload Modal ===== */
+.dbety-upload-comment {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.dbety-comment-icon {
+  width: 60px;
+  height: 60px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.dbety-comment-text {
+  flex: 1;
+  color: #FFD700;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.photo-upload-area {
+  margin-bottom: 1.5rem;
+}
+
+.photo-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border: 3px dashed #FFD700;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-label:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.15));
+  border-color: #FFA500;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  color: #FFD700;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.photo-preview-area {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid #FFD700;
+}
+
+#photo-preview-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.remove-photo-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.remove-photo-btn:hover {
+  background: rgba(255, 0, 0, 1);
+  transform: scale(1.1);
+}
+
+.pawn-reward-info {
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.pawn-reward-info p {
+  color: #e0e0e0;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.pawn-reward-info strong {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+.pawnshop-submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  border: none;
+  border-radius: 12px;
+  color: #000000;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.pawnshop-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+}
+
+.pawnshop-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== 2. Info Pawn Modal ===== */
+.pawn-info-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-type-card {
+  padding: 1.5rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.info-type-card:hover,
+.info-type-card.selected {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+  border-color: #FFA500;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  transform: translateY(-4px);
+}
+
+.info-type-icon {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
 
-.pawnshop-welcome p {
-  color: #e0e0e0;
-  font-size: 1rem;
+.info-type-title {
+  color: #FFD700;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 }
 
-/* ===== Pawnshop Items Grid ===== */
+.info-type-reward {
+  color: #FFA500;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.info-input-area {
+  margin-top: 1.5rem;
+}
+
+.info-textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 1rem;
+  background: rgba(255, 215, 0, 0.05);
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.info-textarea:focus {
+  outline: none;
+  border-color: #FFA500;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.char-counter {
+  text-align: right;
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== 3. View Others Modal ===== */
 .pawnshop-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
   padding: 1rem 0;
 }
@@ -94,221 +573,115 @@
   line-height: 1.6;
 }
 
-/* ===== Pawnshop Modal ===== */
-.pawnshop-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
+.loading-placeholder,
+.empty-transactions {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
 }
 
-.pawnshop-modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
+.dbety-loading,
+.dbety-empty {
+  animation: float 3s ease-in-out infinite;
+  margin-bottom: 1rem;
 }
 
-.pawnshop-modal-content {
-  position: relative;
-  background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-  border-radius: 24px;
-  border: 3px solid #FFD700;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow:
-    0 20px 60px rgba(255, 215, 0, 0.3),
-    0 0 0 1px rgba(255, 215, 0, 0.2),
-    inset 0 1px 0 rgba(255, 215, 0, 0.1);
-  animation: slideUp 0.3s ease;
+.loading-placeholder p,
+.empty-transactions p {
+  color: #888;
+  font-size: 1rem;
+  margin: 1rem 0 0 0;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* ===== Modal Header ===== */
-.pawnshop-modal-header {
-  padding: 1.5rem;
-  border-bottom: 2px solid #FFD700;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.1), transparent);
-}
-
-.pawnshop-modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.pawnshop-modal-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #FFD700;
-  cursor: pointer;
-  padding: 0;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.pawnshop-modal-close:hover {
-  background: rgba(255, 215, 0, 0.1);
-  transform: rotate(90deg);
-}
-
-/* ===== Modal Body ===== */
-.pawnshop-modal-body {
-  padding: 1.5rem;
-}
-
-/* User Info Section */
-.pawnshop-user-info {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
-  border-radius: 16px;
-  border: 1px solid rgba(255, 215, 0, 0.2);
+/* ===== 4. Bankbook Modal ===== */
+.bankbook-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.pawnshop-user-avatar {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid #FFD700;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+  border: 2px solid #FFD700;
+  border-radius: 12px;
 }
 
-.pawnshop-user-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.summary-label {
+  color: #888;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
 }
 
-.pawnshop-user-details {
-  flex: 1;
-}
-
-.pawnshop-user-details h3 {
-  margin: 0 0 0.5rem 0;
-  color: #FFD700;
-  font-size: 1.25rem;
+.summary-value {
+  font-size: 1.2rem;
   font-weight: 700;
 }
 
-.pawnshop-user-details p {
-  margin: 0.25rem 0;
-  color: #e0e0e0;
-  font-size: 0.9rem;
+.summary-value.earned {
+  color: #4CAF50;
 }
 
-/* Info Items */
-.pawnshop-info-items {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.summary-value.spent {
+  color: #f44336;
 }
 
-.pawnshop-info-item {
+.summary-value.net {
+  color: #FFD700;
+}
+
+.transaction-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.transaction-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
+  padding: 1rem;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 165, 0, 0.05));
+  border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 12px;
-  border: 2px solid rgba(255, 215, 0, 0.3);
+  margin-bottom: 0.5rem;
   transition: all 0.3s ease;
 }
 
-.pawnshop-info-item:hover {
+.transaction-item:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
   border-color: #FFD700;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
 }
 
-.pawnshop-item-title {
+.transaction-info {
   flex: 1;
-  color: #ffffff;
-  font-size: 1rem;
+}
+
+.transaction-type {
+  color: #FFD700;
   font-weight: 600;
+  margin-bottom: 0.25rem;
 }
 
-.pawnshop-unlock-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #000000;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+.transaction-date {
+  color: #888;
+  font-size: 0.85rem;
 }
 
-.pawnshop-unlock-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
-  background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
-}
-
-.pawnshop-unlock-btn:active {
-  transform: translateY(0);
-}
-
-.pawnshop-ring-icon {
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.pawnshop-ring-cost {
+.transaction-amount {
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+.transaction-amount.earned {
+  color: #4CAF50;
+}
+
+.transaction-amount.spent {
+  color: #f44336;
 }
 
 /* ===== Responsive Design ===== */
@@ -318,79 +691,90 @@
     gap: 1rem;
   }
 
+  .pawn-info-types {
+    grid-template-columns: 1fr;
+  }
+
+  .bankbook-summary {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
   .pawnshop-modal-content {
     width: 95%;
-    max-height: 85vh;
+    max-height: 90vh;
   }
 
-  .pawnshop-user-info {
-    flex-direction: column;
-    text-align: center;
+  .action-label {
+    font-size: 1rem;
   }
 
-  .pawnshop-info-item {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .pawnshop-unlock-btn {
-    width: 100%;
-    justify-content: center;
+  .action-icon {
+    font-size: 1.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .pawnshop-welcome h3 {
-    font-size: 1.25rem;
+  .pawnshop-action-btn {
+    padding: 1.25rem;
   }
 
-  .pawnshop-welcome p {
-    font-size: 0.9rem;
+  .action-icon {
+    font-size: 1.5rem;
+  }
+
+  .action-label {
+    font-size: 0.95rem;
   }
 
   .pawnshop-modal-content {
     width: 100%;
     border-radius: 20px 20px 0 0;
-    max-height: 90vh;
+    max-height: 95vh;
   }
 
   .pawnshop-modal-header h2 {
     font-size: 1.25rem;
   }
 
+  .dbety-comment {
+    font-size: 0.9rem;
+  }
+
   .pawnshop-card-avatar {
     width: 80px;
     height: 80px;
   }
-
-  .pawnshop-user-avatar {
-    width: 60px;
-    height: 60px;
-  }
 }
 
 /* ===== Scrollbar Styling ===== */
-.pawnshop-modal-content::-webkit-scrollbar {
+.pawnshop-modal-content::-webkit-scrollbar,
+.transaction-list::-webkit-scrollbar {
   width: 8px;
 }
 
-.pawnshop-modal-content::-webkit-scrollbar-track {
+.pawnshop-modal-content::-webkit-scrollbar-track,
+.transaction-list::-webkit-scrollbar-track {
   background: rgba(255, 215, 0, 0.1);
   border-radius: 4px;
 }
 
-.pawnshop-modal-content::-webkit-scrollbar-thumb {
+.pawnshop-modal-content::-webkit-scrollbar-thumb,
+.transaction-list::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #FFD700, #FFA500);
   border-radius: 4px;
 }
 
-.pawnshop-modal-content::-webkit-scrollbar-thumb:hover {
+.pawnshop-modal-content::-webkit-scrollbar-thumb:hover,
+.transaction-list::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #FFA500, #FFD700);
 }
 
 /* ===== Accessibility ===== */
-.pawnshop-unlock-btn:focus-visible {
+.pawnshop-action-btn:focus-visible,
+.pawnshop-submit-btn:focus-visible,
+.info-type-card:focus-visible,
+.bankbook-btn:focus-visible {
   outline: 3px solid #FFD700;
   outline-offset: 2px;
 }
@@ -398,20 +782,4 @@
 .pawnshop-modal-close:focus-visible {
   outline: 3px solid #FFD700;
   outline-offset: 2px;
-}
-
-/* ===== Loading State ===== */
-.pawnshop-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  color: #FFD700;
-}
-
-.pawnshop-loading-text {
-  margin-top: 1rem;
-  font-size: 1rem;
-  color: #e0e0e0;
 }

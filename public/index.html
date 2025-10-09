@@ -88,6 +88,9 @@
                 </div>
                 <div class="header-stats" role="region" aria-label="사용자 상태 정보">
                     <!-- Ring Wallet Display will be inserted here by ring-system.js -->
+                    <button id="bankbook-btn" class="bankbook-btn" aria-label="거래 내역" title="거래 내역 보기">
+                        <span class="bankbook-icon" aria-hidden="true">🏦</span>
+                    </button>
                     <button class="notifications" aria-label="알림" aria-expanded="false">
                         <span class="notification-icon" aria-hidden="true">🔔</span>
                         <span id="notification-badge" class="notification-badge" style="display: none;" aria-live="polite">0</span>
@@ -154,20 +157,34 @@
             <!-- Pawnshop View -->
             <div id="pawnshop-view" class="view">
                 <div class="view-header">
-                    <h2>전당포 🏦</h2>
-                    <button id="pawnshop-info-btn" class="btn btn-secondary">이용 안내</button>
+                    <h2>D-베티 전당포 🏦</h2>
                 </div>
 
                 <div class="pawnshop-content">
+                    <!-- D-Bety Welcome Section -->
                     <div class="pawnshop-welcome">
-                        <img src="/images/Bety5.png" alt="Bety" class="bety-character character-float" style="width: 80px; height: 80px; margin-bottom: 1rem;">
-                        <h3>전당포에 오신 것을 환영합니다!</h3>
-                        <p>원하는 상대방의 정보를 미리 확인할 수 있어요 💎</p>
+                        <img src="/images/d-bety.png" alt="D-Bety" class="dbety-pawnshop-float" style="width: 120px; height: 120px;">
+                        <div class="dbety-speech-bubble">
+                            <p class="dbety-comment">"우리는 금도 자동차도 다 필요없어!<br>네 정보만 맡아준다!"</p>
+                        </div>
                     </div>
 
-                    <!-- Pawnshop Items Grid -->
-                    <div class="pawnshop-items-grid" id="pawnshop-items-grid">
-                        <!-- Items will be populated by JavaScript -->
+                    <!-- Three Main Buttons -->
+                    <div class="pawnshop-actions">
+                        <button class="pawnshop-action-btn" id="pawn-photo-btn">
+                            <span class="action-icon">📸</span>
+                            <span class="action-label">사진을 맡기려면 여기로</span>
+                        </button>
+
+                        <button class="pawnshop-action-btn" id="pawn-info-btn">
+                            <span class="action-icon">📝</span>
+                            <span class="action-label">네 정보를 맡기려면 여기로</span>
+                        </button>
+
+                        <button class="pawnshop-action-btn" id="view-others-btn">
+                            <span class="action-icon">👀</span>
+                            <span class="action-label">다른 사람이 맡긴 정보를 보려면 여기로</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -457,63 +474,142 @@
         </div>
     </div>
 
-    <!-- Pawnshop Modal -->
-    <div id="pawnshop-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawnshop-modal-title" aria-modal="true" style="display: none;">
+    <!-- 1. 사진 업로드 모달 (Pawn Photo Modal) -->
+    <div id="pawn-photo-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-photo-title" aria-modal="true" style="display: none;">
         <div class="pawnshop-modal-overlay"></div>
         <div class="pawnshop-modal-content">
             <div class="pawnshop-modal-header">
-                <h2 id="pawnshop-modal-title">정보 미리보기 🏦</h2>
+                <h2 id="pawn-photo-title">사진 맡기기 📸</h2>
                 <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
             </div>
             <div class="pawnshop-modal-body">
-                <!-- User Info Preview -->
-                <div class="pawnshop-user-info">
-                    <div class="pawnshop-user-avatar">
-                        <img id="pawnshop-user-image" src="" alt="사용자 프로필">
-                    </div>
-                    <div class="pawnshop-user-details">
-                        <h3 id="pawnshop-user-name">이름</h3>
-                        <p id="pawnshop-user-age">나이</p>
-                        <p id="pawnshop-user-region">지역</p>
+                <!-- D-Bety Comment -->
+                <div class="dbety-upload-comment">
+                    <img src="/images/d-bety.png" alt="D-Bety" class="dbety-comment-icon">
+                    <p class="dbety-comment-text">"꼭 이뻐서 받아주는거 아니다"</p>
+                </div>
+
+                <!-- Photo Upload Area -->
+                <div class="photo-upload-area">
+                    <input type="file" id="pawn-photo-input" accept="image/*" style="display: none;">
+                    <label for="pawn-photo-input" class="photo-upload-label">
+                        <span class="upload-icon">📸</span>
+                        <span class="upload-text">사진 선택하기</span>
+                    </label>
+                    <div id="photo-preview-area" class="photo-preview-area" style="display: none;">
+                        <img id="photo-preview-img" src="" alt="미리보기">
+                        <button id="remove-photo-btn" class="remove-photo-btn">×</button>
                     </div>
                 </div>
 
-                <!-- Available Information Items -->
-                <div class="pawnshop-info-items">
-                    <!-- Item 1: 이상형 정보 -->
-                    <div class="pawnshop-info-item">
-                        <div class="pawnshop-item-title">💝 이상형 정보 엿보기</div>
-                        <button class="pawnshop-unlock-btn" data-type="ideal-type">
-                            <span class="pawnshop-ring-icon">💍</span>
-                            <span class="pawnshop-ring-cost">50</span>
-                        </button>
-                    </div>
+                <!-- Reward Info -->
+                <div class="pawn-reward-info">
+                    <p>💍 사진을 맡기면 <strong>50 링</strong>을 받아요!</p>
+                    <p>💍 다른 유저가 사진을 열람하면 추가 <strong>10 링</strong>을 받아요!</p>
+                </div>
 
-                    <!-- Item 2: 직업 & 학력 정보 -->
-                    <div class="pawnshop-info-item">
-                        <div class="pawnshop-item-title">🎓 직업 & 학력 정보</div>
-                        <button class="pawnshop-unlock-btn" data-type="career-education">
-                            <span class="pawnshop-ring-icon">💍</span>
-                            <span class="pawnshop-ring-cost">30</span>
-                        </button>
-                    </div>
+                <!-- Submit Button -->
+                <button id="submit-photo-btn" class="pawnshop-submit-btn" disabled>
+                    사진 맡기기
+                </button>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Item 3: 취미 & 관심사 -->
-                    <div class="pawnshop-info-item">
-                        <div class="pawnshop-item-title">🎨 취미 & 관심사</div>
-                        <button class="pawnshop-unlock-btn" data-type="hobbies">
-                            <span class="pawnshop-ring-icon">💍</span>
-                            <span class="pawnshop-ring-cost">20</span>
-                        </button>
+    <!-- 2. 정보 맡기기 모달 (Pawn Info Modal) -->
+    <div id="pawn-info-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-info-title" aria-modal="true" style="display: none;">
+        <div class="pawnshop-modal-overlay"></div>
+        <div class="pawnshop-modal-content">
+            <div class="pawnshop-modal-header">
+                <h2 id="pawn-info-title">정보 맡기기 📝</h2>
+                <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
+            </div>
+            <div class="pawnshop-modal-body">
+                <!-- Info Type Selection -->
+                <div class="pawn-info-types">
+                    <div class="info-type-card" data-type="ideal-type">
+                        <div class="info-type-icon">💝</div>
+                        <div class="info-type-title">이상형 정보</div>
+                        <div class="info-type-reward">50 💍</div>
                     </div>
+                    <div class="info-type-card" data-type="career">
+                        <div class="info-type-icon">🎓</div>
+                        <div class="info-type-title">직업 & 학력</div>
+                        <div class="info-type-reward">30 💍</div>
+                    </div>
+                    <div class="info-type-card" data-type="hobbies">
+                        <div class="info-type-icon">🎨</div>
+                        <div class="info-type-title">취미 & 관심사</div>
+                        <div class="info-type-reward">20 💍</div>
+                    </div>
+                </div>
 
-                    <!-- Item 4: 추가 사진 1장 -->
-                    <div class="pawnshop-info-item">
-                        <div class="pawnshop-item-title">📸 추가 사진 1장 해금</div>
-                        <button class="pawnshop-unlock-btn" data-type="photo">
-                            <span class="pawnshop-ring-icon">💍</span>
-                            <span class="pawnshop-ring-cost">100</span>
-                        </button>
+                <!-- Info Input Area (dynamically populated) -->
+                <div id="info-input-area" class="info-input-area" style="display: none;">
+                    <textarea id="info-textarea" class="info-textarea" placeholder="정보를 입력해주세요..." maxlength="500"></textarea>
+                    <div class="char-counter">
+                        <span id="char-count">0</span> / 500
+                    </div>
+                    <button id="submit-info-btn" class="pawnshop-submit-btn">
+                        정보 맡기기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 다른 사람 정보 보기 모달 (View Others Modal) -->
+    <div id="view-others-modal" class="pawnshop-modal" role="dialog" aria-labelledby="view-others-title" aria-modal="true" style="display: none;">
+        <div class="pawnshop-modal-overlay"></div>
+        <div class="pawnshop-modal-content">
+            <div class="pawnshop-modal-header">
+                <h2 id="view-others-title">맡겨진 정보 보기 👀</h2>
+                <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
+            </div>
+            <div class="pawnshop-modal-body">
+                <!-- Items Grid -->
+                <div id="pawnshop-items-grid" class="pawnshop-items-grid">
+                    <!-- User cards will be dynamically populated by JavaScript -->
+                    <div class="loading-placeholder">
+                        <img src="/images/d-bety.png" alt="Loading" class="dbety-loading" style="width: 60px; height: 60px;">
+                        <p>맡겨진 정보를 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 거래 내역 모달 (Bankbook Modal) -->
+    <div id="bankbook-modal" class="pawnshop-modal bankbook-modal" role="dialog" aria-labelledby="bankbook-title" aria-modal="true" style="display: none;">
+        <div class="pawnshop-modal-overlay"></div>
+        <div class="pawnshop-modal-content">
+            <div class="pawnshop-modal-header">
+                <h2 id="bankbook-title">전당포 거래 내역 🏦</h2>
+                <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
+            </div>
+            <div class="pawnshop-modal-body">
+                <!-- Summary -->
+                <div class="bankbook-summary">
+                    <div class="summary-item">
+                        <span class="summary-label">총 획득</span>
+                        <span class="summary-value earned" id="total-earned">0 💍</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">총 지출</span>
+                        <span class="summary-value spent" id="total-spent">0 💍</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">순 수익</span>
+                        <span class="summary-value net" id="net-profit">0 💍</span>
+                    </div>
+                </div>
+
+                <!-- Transaction List -->
+                <div id="transaction-list" class="transaction-list">
+                    <!-- Transactions will be dynamically populated -->
+                    <div class="empty-transactions">
+                        <img src="/images/d-bety.png" alt="Empty" class="dbety-empty" style="width: 60px; height: 60px;">
+                        <p>아직 거래 내역이 없어요</p>
                     </div>
                 </div>
             </div>
