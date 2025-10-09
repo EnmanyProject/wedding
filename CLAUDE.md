@@ -40,6 +40,57 @@ CLAUDE.md (히스토리)
 
 ## 📊 버전 히스토리
 
+### v1.53.0 (2025-10-09) - Fix Progressive Card Misalignment
+
+**작업 내용**:
+
+#### 1️⃣ Transform 방식 변경
+- **Partners Swiper** 설정 수정 (`ui.js`)
+  * `usePixelTransform: true` → `false`
+  * `considerPadding: true` → `false`
+  * Pixel 기반 → Percentage 기반으로 전환
+
+#### 2️⃣ 문제 원인 분석
+- **Pixel-based transform 문제점**
+  * 패딩 계산에서 누적 오류 발생
+  * 카드를 여러 번 이동할수록 중앙 정렬 틀어짐
+  * 화면 크기에 따라 불안정
+
+- **Percentage-based transform 장점**
+  * 항상 0%를 기준으로 계산
+  * 누적 오류 없음
+  * 화면 크기에 관계없이 일관성 유지
+
+#### 3️⃣ 기술적 구현
+```javascript
+// Before (Pixel-based)
+translateX(-index * effectiveWidth px) // 누적 오류
+
+// After (Percentage-based)
+translateX(-index * 100%) // 정확한 계산
+```
+
+**기술적 성과**:
+- ✅ 카드 이동 시 중앙 정렬 완벽 유지
+- ✅ 누적 오류 완전 제거
+- ✅ 모든 화면 크기에서 안정적
+- ✅ 부드러운 애니메이션 유지
+
+**코드 메트릭**:
+- **수정**: ui.js (2줄)
+- **변경**: usePixelTransform, considerPadding 옵션
+
+**해결된 문제**:
+- 🐛 카드 이동 시 점점 중앙에서 벗어나는 현상
+- 🐛 Pixel 기반 계산의 누적 오류
+- 🐛 화면 크기별 정렬 불일치
+
+**다음 작업**: 사용자와 다음 기능 논의
+
+**Git**: cc0a6dd 커밋 완료 ✅
+
+---
+
 ### v1.52.0 (2025-10-09) - Profile Image Frame Fill Fix
 
 **작업 내용**:
