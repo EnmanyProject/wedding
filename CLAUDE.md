@@ -40,6 +40,51 @@ CLAUDE.md (히스토리)
 
 ## 📊 버전 히스토리
 
+### v1.50.0 (2025-10-09) - Partner Cards Auto-Play Feature
+
+**작업 내용**:
+
+#### 1️⃣ Auto-Play 기능 구현
+- **mobile-swiper.js** 자동 재생 메서드 추가 (Lines 382-441)
+  * `startAutoPlay(intervalMs)` - 자동 카드 회전 시작
+  * `stopAutoPlay()` - 인터벌 중지
+  * `pauseAutoPlay()` - 사용자 상호작용 시 일시정지
+  * `resumeAutoPlay(intervalMs)` - 일시정지 후 재개
+  * `destroy()` - 정리 시 인터벌 제거
+
+#### 2️⃣ 사용자 상호작용 시 일시정지
+- **handleStart** (Line 93) - 터치/마우스 시작 시 auto-play 일시정지
+- **setupNavigationButtons** (Lines 221-228) - 버튼 클릭 시 일시정지
+
+#### 3️⃣ UI 초기화 통합
+- **ui.js** (Lines 1079-1085) - Partner Swiper 초기화 시 auto-play 시작
+  * 3초 대기 후 자동 시작
+  * 3000ms 간격으로 카드 이동
+  * 마지막 카드 후 첫 카드로 순환
+  * 카드 2개 이상일 때만 활성화
+
+**기술적 성과**:
+- ✅ 자동 카드 회전 기능 완성
+- ✅ 사용자 상호작용 감지 및 일시정지
+- ✅ 무한 루프 순환 (마지막 → 첫 카드)
+- ✅ 깔끔한 리소스 정리 (destroy 메서드)
+
+**코드 메트릭**:
+- **추가**: mobile-swiper.js (~60줄), ui.js (~7줄)
+- **총 변경**: ~67줄
+- **메서드**: 4개 신규 추가 (startAutoPlay, stopAutoPlay, pauseAutoPlay, resumeAutoPlay)
+
+**해결된 문제**:
+- ✅ 카드가 가운데 정확히 멈추는지 확인 (`usePixelTransform`, `considerPadding` 활용)
+- ✅ 3초마다 자동으로 다음 카드로 이동
+- ✅ 사용자가 터치/스와이프 시 자동 재생 중지
+
+**다음 작업**: 사용자와 다음 기능 논의
+
+**Git**: f15ac6d 커밋 완료 ✅
+
+---
+
 ### v1.49.0 (2025-10-09) - Signup Mock Mode Support
 
 **작업 내용**:
