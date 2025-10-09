@@ -557,14 +557,11 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 App initialization started');
 
+            // 🚧 개발 편의: 가입 프로세스 건너뛰기 (true = 바로 메인 앱, false = 정상 가입 프로세스)
+            const SKIP_SIGNUP_PROCESS = true;
+
             // 🛠️ 개발 모드 설정 (개발 중에는 true, 프로덕션에서는 false)
             const DEV_MODE = true;
-
-            // 🔐 가입 데이터 체크
-            const signupData = localStorage.getItem('signupData');
-            const hasCompletedSignup = !!signupData;
-            console.log('🔐 Signup status:', hasCompletedSignup);
-            console.log('🛠️ Dev mode:', DEV_MODE);
 
             // 로딩 화면 숨기기
             setTimeout(() => {
@@ -573,6 +570,24 @@
                     loadingScreen.style.display = 'none';
                     console.log('✅ Loading screen hidden');
                 }
+
+                // 🚧 개발 편의: 가입 프로세스 건너뛰기
+                if (SKIP_SIGNUP_PROCESS) {
+                    console.log('🚧 [DEV] Skipping signup process, showing main app directly');
+                    const appContainer = document.getElementById('app');
+                    if (appContainer) {
+                        appContainer.style.display = 'block';
+                    }
+                    initializeApp();
+                    return;
+                }
+
+                // ===== 정상 가입 프로세스 (SKIP_SIGNUP_PROCESS = false 시 실행) =====
+                // 🔐 가입 데이터 체크
+                const signupData = localStorage.getItem('signupData');
+                const hasCompletedSignup = !!signupData;
+                console.log('🔐 Signup status:', hasCompletedSignup);
+                console.log('🛠️ Dev mode:', DEV_MODE);
 
                 // 🔑 방금 가입 완료했는지 체크
                 const justCompleted = sessionStorage.getItem('justCompletedSignup');
