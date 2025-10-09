@@ -82,7 +82,7 @@ const SKIP_SIGNUP_PROCESS = false; // 가입 체크 후 메인 앱
 
 **다음 작업**: 사용자와 다음 기능 논의
 
-**Git**: (커밋 예정)
+**Git**: a0334be 커밋 완료 ✅
 
 ---
 
