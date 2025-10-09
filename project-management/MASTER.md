@@ -50,7 +50,7 @@
 - 🐛 PostgreSQL ECONNREFUSED 오류 회피
 - ✅ Mock 모드에서 회원가입 정상 작동
 
-**Git**: (커밋 예정) ✅
+**Git**: 2a16f22 커밋 완료 ✅
 
 ---
 
