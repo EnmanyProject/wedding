@@ -3,7 +3,7 @@
  * 룰 베이스 일일 추천 시스템
  */
 
-import pool from '../db';
+import { pool } from '../utils/database';
 
 interface UserTraits {
   userId: string;

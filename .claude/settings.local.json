@@ -101,7 +101,10 @@
       "Bash(git pull:*)",
       "Bash(git rm:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJlbWFpbCI6InVzZXIxQHRlc3QuY29tIiwiaWF0IjoxNzU5ODMzMjk1LCJleHAiOjE3NjA0MzgwOTV9.Tgc-gerjlDgQBe7gKEnXuxi3EhLah7lUIKh3CCPmwNk\")",
-      "Bash(start http://localhost:3000/clear-storage.html)"
+      "Bash(start http://localhost:3000/clear-storage.html)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" ps)",
+      "Bash(\"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe\" pull minio/minio:latest)",
+      "Bash(start http://localhost:3002/admin.html)"
     ],
     "deny": [],
     "ask": []
