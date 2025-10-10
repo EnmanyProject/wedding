@@ -8,11 +8,11 @@
 
 /* Ensure AA compliant contrast ratios (4.5:1 for normal text, 3:1 for large text) */
 :root {
-  --text-primary-enhanced: #1a1a1a; /* Darker for better contrast */
-  --text-secondary-enhanced: #4a4a4a; /* Improved from #6c757d */
-  --link-color: #0066cc; /* High contrast blue */
-  --error-color-enhanced: #d32f2f; /* Better contrast red */
-  --success-color-enhanced: #2e7d32; /* Better contrast green */
+  --text-primary-enhanced: #ffffff; /* White for dark background */
+  --text-secondary-enhanced: #e0e0e0; /* Light gray for dark background */
+  --link-color: #4dabf7; /* Light blue for dark background */
+  --error-color-enhanced: #ff6b6b; /* Light red for dark background */
+  --success-color-enhanced: #51cf66; /* Light green for dark background */
 }
 
 /* Apply enhanced colors */
