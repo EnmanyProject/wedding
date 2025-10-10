@@ -190,12 +190,12 @@
 }
 
 .partner-avatar-large .profile-image {
-  width: 152px !important;
-  height: 152px !important;
-  min-width: 152px !important;
-  min-height: 152px !important;
-  max-width: 152px !important;
-  max-height: 152px !important;
+  width: 160px !important;
+  height: 160px !important;
+  min-width: 160px !important;
+  min-height: 160px !important;
+  max-width: 160px !important;
+  max-height: 160px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
   object-position: center !important;
@@ -207,7 +207,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: block !important;
   flex-shrink: 0 !important;
-  margin: -4px;
+  margin: -8px;
 }
 
 .partner-card:hover .partner-avatar-large .profile-image {
@@ -556,13 +556,13 @@
   }
 
   .partner-avatar-large .profile-image {
-    width: 128px !important;
-    height: 128px !important;
-    min-width: 128px !important;
-    min-height: 128px !important;
-    max-width: 128px !important;
-    max-height: 128px !important;
-    margin: -4px;
+    width: 136px !important;
+    height: 136px !important;
+    min-width: 136px !important;
+    min-height: 136px !important;
+    max-width: 136px !important;
+    max-height: 136px !important;
+    margin: -8px;
   }
 
   .partner-info h3 {
@@ -627,13 +627,13 @@
   }
 
   .partner-avatar-large .profile-image {
-    width: 112px !important;
-    height: 112px !important;
-    min-width: 112px !important;
-    min-height: 112px !important;
-    max-width: 112px !important;
-    max-height: 112px !important;
-    margin: -4px;
+    width: 120px !important;
+    height: 120px !important;
+    min-width: 120px !important;
+    min-height: 120px !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
+    margin: -8px;
   }
 
   .partner-info h3 {
