@@ -136,12 +136,12 @@
   <!-- Test Controls -->
   <div class="test-controls">
     <h2>🧪 Hybrid Responsive Test</h2>
-    <button class="test-btn" onclick="testMobileLayout()">📱 Test Mobile</button>
-    <button class="test-btn" onclick="testTabletLayout()">📋 Test Tablet</button>
-    <button class="test-btn" onclick="testDesktopLayout()">🖥️ Test Desktop</button>
-    <button class="test-btn" onclick="testLargeDesktop()">🖥️ Test Large Desktop</button>
-    <button class="test-btn" onclick="testAllBreakpoints()">🚀 Test All</button>
-    <button class="test-btn" onclick="clearResults()">🗑️ Clear Results</button>
+    <button class="test-btn" id="test-mobile-btn">📱 Test Mobile</button>
+    <button class="test-btn" id="test-tablet-btn">📋 Test Tablet</button>
+    <button class="test-btn" id="test-desktop-btn">🖥️ Test Desktop</button>
+    <button class="test-btn" id="test-large-btn">🖥️ Test Large Desktop</button>
+    <button class="test-btn" id="test-all-btn">🚀 Test All</button>
+    <button class="test-btn" id="clear-btn">🗑️ Clear Results</button>
 
     <div class="test-results">
       <h3>Test Results</h3>
@@ -150,7 +150,7 @@
   </div>
 
   <!-- Sidebar Toggle (for manual testing) -->
-  <button class="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+  <button class="toggle-sidebar" id="toggle-sidebar-btn">☰</button>
 
   <!-- Demo Content -->
   <div id="app">
@@ -175,7 +175,7 @@
         <h3>Modal Test</h3>
         <p>Desktop (1280px+): Center dialog</p>
         <p>Mobile (<1280px): Bottom sheet</p>
-        <button onclick="openTestModal()" style="padding: 10px 20px; background: #FF1493; color: white; border: none; border-radius: 8px; cursor: pointer;">Open Test Modal</button>
+        <button id="open-modal-btn" style="padding: 10px 20px; background: #FF1493; color: white; border: none; border-radius: 8px; cursor: pointer;">Open Test Modal</button>
       </div>
 
       <!-- Demo Cards Container -->
@@ -204,11 +204,11 @@
 
   <!-- Test Modal -->
   <div id="test-modal" class="modal" style="display: none;">
-    <div class="modal-overlay"></div>
+    <div class="modal-overlay" id="test-modal-overlay"></div>
     <div class="modal-content">
       <div class="modal-header">
         <h3>Test Modal</h3>
-        <button class="modal-close">&times;</button>
+        <button class="modal-close" id="test-modal-close">&times;</button>
       </div>
       <div class="modal-body">
         <p>This modal should appear as:</p>
@@ -377,6 +377,22 @@
       log('ModalManager ready', window.ModalManager ? 'pass' : 'fail');
 
       updateStatus();
+
+      // Setup button event listeners (CSP compliant)
+      document.getElementById('test-mobile-btn').addEventListener('click', testMobileLayout);
+      document.getElementById('test-tablet-btn').addEventListener('click', testTabletLayout);
+      document.getElementById('test-desktop-btn').addEventListener('click', testDesktopLayout);
+      document.getElementById('test-large-btn').addEventListener('click', testLargeDesktop);
+      document.getElementById('test-all-btn').addEventListener('click', testAllBreakpoints);
+      document.getElementById('clear-btn').addEventListener('click', clearResults);
+      document.getElementById('toggle-sidebar-btn').addEventListener('click', toggleSidebar);
+      document.getElementById('open-modal-btn').addEventListener('click', openTestModal);
+      document.getElementById('test-modal-close').addEventListener('click', () => {
+        document.getElementById('test-modal').style.display = 'none';
+      });
+      document.getElementById('test-modal-overlay').addEventListener('click', () => {
+        document.getElementById('test-modal').style.display = 'none';
+      });
 
       // Listen for layout changes
       window.addEventListener('layoutModeChange', (e) => {

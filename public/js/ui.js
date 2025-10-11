@@ -913,8 +913,41 @@ class UIManager {
 
     this.currentPartners = targets;
     this.currentPartnerIndex = 0;
+
+    // Check if we're in desktop mode for grid layout
+    const isDesktop = window.ResponsiveDetector && window.ResponsiveDetector.isDesktop();
+
+    if (isDesktop) {
+      this.renderPartnerGrid(targets);
+    } else {
+      this.renderPartnerCards(targets);
+      this.initializePartnerSwiper();
+    }
+
+    // Update CardGridManager if available
+    if (window.partnerGridManager && typeof window.partnerGridManager.setCards === 'function') {
+      window.partnerGridManager.setCards(targets);
+    }
+  }
+
+  // Render partner cards in grid mode (desktop)
+  renderPartnerGrid(targets) {
+    console.log('🖥️ [UI] Rendering partner cards in grid mode');
+    const cardsContainer = document.getElementById('partner-cards-container');
+    if (!cardsContainer) return;
+
+    // Add grid mode class
+    cardsContainer.classList.add('grid-mode');
+    cardsContainer.classList.remove('swiper-mode');
+
+    // Render all cards (no swiper initialization needed)
     this.renderPartnerCards(targets);
-    this.initializePartnerSwiper();
+
+    // Hide swiper controls
+    const pagination = document.getElementById('partner-swiper-pagination');
+    const controls = document.getElementById('partner-swiper-controls');
+    if (pagination) pagination.style.display = 'none';
+    if (controls) controls.style.display = 'none';
   }
 
   // Render empty partner swiper (delegated to ui-components utility)
