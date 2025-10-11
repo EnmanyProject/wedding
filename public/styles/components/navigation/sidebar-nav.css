@@ -192,12 +192,12 @@
 
   /* Adjust main content and header for sidebar ONLY when sidebar is active */
   body.has-sidebar .app-header {
-    margin-left: var(--sidebar-width);
+    margin-left: var(--sidebar-width) !important;
     transition: margin-left var(--transition-layout);
   }
 
   body.has-sidebar .main-content {
-    margin-left: var(--sidebar-width);
+    margin-left: var(--sidebar-width) !important;
     transition: margin-left var(--transition-layout);
   }
 }
