@@ -30,6 +30,51 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.59.2 (2025-10-11) - Fix Partner Cards Grid Rendering
+
+**작업 내용**:
+
+#### 파트너 카드 그리드 표시 버그 수정
+- **문제 발견**:
+  * 데스크톱/태블릿 모드에서 파트너 카드(유저 카드)가 안 보이는 문제
+  * ui.js의 `renderUserAvatars()` 메서드가 구버전 `isDesktop()` 메서드 사용
+  * v1.59.0의 5단계 반응형 시스템과 불일치
+
+- **근본 원인**:
+  ```javascript
+  // ui.js:918 - 구버전 코드
+  const isDesktop = window.ResponsiveDetector && window.ResponsiveDetector.isDesktop();
+
+  // isDesktop()는 1280px 기준으로만 판단
+  // 하지만 v1.59.0에서 768px+ (tablet/hybrid)에서도 그리드 표시해야 함
+  ```
+
+#### 수정 사항
+- **ui.js** `renderUserAvatars()` 메서드 업데이트 (Line 917-919)
+  * `isDesktop()` 제거 → `getCurrentMode()` + `shouldShowGrid` 로직 사용
+  * CardGridManager와 동일한 로직 적용
+  * `['tablet', 'hybrid', 'desktop', 'large']` 모드에서 그리드 표시
+  * `['mobile']` 모드에서만 스와이프
+
+**기술적 성과**:
+- ✅ 768px 이상 모든 모드에서 파트너 카드 그리드 정상 표시
+- ✅ 모바일(<768px)에서 스와이프 모드 유지
+- ✅ v1.59.0 반응형 시스템 완전 통합
+- ✅ NavigationManager, CardGridManager와 로직 일관성
+
+**코드 메트릭**:
+- **수정**: ui.js (6줄)
+- **총 변경**: 6줄
+
+**해결된 문제**:
+- 🐛 데스크톱/태블릿에서 파트너 카드 안 보이는 문제
+- 🐛 구버전 `isDesktop()` 메서드 사용으로 인한 불일치
+- ✅ 5단계 반응형 시스템 완전 통합
+
+**Git**: 0ba4810 커밋 완료 ✅
+
+---
+
 ### v1.59.1 (2025-10-11) - CSS Priority Fix for Sidebar Layout
 
 **작업 내용**:
