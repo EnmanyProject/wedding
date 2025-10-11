@@ -1599,528 +1599,307 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
   const category = req.query.category as string;
   const active = req.query.active as string;
   const search = req.query.search as string;
-
-  // Build WHERE clauses for both tables
-  let whereClauseAB = '1=1';
-  let whereClauseTP = '1=1';
-  const paramsAB: any[] = [];
-  const paramsTP: any[] = [];
-
-  if (category) {
-    whereClauseAB += ` AND category = $${paramsAB.length + 1}`;
-    whereClauseTP += ` AND category = $${paramsTP.length + 1}`;
-    paramsAB.push(category);
-    paramsTP.push(category);
-  }
-
-  if (active !== undefined) {
-    const isActive = active === 'true';
-    whereClauseAB += ` AND is_active = $${paramsAB.length + 1}`;
-    whereClauseTP += ` AND is_active = $${paramsTP.length + 1}`;
-    paramsAB.push(isActive);
-    paramsTP.push(isActive);
-  }
-
-  if (search) {
-    whereClauseAB += ` AND (title ILIKE $${paramsAB.length + 1} OR option_a_title ILIKE $${paramsAB.length + 2} OR option_b_title ILIKE $${paramsAB.length + 3})`;
-    whereClauseTP += ` AND (key ILIKE $${paramsTP.length + 1} OR left_label ILIKE $${paramsTP.length + 2} OR right_label ILIKE $${paramsTP.length + 3})`;
-    const searchPattern = `%${search}%`;
-    paramsAB.push(searchPattern, searchPattern, searchPattern);
-    paramsTP.push(searchPattern, searchPattern, searchPattern);
-  }
-
-  // Query both tables with unified format
-  const unifiedQuery = `
-    WITH unified_quizzes AS (
-      -- AB Quizzes (user-created)
-      SELECT
-        id,
-        'ab_quiz' as quiz_type,
-        'User Created' as source,
-        category,
-        title,
-        option_a_title as left_option,
-        option_b_title as right_option,
-        option_a_image as left_image,
-        option_b_image as right_image,
-        is_active,
-        created_at,
-        created_by as creator_info
-      FROM ab_quizzes
-      WHERE ${whereClauseAB}
-
-      UNION ALL
-
-      -- Trait Pairs (system/dummy)
-      SELECT
-        id,
-        'trait_pair' as quiz_type,
-        'System Generated' as source,
-        category,
-        key as title,
-        left_label as left_option,
-        right_label as right_option,
-        NULL as left_image,
-        NULL as right_image,
-        is_active,
-        created_at,
-        NULL as creator_info
-      FROM trait_pairs
-      WHERE ${whereClauseTP}
-    )
-    SELECT
-      *,
-      COUNT(*) OVER() as total_count
-    FROM unified_quizzes
-    ORDER BY created_at DESC
-    LIMIT $${Math.max(paramsAB.length, paramsTP.length) + 1}
-    OFFSET $${Math.max(paramsAB.length, paramsTP.length) + 2}
-  `;
-
-  const allParams = [...(paramsAB.length >= paramsTP.length ? paramsAB : paramsTP), perPage, offset];
-  const result = await db.query(unifiedQuery, allParams);
-
-  const totalCount = result.length > 0 ? parseInt(result[0].total_count) : 0;
-  const totalPages = Math.ceil(totalCount / perPage);
-
-  // Clean up the results
-  const quizzes = result.map(quiz => {
-    const { total_count, ...cleanQuiz } = quiz;
-    return {
-      ...cleanQuiz,
-      has_images: !!(cleanQuiz.left_image || cleanQuiz.right_image),
-      display_title: cleanQuiz.title || `${cleanQuiz.left_option} vs ${cleanQuiz.right_option}`
-    };
-  });
-
-  res.json({
-    success: true,
-    data: {
-      quizzes,
-      pagination: {
-        page,
-        per_page: perPage,
-        total_count: totalCount,
-        total_pages: totalPages,
-        has_next: page < totalPages,
-        has_prev: page > 1
-      }
-    }
-  });
-}));
-
-// ===========================
-// 유저 관리 API
-// ===========================
-
-// 모든 유저 목록 조회
-router.get('/users', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
-  const { page = 1, limit = 20, search = '', status = 'all', gender = 'all' } = req.query;
-  const offset = (Number(page) - 1) * Number(limit);
   const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-  let users;
+  let quizzes;
   let totalCount;
 
   if (useMock) {
-    // Mock 데이터 - 100명의 여성 사용자
-    const KOREAN_FEMALE_NAMES = [
-      '지우', '서연', '민지', '수빈', '하은', '예은', '지민', '소율', '하윤', '채원',
-      '수아', '지유', '다은', '은서', '시은', '하린', '유나', '윤서', '채은', '서윤',
-      '가은', '나연', '다인', '라희', '마음', '바다', '사랑', '아름', '자연', '차민',
-      '현서', '유진', '소연', '미주', '은채', '하늘', '보람', '슬기', '혜인', '정은',
-      '미연', '승희', '지혜', '은지', '수정', '민경', '지선', '예린', '하영', '수현',
-      '윤아', '태희', '혜리', '선미', '나은', '유빈', '소희', '다현', '예나', '채린',
-      '민아', '서진', '유리', '하나', '보영', '지영', '수민', '예원', '다영', '서아',
-      '민서', '유경', '지연', '수연', '예지', '하연', '채영', '서영', '민영', '유미',
-      '지은', '수지', '예슬', '하빈', '채윤', '서현', '민하', '유정', '지원', '수진',
-      '예진', '하율', '채이', '서우', '민지', '유주', '지안', '수아', '예림', '하진'
+    // Mock 퀴즈 데이터 (trait_pairs + ab_quizzes 통합)
+    const mockQuizzes = [
+      // Mock AB Quizzes (5개)
+      {
+        id: 'quiz-1',
+        quiz_type: 'ab_quiz',
+        source: 'User Created',
+        category: 'food',
+        title: '짜장면 vs 짬뽕',
+        left_option: '짜장면',
+        right_option: '짬뽕',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-15'),
+        creator_info: 'admin'
+      },
+      {
+        id: 'quiz-2',
+        quiz_type: 'ab_quiz',
+        source: 'User Created',
+        category: 'lifestyle',
+        title: '아침형 vs 저녁형',
+        left_option: '아침형 인간',
+        right_option: '저녁형 인간',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-14'),
+        creator_info: 'admin'
+      },
+      {
+        id: 'quiz-3',
+        quiz_type: 'ab_quiz',
+        source: 'User Created',
+        category: 'food',
+        title: '치킨 vs 피자',
+        left_option: '치킨',
+        right_option: '피자',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-13'),
+        creator_info: 'admin'
+      },
+      {
+        id: 'quiz-4',
+        quiz_type: 'ab_quiz',
+        source: 'User Created',
+        category: 'hobby',
+        title: '독서 vs 영화',
+        left_option: '독서',
+        right_option: '영화 감상',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-12'),
+        creator_info: 'admin'
+      },
+      {
+        id: 'quiz-5',
+        quiz_type: 'ab_quiz',
+        source: 'User Created',
+        category: 'lifestyle',
+        title: '커피 vs 차',
+        left_option: '커피',
+        right_option: '차',
+        left_image: null,
+        right_image: null,
+        is_active: false,
+        created_at: new Date('2025-01-11'),
+        creator_info: 'admin'
+      },
+      // Mock Trait Pairs (5개)
+      {
+        id: 'pair-1',
+        quiz_type: 'trait_pair',
+        source: 'System Generated',
+        category: 'hobby',
+        title: 'indoor_outdoor',
+        left_option: '실내활동',
+        right_option: '야외활동',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-10'),
+        creator_info: null
+      },
+      {
+        id: 'pair-2',
+        quiz_type: 'trait_pair',
+        source: 'System Generated',
+        category: 'lifestyle',
+        title: 'planning_spontaneous',
+        left_option: '계획적',
+        right_option: '즉흥적',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-08'),
+        creator_info: null
+      },
+      {
+        id: 'pair-3',
+        quiz_type: 'trait_pair',
+        source: 'System Generated',
+        category: 'nature',
+        title: 'city_nature',
+        left_option: '도시',
+        right_option: '자연',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-07'),
+        creator_info: null
+      },
+      {
+        id: 'pair-4',
+        quiz_type: 'trait_pair',
+        source: 'System Generated',
+        category: 'hobby',
+        title: 'active_passive',
+        left_option: '활동적인 취미',
+        right_option: '정적인 취미',
+        left_image: null,
+        right_image: null,
+        is_active: true,
+        created_at: new Date('2025-01-06'),
+        creator_info: null
+      },
+      {
+        id: 'pair-5',
+        quiz_type: 'trait_pair',
+        source: 'System Generated',
+        category: 'food',
+        title: 'spicy_mild',
+        left_option: '매운맛',
+        right_option: '순한맛',
+        left_image: null,
+        right_image: null,
+        is_active: false,
+        created_at: new Date('2025-01-05'),
+        creator_info: null
+      }
     ];
 
-    const REGIONS = [
-      '서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종',
-      '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'
-    ];
+    // 필터링 적용
+    let filtered = [...mockQuizzes];
 
-    const mockUsers = Array.from({ length: 100 }, (_, i) => {
-      const name = KOREAN_FEMALE_NAMES[i];
-      const age = 20 + Math.floor(Math.random() * 20); // 20-39세
-      const region = REGIONS[Math.floor(Math.random() * REGIONS.length)];
-      const daysAgo = Math.floor(Math.random() * 365); // 최근 1년 내 가입
-      const lastLoginDaysAgo = Math.floor(Math.random() * 30); // 최근 30일 내 로그인
-      const isActive = Math.random() > 0.1; // 90% 활성 사용자
-
-      const createdDate = new Date();
-      createdDate.setDate(createdDate.getDate() - daysAgo);
-
-      const lastLoginDate = new Date();
-      lastLoginDate.setDate(lastLoginDate.getDate() - lastLoginDaysAgo);
-
-      return {
-        id: String(i + 1),
-        name,
-        display_name: name,
-        email: `${name}${i + 1}@wedding.app`,
-        gender: 'female',
-        is_active: isActive,
-        created_at: createdDate,
-        last_login_at: lastLoginDate,
-        photo_count: Math.floor(Math.random() * 6) + 1, // 1-6장
-        approved_photos: Math.floor(Math.random() * 5) + 1, // 1-5장
-        quiz_responses: Math.floor(Math.random() * 50), // 0-50개
-        trait_responses: Math.floor(Math.random() * 80), // 0-80개
-        max_affinity_score: Math.floor(Math.random() * 100), // 0-100점
-        age,
-        location: region
-      };
-    });
-
-    let filteredUsers = mockUsers;
-
-    // 성별 필터
-    if (gender === 'male') {
-      filteredUsers = filteredUsers.filter(u => u.gender === 'male');
-    } else if (gender === 'female') {
-      filteredUsers = filteredUsers.filter(u => u.gender === 'female');
+    // 카테고리 필터
+    if (category) {
+      filtered = filtered.filter(q => q.category === category);
     }
 
-    // 상태 필터
-    if (status === 'active') {
-      filteredUsers = filteredUsers.filter(u => u.is_active);
-    } else if (status === 'inactive') {
-      filteredUsers = filteredUsers.filter(u => !u.is_active);
+    // 활성 상태 필터
+    if (active !== undefined) {
+      const isActive = active === 'true';
+      filtered = filtered.filter(q => q.is_active === isActive);
     }
 
     // 검색 필터
-    if (search && typeof search === 'string') {
+    if (search) {
       const searchLower = search.toLowerCase();
-      filteredUsers = filteredUsers.filter(u =>
-        u.name.toLowerCase().includes(searchLower) ||
-        u.display_name.toLowerCase().includes(searchLower) ||
-        u.email.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(q =>
+        q.title.toLowerCase().includes(searchLower) ||
+        q.left_option.toLowerCase().includes(searchLower) ||
+        q.right_option.toLowerCase().includes(searchLower)
       );
     }
 
-    totalCount = filteredUsers.length;
-    users = filteredUsers.slice(offset, offset + Number(limit));
+    totalCount = filtered.length;
+
+    // 페이지네이션 적용
+    quizzes = filtered.slice(offset, offset + perPage);
+
   } else {
-    let whereClause = 'WHERE 1=1';
+    // Real database query (기존 코드 유지)
+    let whereClauseAB = '1=1';
+    let whereClauseTP = '1=1';
     const params: any[] = [];
+    let paramIndex = 1;
 
-    // 검색 조건
-    if (search && typeof search === 'string') {
-      whereClause += ` AND (name ILIKE $${params.length + 1} OR display_name ILIKE $${params.length + 1} OR email ILIKE $${params.length + 1})`;
+    if (category) {
+      whereClauseAB += ` AND category = $${paramIndex}`;
+      whereClauseTP += ` AND category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    if (active !== undefined) {
+      whereClauseAB += ` AND is_active = $${paramIndex}`;
+      whereClauseTP += ` AND is_active = $${paramIndex}`;
+      params.push(active === 'true');
+      paramIndex++;
+    }
+
+    if (search) {
+      whereClauseAB += ` AND (
+        title ILIKE $${paramIndex} OR
+        option_a_title ILIKE $${paramIndex} OR
+        option_b_title ILIKE $${paramIndex}
+      )`;
+      whereClauseTP += ` AND (
+        key ILIKE $${paramIndex} OR
+        left_label ILIKE $${paramIndex} OR
+        right_label ILIKE $${paramIndex}
+      )`;
       params.push(`%${search}%`);
+      paramIndex++;
     }
 
-    // 상태 필터
-    if (status === 'active') {
-      whereClause += ` AND is_active = true`;
-    } else if (status === 'inactive') {
-      whereClause += ` AND is_active = false`;
-    }
+    const allParams = [...params, perPage, offset];
 
-    // 성별 필터
-    if (gender === 'male') {
-      whereClause += ` AND u.gender = 'male'`;
-    } else if (gender === 'female') {
-      whereClause += ` AND u.gender = 'female'`;
-    }
+    const unifiedQuery = `
+      WITH unified_quizzes AS (
+        SELECT
+          id,
+          'ab_quiz' as quiz_type,
+          'User Created' as source,
+          category,
+          title,
+          option_a_title as left_option,
+          option_b_title as right_option,
+          option_a_image as left_image,
+          option_b_image as right_image,
+          is_active,
+          created_at,
+          (SELECT email FROM admins WHERE id = created_by) as creator_info
+        FROM ab_quizzes
+        WHERE ${whereClauseAB}
 
-    const query = `
-      SELECT
-        u.id,
-        u.name,
-        u.display_name,
-        u.email,
-        u.gender,
-        u.is_active,
-        u.created_at,
-        u.last_login_at,
-        COUNT(up.id) as photo_count,
-        COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
-        COUNT(qr.id) as quiz_responses,
-        COUNT(ut.id) as trait_responses,
-        COALESCE(MAX(a.score), 0) as max_affinity_score
-      FROM users u
-      LEFT JOIN user_photos up ON u.id = up.user_id
-      LEFT JOIN quiz_responses qr ON u.id = qr.user_id
-      LEFT JOIN user_traits ut ON u.id = ut.user_id
-      LEFT JOIN affinity a ON u.id = a.target_id
-      ${whereClause}
-      GROUP BY u.id, u.name, u.display_name, u.email, u.gender, u.is_active, u.created_at, u.last_login_at
-      ORDER BY u.created_at DESC
-      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+        UNION ALL
+
+        SELECT
+          id,
+          'trait_pair' as quiz_type,
+          'System Generated' as source,
+          category,
+          key as title,
+          left_label as left_option,
+          right_label as right_option,
+          NULL as left_image,
+          NULL as right_image,
+          is_active,
+          created_at,
+          NULL as creator_info
+        FROM trait_pairs
+        WHERE ${whereClauseTP}
+      )
+      SELECT * FROM unified_quizzes
+      ORDER BY created_at DESC
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
 
-    params.push(Number(limit), offset);
+    quizzes = await db.query(unifiedQuery, allParams);
 
-    const [usersResult, totalCountResult] = await Promise.all([
-      db.query(query, params),
-      db.query(`
-        SELECT COUNT(*) as total
-        FROM users u
-        ${whereClause}
-      `, params.slice(0, -2))
-    ]);
+    const countQuery = `
+      WITH unified_quizzes AS (
+        SELECT id FROM ab_quizzes WHERE ${whereClauseAB}
+        UNION ALL
+        SELECT id FROM trait_pairs WHERE ${whereClauseTP}
+      )
+      SELECT COUNT(*) as count FROM unified_quizzes
+    `;
 
-    users = usersResult;
-    totalCount = parseInt(totalCountResult[0]?.total || '0');
+    const [total] = await db.query(countQuery, params);
+    totalCount = total?.count || 0;
   }
 
-  const totalPages = Math.ceil(totalCount / Number(limit));
+  // 통계 계산
+  const stats = {
+    total: totalCount,
+    ab_quizzes: quizzes.filter(q => q.quiz_type === 'ab_quiz').length,
+    trait_pairs: quizzes.filter(q => q.quiz_type === 'trait_pair').length,
+    active: quizzes.filter(q => q.is_active).length,
+    inactive: quizzes.filter(q => !q.is_active).length
+  };
 
-  res.json({
+  const response: ApiResponse = {
     success: true,
     data: {
-      users: users.map(user => ({
-        ...user,
-        stats: {
-          photo_count: parseInt(user.photo_count),
-          approved_photos: parseInt(user.approved_photos),
-          quiz_responses: parseInt(user.quiz_responses),
-          trait_responses: parseInt(user.trait_responses),
-          max_affinity_score: parseInt(user.max_affinity_score)
-        }
-      })),
+      quizzes,
+      stats,
       pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total_count: totalCount,
-        total_pages: totalPages,
-        has_next: Number(page) < totalPages,
-        has_prev: Number(page) > 1
+        page,
+        per_page: perPage,
+        total: totalCount,
+        has_next: offset + perPage < totalCount,
+        has_prev: page > 1
       }
-    }
-  });
-}));
+    },
+    timestamp: new Date().toISOString()
+  };
 
-// 특정 유저 상세 정보 조회
-router.get('/users/:userId', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
-  const { userId } = req.params;
-  const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
-
-  let userResult;
-  let photos;
-  let quizStats;
-  let traits;
-  let affinityTowards;
-  let affinityFrom;
-
-  if (useMock) {
-    // Mock 데이터
-    const KOREAN_FEMALE_NAMES = ['지우', '서연', '민지', '수빈', '하은', '예은', '지민', '소율', '하윤', '채원'];
-    const userIndex = parseInt(userId) - 1;
-
-    if (userIndex < 0 || userIndex >= 100) {
-      throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
-    }
-
-    const name = KOREAN_FEMALE_NAMES[userIndex % 10];
-
-    userResult = {
-      id: userId,
-      name,
-      display_name: name,
-      email: `${name}${userId}@wedding.app`,
-      gender: 'female',
-      age: 20 + Math.floor(Math.random() * 20),
-      location: '서울',
-      bio: `안녕하세요, ${name}입니다.`,
-      profile_complete: true,
-      is_active: true,
-      created_at: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000),
-      last_login_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      total_photos: 5,
-      approved_photos: 4,
-      pending_photos: 1,
-      rejected_photos: 0
-    };
-
-    photos = [
-      { id: '1', moderation_status: 'APPROVED', created_at: new Date(), variant: 'ORIG', storage_key: '/images/profiles/user1.jpg' },
-      { id: '2', moderation_status: 'APPROVED', created_at: new Date(), variant: 'ORIG', storage_key: '/images/profiles/user2.png' }
-    ];
-
-    quizStats = [
-      { total_responses: 30, option_a_count: 15, option_b_count: 15, response_date: new Date(), daily_count: 5 }
-    ];
-
-    traits = [
-      { choice: 'LEFT', left_label: '아침형', right_label: '저녁형', category: 'lifestyle', created_at: new Date() },
-      { choice: 'RIGHT', left_label: '계획적', right_label: '즉흥적', category: 'personality', created_at: new Date() }
-    ];
-
-    affinityTowards = [
-      { viewer_id: '2', viewer_name: '이수진', viewer_display_name: '수진', score: 85, stages_unlocked: 3, updated_at: new Date() },
-      { viewer_id: '3', viewer_name: '박지혜', viewer_display_name: '지혜', score: 72, stages_unlocked: 2, updated_at: new Date() }
-    ];
-
-    affinityFrom = [
-      { target_id: '2', target_name: '이수진', target_display_name: '수진', score: 90, stages_unlocked: 3, updated_at: new Date() },
-      { target_id: '4', target_name: '최민지', target_display_name: '민지', score: 65, stages_unlocked: 2, updated_at: new Date() }
-    ];
-  } else {
-    // 유저 기본 정보
-    const userQuery = `
-      SELECT
-        u.*,
-        COUNT(up.id) as total_photos,
-        COUNT(CASE WHEN up.moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
-        COUNT(CASE WHEN up.moderation_status = 'PENDING' THEN 1 END) as pending_photos,
-        COUNT(CASE WHEN up.moderation_status = 'REJECTED' THEN 1 END) as rejected_photos
-      FROM users u
-      LEFT JOIN user_photos up ON u.id = up.user_id
-      WHERE u.id = $1
-      GROUP BY u.id
-    `;
-
-    [userResult] = await db.query(userQuery, [userId]);
-    if (!userResult) {
-      throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
-    }
-
-    // 유저 사진 목록
-    const photosQuery = `
-      SELECT
-        up.id,
-        up.moderation_status,
-        up.created_at,
-        pa.variant,
-        pa.storage_key
-      FROM user_photos up
-      LEFT JOIN photo_assets pa ON up.id = pa.photo_id
-      WHERE up.user_id = $1
-      ORDER BY up.created_at DESC
-    `;
-    photos = await db.query(photosQuery, [userId]);
-
-    // 퀴즈 응답 통계
-    const quizStatsQuery = `
-      SELECT
-        COUNT(*) as total_responses,
-        COUNT(CASE WHEN qr.selected_option = 'A' THEN 1 END) as option_a_count,
-        COUNT(CASE WHEN qr.selected_option = 'B' THEN 1 END) as option_b_count,
-        DATE_TRUNC('day', qr.created_at) as response_date,
-        COUNT(*) as daily_count
-      FROM quiz_responses qr
-      WHERE qr.user_id = $1
-      GROUP BY DATE_TRUNC('day', qr.created_at)
-      ORDER BY response_date DESC
-      LIMIT 7
-    `;
-    quizStats = await db.query(quizStatsQuery, [userId]);
-
-    // 성향 응답 목록
-    const traitsQuery = `
-      SELECT
-        ut.choice,
-        tp.left_label,
-        tp.right_label,
-        tp.category,
-        ut.created_at
-      FROM user_traits ut
-      JOIN trait_pairs tp ON ut.pair_id = tp.id
-      WHERE ut.user_id = $1
-      ORDER BY ut.created_at DESC
-    `;
-    traits = await db.query(traitsQuery, [userId]);
-
-    // 호감도 순위 (이 유저를 향한)
-    const affinityQuery = `
-      SELECT
-        a.viewer_id,
-        u.name as viewer_name,
-        u.display_name as viewer_display_name,
-        a.score,
-        a.stages_unlocked,
-        a.updated_at
-      FROM affinity a
-      JOIN users u ON a.viewer_id = u.id
-      WHERE a.target_id = $1
-      ORDER BY a.score DESC
-      LIMIT 10
-    `;
-    affinityTowards = await db.query(affinityQuery, [userId]);
-
-    // 이 유저가 다른 사람들에게 보이는 호감도
-    const affinityFromQuery = `
-      SELECT
-        a.target_id,
-        u.name as target_name,
-        u.display_name as target_display_name,
-        a.score,
-        a.stages_unlocked,
-        a.updated_at
-      FROM affinity a
-      JOIN users u ON a.target_id = u.id
-      WHERE a.viewer_id = $1
-      ORDER BY a.score DESC
-      LIMIT 10
-    `;
-    affinityFrom = await db.query(affinityFromQuery, [userId]);
-  }
-
-  await logAdminActivity(req.adminId!, 'user_detail_viewed', {
-    user_id: userId,
-    user_name: userResult.name
-  });
-
-  res.json({
-    success: true,
-    data: {
-      user: {
-        ...userResult,
-        stats: {
-          total_photos: parseInt(userResult.total_photos),
-          approved_photos: parseInt(userResult.approved_photos),
-          pending_photos: parseInt(userResult.pending_photos),
-          rejected_photos: parseInt(userResult.rejected_photos)
-        }
-      },
-      photos,
-      quiz_stats: quizStats,
-      traits,
-      affinity: {
-        towards_user: affinityTowards,
-        from_user: affinityFrom
-      }
-    }
-  });
-}));
-
-// 유저 상태 변경 (활성화/비활성화)
-router.patch('/users/:userId/status', authenticateAdmin, asyncHandler(async (req: AdminAuthenticatedRequest, res: Response) => {
-  const { userId } = req.params;
-  const { is_active } = req.body;
-
-  if (typeof is_active !== 'boolean') {
-    throw createError('is_active는 boolean 값이어야 합니다', 400, 'INVALID_INPUT');
-  }
-
-  const result = await db.query(
-    'UPDATE users SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING name',
-    [is_active, userId]
-  );
-
-  if (result.length === 0) {
-    throw createError('유저를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
-  }
-
-  await logAdminActivity(req.adminId!, 'user_status_changed', {
-    user_id: userId,
-    user_name: result[0].name,
-    new_status: is_active ? 'active' : 'inactive'
-  });
-
-  res.json({
-    success: true,
-    message: `유저가 ${is_active ? '활성화' : '비활성화'}되었습니다`,
-    data: {
-      user_id: userId,
-      is_active
-    }
-  });
+  res.json(response);
 }));
 
 export default router;

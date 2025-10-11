@@ -1,0 +1,264 @@
+/**
+ * Card Variants
+ * Wedding App - Unified Card System
+ *
+ * Purpose: Different card types using the same base structure
+ * Variants: Partner, Pawnshop, Profile, Ranking
+ *
+ * @version 1.0.0
+ * @date 2025-10-11
+ */
+
+/* ===================================
+   PARTNER CARD (Dating/Recommendations)
+   =================================== */
+
+.card--partner {
+  /* Dark gradient background */
+  background: linear-gradient(135deg,
+    var(--color-bg-dark-1) 0%,
+    var(--color-bg-dark-2) 50%,
+    var(--color-bg-dark-3) 100%
+  );
+
+  /* Pink neon border */
+  border: 3px solid var(--color-primary-200);
+  box-shadow: var(--shadow-glow-pink);
+
+  /* Specific sizing for swiper */
+  max-width: 400px;
+  height: 600px;
+
+  /* Ensure content is centered */
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card--partner:hover {
+  border-color: var(--color-primary-100);
+  box-shadow: var(--shadow-glow-pink-hover);
+}
+
+/* Partner card text colors (white on dark) */
+.card--partner .card__title {
+  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, #ff6b9d, #ff8ab5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card--partner .card__subtitle {
+  color: var(--color-primary-200);
+}
+
+/* Partner card has no footer border */
+.card--partner .card__footer {
+  border-top: none;
+}
+
+
+/* ===================================
+   PAWNSHOP CARD
+   =================================== */
+
+.card--pawnshop {
+  /* Dark background */
+  background: linear-gradient(135deg,
+    var(--color-bg-dark-1) 0%,
+    var(--color-bg-dark-3) 100%
+  );
+
+  /* Gold border */
+  border: 2px solid var(--color-accent-200);
+  box-shadow: var(--shadow-glow-gold);
+
+  /* Compact sizing */
+  min-height: 280px;
+}
+
+.card--pawnshop:hover {
+  border-color: var(--color-accent-100);
+  box-shadow: var(--shadow-glow-gold-hover);
+}
+
+/* Pawnshop card text colors */
+.card--pawnshop .card__title {
+  color: var(--color-accent-200);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.card--pawnshop .card__subtitle {
+  color: var(--color-text-inverse);
+  opacity: 0.9;
+}
+
+
+/* ===================================
+   PROFILE MODAL CARD
+   =================================== */
+
+.card--profile {
+  /* Black background */
+  background: var(--color-bg-dark-3);
+
+  /* Deep pink border */
+  border: 3px solid var(--color-primary-300);
+  box-shadow:
+    0 25px 70px rgba(255, 20, 147, 0.4),
+    0 10px 30px rgba(255, 20, 147, 0.3);
+
+  /* Specific sizing for modal */
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  /* Modal-specific layout */
+  padding: var(--space-xl);
+}
+
+.card--profile:hover {
+  /* No hover effect for modal cards */
+  transform: none;
+}
+
+/* Profile card text colors */
+.card--profile .card__title {
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-2xl);
+}
+
+.card--profile .card__subtitle {
+  color: var(--color-primary-300);
+}
+
+/* Custom scrollbar for profile modal */
+.card--profile::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card--profile::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.card--profile::-webkit-scrollbar-thumb {
+  background: var(--color-primary-300);
+  border-radius: 4px;
+}
+
+.card--profile::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-200);
+}
+
+
+/* ===================================
+   RANKING CARD
+   =================================== */
+
+.card--ranking {
+  /* Light background */
+  background: var(--color-bg-light);
+
+  /* Subtle border */
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  /* Compact sizing */
+  min-height: auto;
+  padding: var(--space-md);
+
+  /* Horizontal layout option */
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.card--ranking:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Ranking card text colors */
+.card--ranking .card__title {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  margin: 0;
+  text-align: left;
+}
+
+.card--ranking .card__subtitle {
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+
+/* Ranking number badge */
+.card--ranking::before {
+  content: attr(data-rank);
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary-200);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+
+/* ===================================
+   RESPONSIVE VARIANTS
+   =================================== */
+
+@media (min-width: 480px) {
+  .card--partner {
+    height: 600px;
+  }
+
+  .card--pawnshop {
+    min-height: 320px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card--partner {
+    max-width: 400px;
+  }
+
+  .card--profile {
+    padding: var(--space-2xl);
+  }
+}
+
+
+/* ===================================
+   DARK MODE ADJUSTMENTS
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+  .card--ranking {
+    background: var(--color-bg-light);
+    border-color: var(--color-border-dark);
+  }
+}
+
+
+/* ===================================
+   TOUCH DEVICE VARIANTS
+   =================================== */
+
+@media (hover: none) and (pointer: coarse) {
+  .card--partner {
+    /* Maintain aspect ratio on mobile */
+    aspect-ratio: 2 / 3;
+    max-height: 600px;
+  }
+
+  .card--ranking {
+    /* Ensure adequate touch target */
+    min-height: 80px;
+  }
+}

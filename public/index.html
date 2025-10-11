@@ -54,6 +54,11 @@
     <!-- 🏦 전당포 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/pawnshop.css?v=20251009">
 
+    <!-- 🎨 NEW: Unified Card System (Phase 1) -->
+    <link rel="stylesheet" href="/styles/design-tokens.css?v=20251011">
+    <link rel="stylesheet" href="/styles/card-system/core/card-base.css?v=20251011">
+    <link rel="stylesheet" href="/styles/card-system/core/card-variants.css?v=20251011">
+
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
@@ -622,6 +627,32 @@
     <!-- Live Region for Screen Reader Announcements -->
     <div id="sr-announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
 
+    <!-- 🎨 NEW: Universal Card Template (Hidden) -->
+    <template id="card-template">
+        <article class="card" role="article" tabindex="0">
+            <header class="card__header">
+                <div class="card__avatar">
+                    <img src="" alt="" class="card__avatar-image" loading="lazy">
+                    <div class="card__avatar-badges">
+                        <!-- Verification badges will be inserted here -->
+                    </div>
+                </div>
+                <h3 class="card__title"></h3>
+                <p class="card__subtitle"></p>
+            </header>
+
+            <div class="card__body">
+                <div class="card__stats">
+                    <!-- Stats will be inserted here -->
+                </div>
+            </div>
+
+            <footer class="card__footer">
+                <!-- Action buttons will be inserted here -->
+            </footer>
+        </article>
+    </template>
+
     <!-- Scripts -->
     <script src="/js/version.js"></script>
     <script src="/js/security.js"></script>
@@ -638,6 +669,10 @@
     <script src="/js/bety-manager.js"></script>
     <!-- 🔄 로딩 상태 매니저 - 성능 최적화 -->
     <script src="/js/loading-manager.js"></script>
+    <!-- 🎨 NEW: Unified Card System (Phase 1) -->
+    <script src="/js/feature-flags.js"></script>
+    <script src="/js/components/card-component.js"></script>
+    <script src="/js/components/partner-card.js"></script>
     <!-- 💍 Ring 화폐 시스템 JavaScript -->
     <script src="/js/utils/ring-system.js"></script>
     <!-- 💎 D-베티 특별 추천 JavaScript -->

@@ -77,6 +77,68 @@ export class AffinityService {
       cacheCount: rankingCache.size
     });
 
+    // Mock mode support
+    if (process.env.USE_MOCK_RING_SERVICE === 'true') {
+      console.log('🎭 [AffinityService] Mock 모드 - 가짜 랭킹 데이터 생성');
+
+      const mockRankings = [
+        {
+          target_id: '550e8400-e29b-41d4-a716-446655440002',
+          target_name: '지은',
+          rank_position: 1,
+          affinity_score: 85,
+          photos_unlocked: 3,
+          can_meet: true
+        },
+        {
+          target_id: '550e8400-e29b-41d4-a716-446655440003',
+          target_name: '수지',
+          rank_position: 2,
+          affinity_score: 75,
+          photos_unlocked: 2,
+          can_meet: true
+        },
+        {
+          target_id: '550e8400-e29b-41d4-a716-446655440004',
+          target_name: '민지',
+          rank_position: 3,
+          affinity_score: 65,
+          photos_unlocked: 2,
+          can_meet: false
+        },
+        {
+          target_id: '550e8400-e29b-41d4-a716-446655440005',
+          target_name: '하영',
+          rank_position: 4,
+          affinity_score: 55,
+          photos_unlocked: 1,
+          can_meet: false
+        },
+        {
+          target_id: '550e8400-e29b-41d4-a716-446655440006',
+          target_name: '서연',
+          rank_position: 5,
+          affinity_score: 45,
+          photos_unlocked: 1,
+          can_meet: false
+        }
+      ];
+
+      const result: UserRankingResponse = {
+        rankings: mockRankings
+      };
+
+      // Cache the mock result
+      rankingCache.set(cacheKey, {
+        data: result,
+        expires: Date.now() + CACHE_TTL
+      });
+      console.log('💾 [AffinityService] Mock 랭킹 캐시 저장 완료');
+      console.log('🎉 [AffinityService] getUserRanking 완료 (Mock):', { returnedRankings: result.rankings.length });
+
+      return result;
+    }
+
     console.log('🔍 [AffinityService] 랭킹 데이터 조회 중...');
 
     const rankings = await this.db.query(

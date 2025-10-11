@@ -1,0 +1,250 @@
+/**
+ * Design Tokens System
+ * Wedding App - Unified Card Component System
+ *
+ * Purpose: Centralized design variables for consistency across all card types
+ * Usage: Import this file before any component CSS
+ *
+ * @version 1.0.0
+ * @date 2025-10-11
+ */
+
+:root {
+  /* ===================================
+     COLOR SYSTEM
+     =================================== */
+
+  /* Primary (Pink) - Main brand color */
+  --color-primary-50: #fce4ec;
+  --color-primary-100: #f8bbd0;
+  --color-primary-200: #ff6b9d;      /* Main pink */
+  --color-primary-300: #FF1493;      /* Deep pink */
+  --color-primary-400: #ad1457;
+  --color-primary-500: #880e4f;
+
+  /* Secondary (Blue) - Accent color */
+  --color-secondary-100: #667eea;
+  --color-secondary-200: #3f51b5;
+  --color-secondary-300: #303f9f;
+
+  /* Accent (Gold) - Pawnshop theme */
+  --color-accent-100: #FFA500;       /* Orange */
+  --color-accent-200: #FFD700;       /* Gold */
+  --color-accent-300: #DAA520;       /* Darker gold */
+
+  /* Neutrals - Grayscale */
+  --color-bg-light: #ffffff;
+  --color-bg-light-2: #f5f5f5;
+  --color-bg-dark-1: #1a1a1a;
+  --color-bg-dark-2: #0a0a0a;
+  --color-bg-dark-3: #000000;
+
+  --color-text-primary: #263238;
+  --color-text-secondary: #546e7a;
+  --color-text-muted: #90a4ae;
+  --color-text-inverse: #ffffff;
+
+  --color-border: #e0e0e0;
+  --color-border-focus: var(--color-primary-200);
+  --color-border-dark: #404040;
+
+  /* Status Colors */
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-error: #f44336;
+  --color-info: #2196f3;
+
+
+  /* ===================================
+     SPACING SYSTEM (8px base)
+     =================================== */
+
+  --space-xs: 0.5rem;       /* 8px */
+  --space-sm: 1rem;         /* 16px */
+  --space-md: 1.5rem;       /* 24px */
+  --space-lg: 2rem;         /* 32px */
+  --space-xl: 3rem;         /* 48px */
+  --space-2xl: 4rem;        /* 64px */
+
+
+  /* ===================================
+     TYPOGRAPHY SCALE
+     =================================== */
+
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-md: 1.125rem;     /* 18px */
+  --font-size-lg: 1.25rem;      /* 20px */
+  --font-size-xl: 1.5rem;       /* 24px */
+  --font-size-2xl: 1.75rem;     /* 28px */
+  --font-size-3xl: 2rem;        /* 32px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+
+  /* ===================================
+     BORDER RADIUS
+     =================================== */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 50%;
+
+
+  /* ===================================
+     SHADOWS
+     =================================== */
+
+  /* Standard Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.20);
+
+  /* Glow Effects - For dark theme cards */
+  --shadow-glow-pink:
+    0 10px 40px rgba(255, 107, 157, 0.4),
+    0 2px 8px rgba(255, 107, 157, 0.3),
+    0 0 30px rgba(255, 107, 157, 0.2);
+
+  --shadow-glow-pink-hover:
+    0 15px 50px rgba(255, 107, 157, 0.6),
+    0 5px 15px rgba(255, 107, 157, 0.4),
+    0 0 40px rgba(255, 107, 157, 0.3);
+
+  --shadow-glow-gold:
+    0 8px 24px rgba(255, 215, 0, 0.3),
+    0 4px 12px rgba(255, 215, 0, 0.15);
+
+  --shadow-glow-gold-hover:
+    0 10px 30px rgba(255, 215, 0, 0.4),
+    0 5px 15px rgba(255, 215, 0, 0.2);
+
+  --shadow-glow-blue:
+    0 8px 24px rgba(102, 126, 234, 0.35),
+    0 4px 12px rgba(102, 126, 234, 0.2);
+
+
+  /* ===================================
+     TRANSITIONS & ANIMATIONS
+     =================================== */
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Easing Functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+
+  /* ===================================
+     Z-INDEX SCALE
+     =================================== */
+
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 100;
+  --z-modal: 1000;
+  --z-toast: 2000;
+  --z-tooltip: 3000;
+
+
+  /* ===================================
+     BREAKPOINTS (for JS usage)
+     =================================== */
+
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+
+  /* ===================================
+     CARD-SPECIFIC TOKENS
+     =================================== */
+
+  /* Card Sizing */
+  --card-padding-mobile: var(--space-md);
+  --card-padding-tablet: var(--space-lg);
+  --card-padding-desktop: var(--space-xl);
+
+  --card-min-height-mobile: 280px;
+  --card-min-height-tablet: 320px;
+  --card-min-height-desktop: 360px;
+
+  /* Avatar Sizing */
+  --avatar-size-xs: 60px;
+  --avatar-size-sm: 80px;
+  --avatar-size-md: 100px;
+  --avatar-size-lg: 120px;
+  --avatar-size-xl: 160px;
+
+  /* Badge Sizing */
+  --badge-size-sm: 20px;
+  --badge-size-md: 24px;
+  --badge-size-lg: 32px;
+}
+
+
+/* ===================================
+   DARK MODE OVERRIDES
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Adjust light colors for dark mode */
+    --color-bg-light: #2d2d2d;
+    --color-bg-light-2: #3d3d3d;
+
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #b0b0b0;
+    --color-text-muted: #808080;
+
+    --color-border: #404040;
+    --color-border-dark: #606060;
+  }
+}
+
+
+/* ===================================
+   HIGH CONTRAST MODE
+   =================================== */
+
+@media (prefers-contrast: high) {
+  :root {
+    /* Increase contrast for better visibility */
+    --color-border: #000000;
+    --color-border-focus: #0000ff;
+
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+}
+
+
+/* ===================================
+   REDUCED MOTION
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* Disable animations for users with vestibular disorders */
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+  }
+}
