@@ -74,7 +74,7 @@
 - 🐛 CSS 우선순위 충돌 (`!important` vs `!important`)
 - ✅ 데스크톱 UI 완벽 정렬
 
-**Git**: (커밋 예정)
+**Git**: 6d51857 커밋 완료 ✅
 
 ---
 
