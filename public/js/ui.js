@@ -914,10 +914,11 @@ class UIManager {
     this.currentPartners = targets;
     this.currentPartnerIndex = 0;
 
-    // Check if we're in desktop mode for grid layout
-    const isDesktop = window.ResponsiveDetector && window.ResponsiveDetector.isDesktop();
+    // Check if we should show grid (768px+: tablet, hybrid, desktop, large)
+    const currentMode = window.ResponsiveDetector ? window.ResponsiveDetector.getCurrentMode() : 'mobile';
+    const shouldShowGrid = ['tablet', 'hybrid', 'desktop', 'large'].includes(currentMode);
 
-    if (isDesktop) {
+    if (shouldShowGrid) {
       this.renderPartnerGrid(targets);
     } else {
       this.renderPartnerCards(targets);
