@@ -406,7 +406,7 @@
 }
 
 .pawn-reward-info p {
-  color: #e0e0e0;
+  color: #ffffff;
   margin: 0.5rem 0;
   font-size: 0.95rem;
 }
@@ -513,7 +513,7 @@
 
 .char-counter {
   text-align: right;
-  color: #888;
+  color: #ffffff;
   font-size: 0.85rem;
   margin-bottom: 1rem;
 }
@@ -568,7 +568,7 @@
 
 .pawnshop-card-info {
   text-align: center;
-  color: #e0e0e0;
+  color: #ffffff;
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -577,7 +577,7 @@
 .empty-transactions {
   text-align: center;
   padding: 3rem 1rem;
-  color: #888;
+  color: #ffffff;
 }
 
 .dbety-loading,
@@ -588,7 +588,7 @@
 
 .loading-placeholder p,
 .empty-transactions p {
-  color: #888;
+  color: #ffffff;
   font-size: 1rem;
   margin: 1rem 0 0 0;
 }
@@ -612,7 +612,7 @@
 }
 
 .summary-label {
-  color: #888;
+  color: #ffffff;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
 }
@@ -667,7 +667,7 @@
 }
 
 .transaction-date {
-  color: #888;
+  color: #ffffff;
   font-size: 0.85rem;
 }
 
