@@ -2,10 +2,10 @@
 
 > 📚 **문서 역할**: 버전 히스토리 및 작업 일지 (Append Only - 추가만, 삭제 안 함)
 >
-> **다른 문서들**:
-> - `.claude-code/PROJECT.md` - 프로젝트 전체 개요 (거의 변경 안 함)
-> - `.claude-code/MASTER.md` - 현재 작업 상태 (자주 업데이트)
-> - `CLAUDE.md` (이 파일) - 버전 히스토리 (추가만)
+> **3-Document System**:
+> - `project-management/PROJECT.md` - 프로젝트 전체 개요 (거의 변경 안 함)
+> - `project-management/MASTER.md` - 현재 작업 상태 (자주 업데이트)
+> - `CLAUDE.md` (이 파일, 루트) - 버전 히스토리 (추가만)
 
 ---
 
