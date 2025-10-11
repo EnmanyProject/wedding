@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hybrid Responsive Test - Wedding App</title>
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="/styles/core/design-tokens.css">
+  <link rel="stylesheet" href="/styles/layouts/base-layout.css">
+  <link rel="stylesheet" href="/styles/layouts/enhanced-responsive.css">
+
+  <!-- Components -->
+  <link rel="stylesheet" href="/styles/components/navigation/sidebar-nav.css">
+  <link rel="stylesheet" href="/styles/components/cards/card-grid.css">
+  <link rel="stylesheet" href="/styles/components/modal-responsive.css">
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #000;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    .test-controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 20, 147, 0.9);
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 10000;
+      min-width: 300px;
+    }
+
+    .test-controls h2 {
+      margin: 0 0 15px 0;
+      font-size: 18px;
+    }
+
+    .test-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: white;
+      color: #FF1493;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .test-btn:hover {
+      background: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    .test-results {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .test-results h3 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+    }
+
+    .test-log {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .test-log li {
+      padding: 5px;
+      margin-bottom: 3px;
+      border-radius: 4px;
+    }
+
+    .test-log .pass {
+      background: rgba(76, 175, 80, 0.3);
+    }
+
+    .test-log .fail {
+      background: rgba(244, 67, 54, 0.3);
+    }
+
+    .test-log .info {
+      background: rgba(33, 150, 243, 0.3);
+    }
+
+    .demo-content {
+      padding: 20px;
+    }
+
+    .demo-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      border: 2px solid #FF1493;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(255, 20, 147, 0.3);
+    }
+
+    .demo-card h3 {
+      margin-top: 0;
+    }
+
+    .toggle-sidebar {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: #FF1493;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(255, 20, 147, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Test Controls -->
+  <div class="test-controls">
+    <h2>🧪 Hybrid Responsive Test</h2>
+    <button class="test-btn" onclick="testMobileLayout()">📱 Test Mobile</button>
+    <button class="test-btn" onclick="testTabletLayout()">📋 Test Tablet</button>
+    <button class="test-btn" onclick="testDesktopLayout()">🖥️ Test Desktop</button>
+    <button class="test-btn" onclick="testLargeDesktop()">🖥️ Test Large Desktop</button>
+    <button class="test-btn" onclick="testAllBreakpoints()">🚀 Test All</button>
+    <button class="test-btn" onclick="clearResults()">🗑️ Clear Results</button>
+
+    <div class="test-results">
+      <h3>Test Results</h3>
+      <ul class="test-log" id="test-log"></ul>
+    </div>
+  </div>
+
+  <!-- Sidebar Toggle (for manual testing) -->
+  <button class="toggle-sidebar" onclick="toggleSidebar()">☰</button>
+
+  <!-- Demo Content -->
+  <div id="app">
+    <main class="main-content demo-content">
+      <h1>Hybrid Design Architecture Test</h1>
+
+      <div class="demo-card">
+        <h3>Navigation Test</h3>
+        <p>Desktop (1280px+): Sidebar on left</p>
+        <p>Mobile (<1280px): Bottom navigation</p>
+        <p>Status: <span id="nav-status">Checking...</span></p>
+      </div>
+
+      <div class="demo-card">
+        <h3>Card Layout Test</h3>
+        <p>Desktop (1280px+): Grid with 3-4 columns</p>
+        <p>Mobile (<1280px): Swiper with single card</p>
+        <p>Status: <span id="card-status">Checking...</span></p>
+      </div>
+
+      <div class="demo-card">
+        <h3>Modal Test</h3>
+        <p>Desktop (1280px+): Center dialog</p>
+        <p>Mobile (<1280px): Bottom sheet</p>
+        <button onclick="openTestModal()" style="padding: 10px 20px; background: #FF1493; color: white; border: none; border-radius: 8px; cursor: pointer;">Open Test Modal</button>
+      </div>
+
+      <!-- Demo Cards Container -->
+      <div class="mobile-partner-swiper">
+        <div class="partner-cards-container" id="demo-cards">
+          <div class="partner-card demo-card">
+            <h3>Card 1</h3>
+            <p>Demo content for card 1</p>
+          </div>
+          <div class="partner-card demo-card">
+            <h3>Card 2</h3>
+            <p>Demo content for card 2</p>
+          </div>
+          <div class="partner-card demo-card">
+            <h3>Card 3</h3>
+            <p>Demo content for card 3</p>
+          </div>
+          <div class="partner-card demo-card">
+            <h3>Card 4</h3>
+            <p>Demo content for card 4</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Test Modal -->
+  <div id="test-modal" class="modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Test Modal</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>This modal should appear as:</p>
+        <ul>
+          <li>Center dialog on desktop (1280px+)</li>
+          <li>Bottom sheet on mobile (<1280px)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils/responsive-detector.js"></script>
+  <script src="/js/navigation-manager.js"></script>
+  <script src="/js/card-grid-manager.js"></script>
+  <script src="/js/modal-manager.js"></script>
+
+  <script>
+    // Test Functions
+    function log(message, type = 'info') {
+      const logElement = document.getElementById('test-log');
+      const li = document.createElement('li');
+      li.className = type;
+      li.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logElement.insertBefore(li, logElement.firstChild);
+    }
+
+    function clearResults() {
+      document.getElementById('test-log').innerHTML = '';
+      log('Test results cleared', 'info');
+    }
+
+    function testMobileLayout() {
+      log('Testing Mobile Layout (< 768px)', 'info');
+
+      // Simulate mobile width
+      const viewport = document.querySelector('meta[name="viewport"]');
+      viewport.setAttribute('content', 'width=480');
+
+      setTimeout(() => {
+        // Check sidebar hidden
+        const sidebar = document.querySelector('.app-sidebar');
+        const sidebarHidden = !sidebar || sidebar.style.display === 'none' || sidebar.classList.contains('hidden');
+
+        // Check bottom nav visible
+        const bottomNav = document.querySelector('.bottom-nav');
+        const bottomNavVisible = bottomNav && bottomNav.style.display !== 'none';
+
+        // Check cards in swiper mode
+        const cardsContainer = document.getElementById('demo-cards');
+        const isSwiperMode = cardsContainer && cardsContainer.classList.contains('swiper-mode');
+
+        log(`✓ Sidebar hidden: ${sidebarHidden ? 'PASS' : 'FAIL'}`, sidebarHidden ? 'pass' : 'fail');
+        log(`✓ Bottom nav visible: ${bottomNavVisible ? 'PASS' : 'FAIL'}`, bottomNavVisible ? 'pass' : 'fail');
+        log(`✓ Cards in swiper mode: ${isSwiperMode ? 'PASS' : 'FAIL'}`, isSwiperMode ? 'pass' : 'fail');
+
+        updateStatus();
+      }, 500);
+    }
+
+    function testTabletLayout() {
+      log('Testing Tablet Layout (768px - 1279px)', 'info');
+
+      const viewport = document.querySelector('meta[name="viewport"]');
+      viewport.setAttribute('content', 'width=1024');
+
+      setTimeout(() => {
+        const sidebar = document.querySelector('.app-sidebar');
+        const sidebarHidden = !sidebar || sidebar.style.display === 'none';
+
+        const bottomNav = document.querySelector('.bottom-nav');
+        const bottomNavVisible = bottomNav && bottomNav.style.display !== 'none';
+
+        log(`✓ Sidebar hidden: ${sidebarHidden ? 'PASS' : 'FAIL'}`, sidebarHidden ? 'pass' : 'fail');
+        log(`✓ Bottom nav visible: ${bottomNavVisible ? 'PASS' : 'FAIL'}`, bottomNavVisible ? 'pass' : 'fail');
+
+        updateStatus();
+      }, 500);
+    }
+
+    function testDesktopLayout() {
+      log('Testing Desktop Layout (1280px - 1919px)', 'info');
+
+      const viewport = document.querySelector('meta[name="viewport"]');
+      viewport.setAttribute('content', 'width=1440');
+
+      setTimeout(() => {
+        const sidebar = document.querySelector('.app-sidebar');
+        const sidebarVisible = sidebar && sidebar.style.display !== 'none' && !sidebar.classList.contains('hidden');
+
+        const bottomNav = document.querySelector('.bottom-nav');
+        const bottomNavHidden = !bottomNav || bottomNav.style.display === 'none' || bottomNav.classList.contains('hidden');
+
+        const cardsContainer = document.getElementById('demo-cards');
+        const isGridMode = cardsContainer && cardsContainer.classList.contains('grid-mode');
+
+        log(`✓ Sidebar visible: ${sidebarVisible ? 'PASS' : 'FAIL'}`, sidebarVisible ? 'pass' : 'fail');
+        log(`✓ Bottom nav hidden: ${bottomNavHidden ? 'PASS' : 'FAIL'}`, bottomNavHidden ? 'pass' : 'fail');
+        log(`✓ Cards in grid mode: ${isGridMode ? 'PASS' : 'FAIL'}`, isGridMode ? 'pass' : 'fail');
+
+        updateStatus();
+      }, 500);
+    }
+
+    function testLargeDesktop() {
+      log('Testing Large Desktop (1920px+)', 'info');
+
+      const viewport = document.querySelector('meta[name="viewport"]');
+      viewport.setAttribute('content', 'width=1920');
+
+      setTimeout(() => {
+        const sidebar = document.querySelector('.app-sidebar');
+        const sidebarVisible = sidebar && sidebar.style.display !== 'none';
+
+        const cardsContainer = document.getElementById('demo-cards');
+        const isGridMode = cardsContainer && cardsContainer.classList.contains('grid-mode');
+
+        log(`✓ Sidebar visible: ${sidebarVisible ? 'PASS' : 'FAIL'}`, sidebarVisible ? 'pass' : 'fail');
+        log(`✓ Cards in grid mode (4 columns): ${isGridMode ? 'PASS' : 'FAIL'}`, isGridMode ? 'pass' : 'fail');
+
+        updateStatus();
+      }, 500);
+    }
+
+    function testAllBreakpoints() {
+      log('Starting comprehensive test...', 'info');
+      clearResults();
+
+      setTimeout(() => testMobileLayout(), 0);
+      setTimeout(() => testTabletLayout(), 1000);
+      setTimeout(() => testDesktopLayout(), 2000);
+      setTimeout(() => testLargeDesktop(), 3000);
+      setTimeout(() => log('All tests complete!', 'pass'), 4000);
+    }
+
+    function updateStatus() {
+      const navStatus = document.getElementById('nav-status');
+      const cardStatus = document.getElementById('card-status');
+
+      if (window.ResponsiveDetector) {
+        const mode = window.ResponsiveDetector.isDesktop() ? 'Desktop' : 'Mobile';
+        navStatus.textContent = `✅ ${mode} mode active`;
+        cardStatus.textContent = `✅ ${mode} layout applied`;
+      }
+    }
+
+    function openTestModal() {
+      if (window.ModalManager) {
+        window.ModalManager.open('test-modal');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.app-sidebar');
+      if (sidebar) {
+        sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      log('Test page loaded', 'pass');
+      log('ResponsiveDetector ready', window.ResponsiveDetector ? 'pass' : 'fail');
+      log('NavigationManager ready', window.NavigationManager ? 'pass' : 'fail');
+      log('CardGridManager ready', window.CardGridManager ? 'pass' : 'fail');
+      log('ModalManager ready', window.ModalManager ? 'pass' : 'fail');
+
+      updateStatus();
+
+      // Listen for layout changes
+      window.addEventListener('layoutModeChange', (e) => {
+        log(`Layout changed to: ${e.detail.mode}`, 'info');
+        updateStatus();
+      });
+    });
+  </script>
+</body>
+</html>
