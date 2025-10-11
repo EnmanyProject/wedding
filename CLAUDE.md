@@ -30,6 +30,62 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.1.0 (2025-10-11) - Phase C 프로젝트 정리 완료
+
+**작업 내용**:
+
+#### Phase 1 - 안전한 삭제 (완료)
+- **screenshot/ 디렉토리 삭제**: 13개 이미지 (~2-5MB 절감)
+- **테스트 HTML 파일 5개 삭제**:
+  - comprehensive_swipe_test.html
+  - mobile_swipe_test.html
+  - signup-test.html
+  - run_swiper_tests.html
+  - clear-storage.html
+- **테스트 JavaScript 파일 4개 삭제**:
+  - scripts/test_mobile_swiper.js
+  - scripts/direct_swiper_test.js
+  - scripts/test_swipe.js
+  - public/test_button_clicks.js
+- **.gitignore 업데이트**: 테스트/임시 파일 패턴 추가
+
+#### Phase 2 - 신중한 삭제 (완료)
+- **Signup v1, v2 구버전 파일 6개 삭제**:
+  - public/signup.html, signup-v2.html
+  - public/js/signup.js, signup-v2.js
+  - public/styles/signup.css, signup-v2.css
+  - (v3로 완전 대체됨)
+- **루트 accessibility-fixes.css 삭제**: 레거시 파일 제거
+- **Markdown 문서 8개 이동**: 루트 → docs/ 디렉토리
+  - accessibility-html-fixes.md
+  - accessibility-testing.md
+  - aria-implementation.md
+  - DATABASE_MIGRATION_GUIDE.md
+  - GIT_WORKFLOW.md
+  - REFACTORING_GUIDE.md
+  - SETUP.md
+  - TEST_PLAN.md
+
+#### Phase 3 - 구조 개선 (완료)
+- **docs/ 디렉토리 생성 및 문서 체계화**
+- **docs/README.md 추가**: 문서 가이드 및 분류
+- **CSS 파일 통합 검토**: 현 상태 유지 결정 (안정성 우선)
+- **Mock 서비스 확인**: mockRingService, mockRecommendationService 사용 중 확인
+
+**기술적 성과**:
+- ✅ ~20개 파일 삭제 (~2-5MB 디스크 절감)
+- ✅ 문서 구조 체계화 (docs/ 디렉토리 + README)
+- ✅ .gitignore 패턴 강화 (테스트/임시 파일 자동 제외)
+- ✅ 프로젝트 정리 완료 (더 깔끔한 워크스페이스)
+
+**코드 메트릭**:
+- **삭제**: 47개 파일 변경, 5,226줄 삭제, 429줄 추가
+- **순 감소**: -4,797줄
+
+**Git**: 051a68e 커밋 완료 ✅
+
+---
+
 ### v1.0.0 (2025-10-11) - Wedding 프로젝트 Claude Code 초기화 (Initial Release)
 **작업 내용**:
 - 🎯 **Claude Code 에이전트 시스템 구축**
