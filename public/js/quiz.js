@@ -167,15 +167,20 @@ class QuizManager {
       const displayName = targetInfo.display_name || targetInfo.name;
       const avatarIcon = this.getAnimalIcon ? this.getAnimalIcon(displayName) : '👤';
 
+      // 사진이 있는 경우에만 표시
+      const photosHTML = targetInfo.photos && Array.isArray(targetInfo.photos) && targetInfo.photos.length > 0
+        ? `<div class="target-photos">
+            ${targetInfo.photos.slice(0, 3).map(photo =>
+              `<img src="/api/assets/${photo.storage_key}" alt="타겟 사진" class="target-photo">`
+            ).join('')}
+          </div>`
+        : '';
+
       targetInfoElement.innerHTML = `
         <div class="quiz-target">
           <div class="target-avatar">${avatarIcon}</div>
           <div class="target-name">${displayName}</div>
-          <div class="target-photos">
-            ${targetInfo.photos.slice(0, 3).map(photo =>
-              `<img src="/api/assets/${photo.storage_key}" alt="타겟 사진" class="target-photo">`
-            ).join('')}
-          </div>
+          ${photosHTML}
         </div>
       `;
     }
