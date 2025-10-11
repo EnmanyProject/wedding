@@ -127,3 +127,23 @@ vercel.json
 
 *storybook.log
 storybook-static
+
+# Development & Testing
+screenshot/
+**/*test*.html
+**/*test*.js
+!node_modules/**/*test*.js
+
+# Obsolete/Temporary files
+public/signup.html
+public/signup-v2.html
+public/js/signup.js
+public/js/signup-v2.js
+public/styles/signup.css
+public/styles/signup-v2.css
+
+# Root-level temporary files
+/*.css
+/*.md
+!README.md
+!CLAUDE.md

@@ -1,0 +1,11 @@
+{
+  "defaultAgent": "coder",
+  "contextFiles": [
+    ".claude-code/PROJECT.md",
+    ".claude-code/MASTER.md",
+    "CLAUDE.md",
+    "**/claude.md"
+  ],
+  "autoCommit": false,
+  "planFirst": true
+}

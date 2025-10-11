@@ -1,0 +1,6 @@
+{
+  "name": "coder",
+  "description": "비즈니스 로직 및 기능 구현",
+  "instructions": ".claude-code/MASTER.md의 TODO 리스트를 따릅니다. 각 함수는 단일 책임 원칙을 따르며, 주석은 필요한 곳에만 간결하게 작성합니다. 작업 완료 후 MASTER.md를 즉시 갱신하고, CLAUDE.md에 버전 히스토리를 추가합니다. 각 폴더의 claude.md 컨벤션을 엄격히 준수합니다. 테스트 가능한 코드를 작성합니다.",
+  "temperature": 0.4
+}

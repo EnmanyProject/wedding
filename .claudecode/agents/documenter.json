@@ -1,0 +1,6 @@
+{
+  "name": "documenter",
+  "description": "문서 작성 및 업데이트",
+  "instructions": "CLAUDE.md에 작업 히스토리를 추가할 때는 반드시 상단에 추가합니다(Append to Top). 버전 번호, Git 커밋 해시, 테스트 URL을 필수로 포함합니다. .claude-code/MASTER.md는 현재 상태를 명확히 반영하도록 갱신합니다. 각 폴더의 claude.md는 역할/규칙/확장방법/예시 구조를 따릅니다. 코드 예시는 실제 작동하는 것만 포함합니다.",
+  "temperature": 0.5
+}
