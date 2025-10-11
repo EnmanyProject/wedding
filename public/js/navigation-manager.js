@@ -99,17 +99,8 @@ class NavigationManager {
     sidebar.classList.remove('hidden');
     this.sidebarElement = sidebar;
 
-    // Add padding to main content
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.style.marginLeft = 'var(--sidebar-width)';
-    }
-
-    // Add padding to header
-    const header = document.querySelector('.app-header');
-    if (header) {
-      header.style.marginLeft = 'var(--sidebar-width)';
-    }
+    // Add body class to enable sidebar CSS
+    document.body.classList.add('has-sidebar');
   }
 
   hideSidebar() {
@@ -121,17 +112,8 @@ class NavigationManager {
       sidebar.classList.add('hidden');
     }
 
-    // Remove padding from main content
-    const mainContent = document.querySelector('.main-content');
-    if (mainContent) {
-      mainContent.style.marginLeft = '0';
-    }
-
-    // Remove padding from header
-    const header = document.querySelector('.app-header');
-    if (header) {
-      header.style.marginLeft = '0';
-    }
+    // Remove body class to disable sidebar CSS
+    document.body.classList.remove('has-sidebar');
   }
 
   createSidebarElement() {

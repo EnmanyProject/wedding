@@ -185,18 +185,18 @@
     transform: translateY(-2px);
   }
 
-  /* Hide bottom navigation on desktop */
-  .bottom-nav {
+  /* Hide bottom navigation on desktop ONLY when sidebar is active */
+  body.has-sidebar .bottom-nav {
     display: none !important;
   }
 
-  /* Adjust main content and header for sidebar */
-  .app-header {
+  /* Adjust main content and header for sidebar ONLY when sidebar is active */
+  body.has-sidebar .app-header {
     margin-left: var(--sidebar-width);
     transition: margin-left var(--transition-layout);
   }
 
-  .main-content {
+  body.has-sidebar .main-content {
     margin-left: var(--sidebar-width);
     transition: margin-left var(--transition-layout);
   }

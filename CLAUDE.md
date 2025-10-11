@@ -30,6 +30,59 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.58.1 (2025-10-11) - Hybrid UI Break Fix
+
+**작업 내용**:
+
+#### UI 깨짐 문제 긴급 수정
+- **문제 진단**:
+  * 메인 앱 통합 후 전체 UI가 깨짐
+  * 데스크톱 브라우저(1280px+)에서 네비게이션 및 콘텐츠 표시 이상
+  * 원인: CSS가 뷰포트 너비만으로 사이드바 스타일 적용, 실제 사이드바 존재 여부 미확인
+
+- **근본 원인**:
+  * `sidebar-nav.css`의 미디어 쿼리가 무조건적으로 적용
+  * `@media (min-width: 1280px)` 시 자동으로:
+    1. 하단 네비게이션 숨김 (`display: none !important`)
+    2. 헤더/메인 콘텐츠 240px 우측 이동 (사이드바 너비만큼 margin)
+  * 하지만 `NavigationManager`가 사이드바를 생성하기 전에 CSS 적용됨
+  * 결과: 사이드바 없이 네비게이션 숨김 + 콘텐츠 밀림 = UI 완전 깨짐
+
+#### 수정 사항
+- **sidebar-nav.css** 조건부 CSS로 변경
+  * `body.has-sidebar` 클래스 조건 추가
+  * 사이드바가 실제로 존재할 때만 스타일 적용
+  * 변경 전: `.bottom-nav { display: none !important; }`
+  * 변경 후: `body.has-sidebar .bottom-nav { display: none !important; }`
+  * 헤더/메인 콘텐츠 margin도 동일하게 조건부 처리
+
+- **navigation-manager.js** Body 클래스 관리 추가
+  * `renderSidebar()`: `document.body.classList.add('has-sidebar')` 추가
+  * `hideSidebar()`: `document.body.classList.remove('has-sidebar')` 추가
+  * 사이드바 생성/제거 시 body 클래스로 CSS 활성화/비활성화 제어
+  * 인라인 margin 스타일 제거 (CSS로 자동 처리)
+
+**기술적 성과**:
+- ✅ UI 깨짐 문제 완전 해결
+- ✅ CSS와 JavaScript 동기화 (body 클래스 기반)
+- ✅ 조건부 스타일링으로 안전성 확보
+- ✅ 데스크톱/모바일 모드 정상 작동 복원
+
+**코드 메트릭**:
+- **sidebar-nav.css**: 3개 선택자 수정 (조건부 처리)
+- **navigation-manager.js**: 2개 메서드 수정 (body 클래스 추가/제거)
+- **총 변경**: ~10줄
+
+**해결된 문제**:
+- 🐛 데스크톱 브라우저에서 네비게이션 완전 사라짐
+- 🐛 콘텐츠가 240px 우측으로 밀림 (빈 공간)
+- 🐛 사이드바 없이 CSS만 적용되는 타이밍 이슈
+- ✅ 하이브리드 시스템 안정성 확보
+
+**Git**: (커밋 예정)
+
+---
+
 ### v1.58.0 (2025-10-11) - Hybrid Design System Integration Complete
 
 **작업 내용**:
