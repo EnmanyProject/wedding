@@ -1,0 +1,423 @@
+/**
+ * Enhanced Responsive Layout System
+ * Hybrid Design Architecture - Phase 5
+ *
+ * Purpose: Polish animations, optimize performance, improve accessibility
+ * Smooth layout transitions, optimized rendering, full accessibility support
+ *
+ * @version 5.0.0
+ * @date 2025-10-11
+ */
+
+/* ===================================
+   LAYOUT TRANSITION ANIMATIONS
+   =================================== */
+
+.app-container,
+.app-sidebar,
+.app-header,
+.main-content,
+.bottom-nav {
+  transition:
+    transform var(--transition-layout),
+    margin var(--transition-layout),
+    opacity var(--transition-layout);
+}
+
+/* Smooth sidebar slide-in/out */
+.app-sidebar {
+  will-change: transform;
+}
+
+.app-sidebar.hidden {
+  transform: translateX(-100%);
+}
+
+/* Content area smooth shift */
+.main-content,
+.app-header {
+  will-change: margin-left;
+}
+
+/* ===================================
+   GRID TRANSITION ANIMATIONS
+   =================================== */
+
+/* Smooth grid column transitions */
+.partner-cards-container,
+.user-cards-container {
+  transition: grid-template-columns var(--transition-base);
+}
+
+/* Card appear animation */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-mode .partner-card,
+.grid-mode .user-card {
+  animation: cardFadeIn var(--transition-base) ease-out;
+  animation-fill-mode: both;
+}
+
+/* Stagger animation for multiple cards */
+.grid-mode .partner-card:nth-child(1),
+.grid-mode .user-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.grid-mode .partner-card:nth-child(2),
+.grid-mode .user-card:nth-child(2) {
+  animation-delay: 50ms;
+}
+
+.grid-mode .partner-card:nth-child(3),
+.grid-mode .user-card:nth-child(3) {
+  animation-delay: 100ms;
+}
+
+.grid-mode .partner-card:nth-child(4),
+.grid-mode .user-card:nth-child(4) {
+  animation-delay: 150ms;
+}
+
+.grid-mode .partner-card:nth-child(n+5),
+.grid-mode .user-card:nth-child(n+5) {
+  animation-delay: 200ms;
+}
+
+/* ===================================
+   PERFORMANCE OPTIMIZATIONS
+   =================================== */
+
+/* GPU acceleration for animations */
+.app-sidebar,
+.modal-content,
+.pawnshop-modal-content,
+.dbety-modal-content,
+.partner-card,
+.user-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize rendering for fixed elements */
+.app-sidebar {
+  contain: layout style paint;
+}
+
+/* Optimize grid rendering */
+.partner-cards-container.grid-mode,
+.user-cards-container.grid-mode {
+  contain: layout;
+}
+
+/* Optimize card rendering */
+.partner-card,
+.user-card {
+  contain: layout style;
+}
+
+/* ===================================
+   ACCESSIBILITY ENHANCEMENTS
+   =================================== */
+
+/* Skip to main content link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary-300);
+  color: white;
+  padding: var(--space-sm) var(--space-md);
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-md) 0;
+  z-index: 9999;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* Focus visible styles for all interactive elements */
+.sidebar-nav-item:focus-visible,
+.nav-item:focus-visible,
+.partner-card:focus-visible,
+.user-card:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary-300);
+  outline-offset: 2px;
+}
+
+/* Keyboard navigation indicators */
+.sidebar-nav-item:focus-visible,
+.nav-item:focus-visible {
+  box-shadow: var(--shadow-glow-pink);
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===================================
+   RESPONSIVE TYPOGRAPHY
+   =================================== */
+
+/* Fluid typography for better readability */
+@media (min-width: 1280px) {
+  html {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 2vw, 2.5rem);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 1.75vw, 2rem);
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 1.5vw, 1.75rem);
+  }
+}
+
+@media (max-width: 1279px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* ===================================
+   TOUCH TARGETS (Mobile)
+   =================================== */
+
+@media (max-width: 1279px) {
+  /* Ensure minimum 44x44px touch targets */
+  .nav-item,
+  .sidebar-nav-item,
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===================================
+   HIGH CONTRAST MODE
+   =================================== */
+
+@media (prefers-contrast: high) {
+  /* Increase border visibility */
+  .partner-card,
+  .user-card,
+  .modal-content,
+  .pawnshop-modal-content,
+  .dbety-modal-content {
+    border-width: 3px;
+  }
+
+  /* Stronger focus indicators */
+  *:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+
+  /* Stronger shadows */
+  .sidebar-nav-item.active,
+  .nav-item.active {
+    box-shadow: 0 0 0 3px var(--color-primary-300);
+  }
+}
+
+/* ===================================
+   REDUCED MOTION
+   =================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Remove transforms */
+  .app-sidebar.hidden {
+    transform: none;
+    display: none;
+  }
+
+  /* No card animations */
+  .grid-mode .partner-card,
+  .grid-mode .user-card {
+    animation: none;
+  }
+
+  /* Instant modal transitions */
+  .modal-center .modal-content,
+  .modal-bottom-sheet .modal-content {
+    transform: none;
+  }
+}
+
+/* ===================================
+   DARK MODE OPTIMIZATIONS
+   =================================== */
+
+@media (prefers-color-scheme: dark) {
+  /* Already dark by default, but ensure consistency */
+  body {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  /* Adjust shadows for dark mode */
+  .partner-card,
+  .user-card {
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 20, 147, 0.2);
+  }
+}
+
+/* ===================================
+   PRINT STYLES
+   =================================== */
+
+@media print {
+  /* Hide navigation and interactive elements */
+  .app-sidebar,
+  .bottom-nav,
+  .modal,
+  .pawnshop-modal,
+  .dbety-modal,
+  .swiper-controls,
+  .swiper-pagination,
+  button {
+    display: none !important;
+  }
+
+  /* Show all content */
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  /* Expand cards for printing */
+  .partner-card,
+  .user-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Use light background for print */
+  body,
+  .partner-card,
+  .user-card {
+    background: white;
+    color: black;
+  }
+}
+
+/* ===================================
+   LOADING STATES
+   =================================== */
+
+/* Skeleton loading for cards */
+.card-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ===================================
+   RESPONSIVE IMAGES
+   =================================== */
+
+/* Optimize image loading */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Lazy loading optimization */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+img[loading="lazy"].loaded {
+  opacity: 1;
+}
+
+/* ===================================
+   SMOOTH SCROLLING
+   =================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Only when user doesn't prefer reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ===================================
+   MOBILE SAFARI FIXES
+   =================================== */
+
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS Safari bottom bar */
+  .main-content {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Prevent zoom on double-tap */
+  * {
+    touch-action: manipulation;
+  }
+}

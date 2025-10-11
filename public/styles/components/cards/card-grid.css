@@ -1,0 +1,222 @@
+/**
+ * Card Grid System
+ * Hybrid Design Architecture - Phase 3
+ *
+ * Purpose: Grid layout for cards on desktop, swiper on mobile
+ * Desktop (1280px+): Multi-column grid with scrolling
+ * Mobile (<1280px): Single card swiper (existing behavior)
+ *
+ * @version 3.0.0
+ * @date 2025-10-11
+ */
+
+/* ===================================
+   DESKTOP GRID MODE (1280px+)
+   =================================== */
+
+@media (min-width: 1280px) {
+  /* Grid Container */
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
+    gap: var(--grid-gap);
+    padding: var(--space-xl);
+    width: 100%;
+    /* Remove transform from swiper mode */
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Card Sizing in Grid */
+  .grid-mode .partner-card,
+  .grid-mode .user-card {
+    width: 100%;
+    height: auto;
+    min-height: var(--card-min-height-desktop);
+    /* Remove swiper-specific transforms */
+    transform: none !important;
+    margin: 0;
+    flex-shrink: 1;
+  }
+
+  /* Hide swiper controls in grid mode */
+  .grid-mode ~ .swiper-pagination,
+  .grid-mode ~ .partner-swiper-pagination,
+  .grid-mode ~ #partner-swiper-pagination {
+    display: none !important;
+  }
+
+  .grid-mode ~ .swiper-controls,
+  .grid-mode ~ #partner-swiper-controls {
+    display: none !important;
+  }
+
+  /* Parent container adjustments */
+  .mobile-partner-swiper:has(.grid-mode) .swiper-pagination {
+    display: none !important;
+  }
+
+  .mobile-partner-swiper:has(.grid-mode) .swiper-controls {
+    display: none !important;
+  }
+
+  .mobile-user-swiper:has(.grid-mode) .swiper-pagination {
+    display: none !important;
+  }
+
+  .mobile-user-swiper:has(.grid-mode) .swiper-controls {
+    display: none !important;
+  }
+
+  /* Empty state in grid mode */
+  .grid-mode .empty-grid-message {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+    gap: var(--space-md);
+  }
+
+  .empty-grid-message .bety-character {
+    width: 80px;
+    height: 80px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .empty-grid-message p {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    text-align: center;
+  }
+
+  /* Card hover effects in grid */
+  .grid-mode .partner-card:hover,
+  .grid-mode .user-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: var(--shadow-glow-pink-hover);
+  }
+
+  /* Ensure cards are clickable */
+  .grid-mode .partner-card,
+  .grid-mode .user-card {
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+}
+
+/* ===================================
+   LARGE DESKTOP (1920px+)
+   =================================== */
+
+@media (min-width: 1920px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(var(--grid-columns-large), 1fr);
+  }
+}
+
+/* ===================================
+   MOBILE/TABLET SWIPER MODE (<1280px)
+   =================================== */
+
+@media (max-width: 1279px) {
+  /* Ensure swiper mode works as before */
+  .partner-cards-container.swiper-mode,
+  .user-cards-container.swiper-mode {
+    display: flex;
+    flex-direction: row;
+    transition: transform var(--transition-base);
+  }
+
+  .swiper-mode .partner-card,
+  .swiper-mode .user-card {
+    flex-shrink: 0;
+    width: calc(100% - var(--space-lg) * 2);
+    margin: 0 var(--space-lg);
+  }
+
+  /* Show swiper controls */
+  .swiper-mode ~ .swiper-pagination,
+  .swiper-mode ~ #partner-swiper-pagination {
+    display: flex !important;
+  }
+
+  .swiper-mode ~ .swiper-controls,
+  .swiper-mode ~ #partner-swiper-controls {
+    display: flex !important;
+  }
+
+  /* Force grid mode to behave like swiper on mobile */
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    display: flex !important;
+    flex-direction: row;
+    grid-template-columns: none !important;
+    gap: 0;
+  }
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+
+/* Keyboard focus for grid cards */
+@media (min-width: 1280px) {
+  .grid-mode .partner-card:focus,
+  .grid-mode .user-card:focus {
+    outline: 2px solid var(--color-primary-300);
+    outline-offset: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .grid-mode .partner-card,
+  .grid-mode .user-card,
+  .empty-grid-message .bety-character {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ===================================
+   RESPONSIVE GRID COLUMNS
+   =================================== */
+
+/* Adjust columns for intermediate sizes */
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) and (max-width: 1919px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1920px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

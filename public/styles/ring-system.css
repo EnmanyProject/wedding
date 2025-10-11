@@ -48,6 +48,7 @@
     font-family: 'Courier New', monospace;
     font-weight: 700;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .ring-plus {
@@ -163,8 +164,11 @@
 
 .modal-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .close-btn {
@@ -238,10 +242,13 @@
 }
 
 .streak-text {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #ffffff;
     margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .streak-bar {
@@ -482,6 +489,10 @@
     font-weight: 600;
     color: #333;
     margin-bottom: 2px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .transaction-date {

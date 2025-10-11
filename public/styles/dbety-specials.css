@@ -169,10 +169,13 @@
 /* Recommendation Title */
 .dbety-rec-title {
     color: white;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     text-align: center;
-    line-height: 1.4;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Recommendation Button */
