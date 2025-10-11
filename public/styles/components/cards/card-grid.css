@@ -1,20 +1,23 @@
 /**
  * Card Grid System
- * Hybrid Design Architecture - Phase 3
+ * Hybrid Design Architecture - Phase 3 Enhanced
  *
- * Purpose: Grid layout for cards on desktop, swiper on mobile
- * Desktop (1280px+): Multi-column grid with scrolling
- * Mobile (<1280px): Single card swiper (existing behavior)
+ * Purpose: Responsive grid layout for all screen sizes
+ * Large Desktop (1920px+): 4-column grid
+ * Desktop (1280-1919px): 3-column grid
+ * Hybrid (1024-1279px): 3-column grid (no sidebar)
+ * Tablet (768-1023px): 2-column grid
+ * Mobile (<768px): Single card swiper
  *
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025-10-11
  */
 
 /* ===================================
-   DESKTOP GRID MODE (1280px+)
+   GRID MODE BASE (768px+)
    =================================== */
 
-@media (min-width: 1280px) {
+@media (min-width: 768px) {
   /* Grid Container */
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {
@@ -119,10 +122,10 @@
 }
 
 /* ===================================
-   MOBILE/TABLET SWIPER MODE (<1280px)
+   MOBILE SWIPER MODE (<768px)
    =================================== */
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   /* Ensure swiper mode works as before */
   .partner-cards-container.swiper-mode,
   .user-cards-container.swiper-mode {
@@ -177,7 +180,7 @@
    =================================== */
 
 /* Keyboard focus for grid cards */
-@media (min-width: 1280px) {
+@media (min-width: 768px) {
   .grid-mode .partner-card:focus,
   .grid-mode .user-card:focus {
     outline: 2px solid var(--color-primary-300);
@@ -199,21 +202,35 @@
    RESPONSIVE GRID COLUMNS
    =================================== */
 
-/* Adjust columns for intermediate sizes */
-@media (min-width: 1280px) and (max-width: 1599px) {
+/* Tablet: 2 columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--grid-gap-tablet);
+    padding: var(--space-lg);
+  }
+}
+
+/* Hybrid: 3 columns (no sidebar) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .partner-cards-container.grid-mode,
+  .user-cards-container.grid-mode {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--grid-gap-desktop);
+    padding: var(--space-lg);
+  }
+}
+
+/* Desktop: 3 columns */
+@media (min-width: 1280px) and (max-width: 1919px) {
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (min-width: 1600px) and (max-width: 1919px) {
-  .partner-cards-container.grid-mode,
-  .user-cards-container.grid-mode {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
+/* Large Desktop: 4 columns */
 @media (min-width: 1920px) {
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {

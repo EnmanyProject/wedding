@@ -13,7 +13,7 @@
 class CardGridManager {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
-    this.isDesktop = false;
+    this.currentMode = 'mobile';
     this.cards = [];
     this.gridColumns = 3; // Default columns for desktop
 
@@ -34,8 +34,8 @@ class CardGridManager {
 
   init() {
     // Get initial layout mode
-    this.isDesktop = window.ResponsiveDetector.isDesktop();
-    console.log(`🎴 [CardGrid] Initial mode: ${this.isDesktop ? 'Desktop (Grid)' : 'Mobile (Swiper)'}`);
+    this.currentMode = window.ResponsiveDetector.getCurrentMode();
+    console.log(`🎴 [CardGrid] Initial mode: ${this.currentMode} (${this.shouldShowGrid() ? 'Grid' : 'Swiper'})`);
 
     // Setup layout change listener
     this.setupLayoutListener();
@@ -46,15 +46,24 @@ class CardGridManager {
 
   setupLayoutListener() {
     window.addEventListener('layoutModeChange', (e) => {
-      const newIsDesktop = e.detail.mode === 'desktop';
+      const newMode = e.detail.newMode;
+      const oldShouldShowGrid = this.shouldShowGrid();
 
-      // Only re-render if mode actually changed
-      if (newIsDesktop !== this.isDesktop) {
-        this.isDesktop = newIsDesktop;
-        console.log(`🔄 [CardGrid] Layout changed to: ${this.isDesktop ? 'Desktop (Grid)' : 'Mobile (Swiper)'}`);
+      this.currentMode = newMode;
+      const newShouldShowGrid = this.shouldShowGrid();
+
+      // Only re-render if grid/swiper mode actually changed
+      if (newShouldShowGrid !== oldShouldShowGrid) {
+        console.log(`🔄 [CardGrid] Layout changed to: ${newMode} (${newShouldShowGrid ? 'Grid' : 'Swiper'})`);
         this.render();
       }
     });
+  }
+
+  shouldShowGrid() {
+    // 그리드는 768px 이상(tablet, hybrid, desktop, large)에서 표시
+    // 스와이프는 768px 미만(mobile)에서만 표시
+    return ['tablet', 'hybrid', 'desktop', 'large'].includes(this.currentMode);
   }
 
   setCards(cards) {
@@ -65,7 +74,7 @@ class CardGridManager {
   render() {
     if (!this.container) return;
 
-    if (this.isDesktop) {
+    if (this.shouldShowGrid()) {
       this.renderGrid();
     } else {
       this.renderSwiper();

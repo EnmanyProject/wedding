@@ -11,7 +11,7 @@
 
 class NavigationManager {
   constructor() {
-    this.isMobile = true;
+    this.currentMode = 'mobile';
     this.currentView = 'home';
     this.sidebarElement = null;
     this.bottomNavElement = null;
@@ -28,8 +28,8 @@ class NavigationManager {
     console.log('🧭 [Navigation] Initializing Navigation Manager');
 
     // Get initial layout mode
-    this.isMobile = window.ResponsiveDetector.isMobile();
-    console.log(`🧭 [Navigation] Initial mode: ${this.isMobile ? 'Mobile' : 'Desktop'}`);
+    this.currentMode = window.ResponsiveDetector.getCurrentMode();
+    console.log(`🧭 [Navigation] Initial mode: ${this.currentMode}`);
 
     // Setup layout change listener
     this.setupLayoutListener();
@@ -45,20 +45,23 @@ class NavigationManager {
 
   setupLayoutListener() {
     window.addEventListener('layoutModeChange', (e) => {
-      const newMode = e.detail.mode;
-      this.isMobile = newMode === 'mobile';
+      const newMode = e.detail.newMode;
+      this.currentMode = newMode;
       console.log(`🔄 [Navigation] Layout changed to: ${newMode}`);
       this.render();
     });
   }
 
   render() {
-    if (this.isMobile) {
-      this.renderBottomNav();
-      this.hideSidebar();
-    } else {
+    // 사이드바는 1280px 이상(desktop, large)에서만 표시
+    const shouldShowSidebar = ['desktop', 'large'].includes(this.currentMode);
+
+    if (shouldShowSidebar) {
       this.renderSidebar();
       this.hideBottomNav();
+    } else {
+      this.renderBottomNav();
+      this.hideSidebar();
     }
   }
 
