@@ -1375,7 +1375,11 @@ AdminManager.prototype.renderUsersPagination = function(pagination) {
   const nextBtn = document.getElementById('users-next-btn');
   const pageInfo = document.getElementById('users-page-info');
 
-  if (paginationDiv && pagination.total_pages > 1) {
+  if (paginationDiv && pagination.total > 0) {
+    // Calculate total pages from total and per_page
+    const totalPages = Math.ceil(pagination.total / pagination.per_page);
+
+    // Always show pagination if there's data
     paginationDiv.style.display = 'flex';
 
     if (prevBtn) {
@@ -1387,7 +1391,7 @@ AdminManager.prototype.renderUsersPagination = function(pagination) {
     }
 
     if (pageInfo) {
-      pageInfo.textContent = `페이지 ${pagination.page} / ${pagination.total_pages}`;
+      pageInfo.textContent = `페이지 ${pagination.page} / ${totalPages} (전체 ${pagination.total}명)`;
     }
   } else {
     paginationDiv.style.display = 'none';
@@ -1400,7 +1404,8 @@ AdminManager.prototype.updateUsersStats = function(users, pagination) {
   const usersWithPhotos = document.getElementById('users-with-photos');
   const quizParticipants = document.getElementById('quiz-participants');
 
-  if (totalUsers) totalUsers.textContent = pagination ? pagination.total_count : users.length;
+  // Use pagination.total for total users (this is the total count in database)
+  if (totalUsers) totalUsers.textContent = pagination ? pagination.total : users.length;
   if (activeUsers) activeUsers.textContent = users.filter(u => u.is_active).length;
   if (usersWithPhotos) usersWithPhotos.textContent = users.filter(u => u.stats.photo_count > 0).length;
   if (quizParticipants) quizParticipants.textContent = users.filter(u => u.stats.quiz_responses > 0).length;
