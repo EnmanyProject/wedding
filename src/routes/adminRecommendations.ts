@@ -114,10 +114,18 @@ router.get('/stats', async (req: Request, res: Response) => {
          ORDER BY date DESC`,
       );
 
+      // Parse DECIMAL values to numbers (pg returns them as strings)
+      const parsedStats = stats.rows.map(row => ({
+        ...row,
+        avg_view_rate: parseFloat(row.avg_view_rate) || 0,
+        avg_click_rate: parseFloat(row.avg_click_rate) || 0,
+        avg_conversion_rate: parseFloat(row.avg_conversion_rate) || 0
+      }));
+
       res.json({
         success: true,
         data: {
-          stats: stats.rows,
+          stats: parsedStats,
           period: `Last ${days} days`
         }
       });
@@ -164,9 +172,17 @@ router.get('/top-performers', async (req: Request, res: Response) => {
         [limit]
       );
 
+      // Parse DECIMAL values to numbers (pg returns them as strings)
+      const parsedData = topPerformers.rows.map(row => ({
+        ...row,
+        conversion_rate: parseFloat(row.conversion_rate) || 0,
+        click_rate: parseFloat(row.click_rate) || 0,
+        view_rate: parseFloat(row.view_rate) || 0
+      }));
+
       res.json({
         success: true,
-        data: topPerformers.rows
+        data: parsedData
       });
     }
   } catch (error) {

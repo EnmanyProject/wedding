@@ -646,7 +646,7 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       u.email,
       u.gender,
       u.age,
-      u.location as region,
+      u.region,
       u.bio,
       u.profile_image_url,
       u.profile_complete,
@@ -681,7 +681,7 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
      LEFT JOIN (
        SELECT target_id,
               MAX(score) as max_affinity_score
-       FROM affinity_scores
+       FROM affinity
        GROUP BY target_id
      ) affinity_stats ON u.id = affinity_stats.target_id
      WHERE ${whereClause}

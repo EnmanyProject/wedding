@@ -82,13 +82,13 @@ export class RecommendationService {
    */
   private static async calculateActivityScore(userId: string): Promise<number> {
     const result = await pool.query(
-      `SELECT last_login FROM users WHERE id = $1`,
+      `SELECT last_login_at FROM users WHERE id = $1`,
       [userId]
     );
 
     if (result.rows.length === 0) return 0;
 
-    const lastLogin = result.rows[0].last_login;
+    const lastLogin = result.rows[0].last_login_at;
     if (!lastLogin) return 0;
 
     const daysSinceLogin = Math.floor(
@@ -110,7 +110,7 @@ export class RecommendationService {
     // 기존 호감도 확인
     const affinityResult = await pool.query(
       `SELECT score FROM affinity
-       WHERE user_id = $1 AND target_user_id = $2`,
+       WHERE viewer_id = $1 AND target_id = $2`,
       [currentUserId, candidateUserId]
     );
 
@@ -154,7 +154,7 @@ export class RecommendationService {
        AND u.gender = $2
        AND NOT EXISTS (
          SELECT 1 FROM affinity a
-         WHERE a.user_id = $1 AND a.target_user_id = u.id AND a.score >= 60
+         WHERE a.viewer_id = $1 AND a.target_id = u.id AND a.score >= 60
        )
        LIMIT $3`,
       [currentUserId, targetGender, limit * 2] // 여유있게 가져오기

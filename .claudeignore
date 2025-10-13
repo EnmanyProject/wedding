@@ -1,0 +1,58 @@
+# 빌드 결과물
+node_modules/
+.next/
+dist/
+build/
+*.min.js
+
+# 임시 파일
+*.log
+*.tmp
+.DS_Store
+.cache/
+
+# 백업 및 레거시
+.claude-code/backup/
+legacy_src/
+
+# 무거운 문서 (필요시만 명시적 요청)
+CHANGELOG.md
+PROJECT.md
+
+# 환경 변수
+.env
+.env.local
+.env.*.local
+
+# 테스트 결과
+coverage/
+.nyc_output/
+test-results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Next.js
+.next/
+out/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# 데이터베이스
+*.db
+*.sqlite
+
+# Docker
+docker-compose.yml
+
+# 스크린샷/이미지
+image/
+public/images/screenshots/
+
+# 기타
+nul
+pnpm-lock.yaml
