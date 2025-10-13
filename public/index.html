@@ -24,6 +24,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- 🏗️ PHASE 1: Hybrid Design System Foundation -->
+    <!-- Design Tokens (Must load first) -->
+    <link rel="stylesheet" href="/styles/core/design-tokens.css?v=20251011">
+    <!-- Base Layout System (Must load second) -->
+    <link rel="stylesheet" href="/styles/layouts/base-layout.css?v=20251011">
+
     <!-- CSS -->
     <link rel="stylesheet" href="/styles/main.css?v=20251002">
     <link rel="stylesheet" href="/styles/dark-theme.css">
@@ -58,6 +64,16 @@
     <link rel="stylesheet" href="/styles/design-tokens.css?v=20251011">
     <link rel="stylesheet" href="/styles/card-system/core/card-base.css?v=20251011">
     <link rel="stylesheet" href="/styles/card-system/core/card-variants.css?v=20251011">
+
+    <!-- 🏗️ PHASE 2-6: Hybrid Design Architecture -->
+    <!-- Phase 2: Sidebar Navigation -->
+    <link rel="stylesheet" href="/styles/components/navigation/sidebar-nav.css?v=20251011">
+    <!-- Phase 3: Card Grid System -->
+    <link rel="stylesheet" href="/styles/components/cards/card-grid.css?v=20251011">
+    <!-- Phase 4: Responsive Modal System -->
+    <link rel="stylesheet" href="/styles/components/modal-responsive.css?v=20251011">
+    <!-- Phase 5: Enhanced Responsive Layout -->
+    <link rel="stylesheet" href="/styles/layouts/enhanced-responsive.css?v=20251011">
 
     <!-- Scripts -->
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
@@ -656,6 +672,8 @@
     <!-- Scripts -->
     <script src="/js/version.js"></script>
     <script src="/js/security.js"></script>
+    <!-- 🏗️ PHASE 1: Responsive Detector (Load early) -->
+    <script src="/js/utils/responsive-detector.js"></script>
     <!-- ⚡ Performance Utilities -->
     <script type="module" src="/js/utils/performance.js"></script>
     <script type="module" src="/js/utils/cache.js"></script>
@@ -679,6 +697,10 @@
     <script src="/js/dbety-specials.js"></script>
     <!-- 🏦 전당포 시스템 JavaScript -->
     <script src="/js/pawnshop.js"></script>
+    <!-- 🏗️ PHASE 2-6: Hybrid Design Managers -->
+    <script src="/js/navigation-manager.js"></script>
+    <script src="/js/card-grid-manager.js"></script>
+    <script src="/js/modal-manager.js"></script>
     <script type="module" src="/js/ui.js"></script>
     <script src="/js/quiz.js"></script>
     <script src="/js/photos.js"></script>

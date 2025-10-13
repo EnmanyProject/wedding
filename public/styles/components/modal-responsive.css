@@ -1,0 +1,340 @@
+/**
+ * Responsive Modal System
+ * Hybrid Design Architecture - Phase 4
+ *
+ * Purpose: Center dialog (desktop) vs bottom sheet (mobile)
+ * Desktop (1280px+): Centered with backdrop, max-width constraints
+ * Mobile (<1280px): Bottom sheet with rounded top corners
+ *
+ * @version 4.0.0
+ * @date 2025-10-11
+ */
+
+/* ===================================
+   BASE MODAL STYLES (All Sizes)
+   =================================== */
+
+.modal,
+.pawnshop-modal,
+.dbety-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.modal.show,
+.pawnshop-modal.show,
+.dbety-modal.show {
+  opacity: 1;
+}
+
+.modal-overlay,
+.pawnshop-modal-overlay,
+.dbety-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: -1;
+}
+
+/* ===================================
+   DESKTOP: CENTER DIALOG (1280px+)
+   =================================== */
+
+@media (min-width: 1280px) {
+  .modal.modal-center,
+  .pawnshop-modal.modal-center,
+  .dbety-modal.modal-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal.modal-center.show,
+  .pawnshop-modal.modal-center.show,
+  .dbety-modal.modal-center.show {
+    display: flex;
+  }
+
+  .modal-center .modal-content,
+  .modal-center .pawnshop-modal-content,
+  .modal-center .dbety-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: #000000;
+    border: 2px solid var(--color-primary-300);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-glow-pink);
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform var(--transition-base);
+  }
+
+  .modal-center.show .modal-content,
+  .modal-center.show .pawnshop-modal-content,
+  .modal-center.show .dbety-modal-content {
+    transform: scale(1);
+  }
+
+  /* Large modals (e.g., profile preview) */
+  .modal-center.profile-modal .modal-content {
+    max-width: 700px;
+    max-height: 85vh;
+  }
+
+  /* Quiz modal */
+  .modal-center.quiz-modal .modal-content {
+    max-width: 650px;
+  }
+
+  /* Pawnshop modals */
+  .modal-center.pawnshop-modal .pawnshop-modal-content {
+    max-width: 550px;
+  }
+
+  /* D-Bety special modal */
+  .modal-center.dbety-modal .dbety-modal-content {
+    max-width: 600px;
+  }
+
+  /* Modal header */
+  .modal-center .modal-header,
+  .modal-center .pawnshop-modal-header,
+  .modal-center .dbety-modal-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1;
+  }
+
+  /* Modal body - scrollable */
+  .modal-center .modal-body,
+  .modal-center .pawnshop-modal-body,
+  .modal-center .dbety-modal-body {
+    max-height: calc(80vh - 120px);
+    overflow-y: auto;
+  }
+
+  /* Scrollbar styling for modal body */
+  .modal-center .modal-body::-webkit-scrollbar,
+  .modal-center .pawnshop-modal-body::-webkit-scrollbar,
+  .modal-center .dbety-modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .modal-center .modal-body::-webkit-scrollbar-track,
+  .modal-center .pawnshop-modal-body::-webkit-scrollbar-track,
+  .modal-center .dbety-modal-body::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .modal-center .modal-body::-webkit-scrollbar-thumb,
+  .modal-center .pawnshop-modal-body::-webkit-scrollbar-thumb,
+  .modal-center .dbety-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 20, 147, 0.5);
+    border-radius: 4px;
+  }
+
+  .modal-center .modal-body::-webkit-scrollbar-thumb:hover,
+  .modal-center .pawnshop-modal-body::-webkit-scrollbar-thumb:hover,
+  .modal-center .dbety-modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 20, 147, 0.7);
+  }
+}
+
+/* ===================================
+   MOBILE: BOTTOM SHEET (<1280px)
+   =================================== */
+
+@media (max-width: 1279px) {
+  .modal.modal-bottom-sheet,
+  .pawnshop-modal.modal-bottom-sheet,
+  .dbety-modal.modal-bottom-sheet {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal.modal-bottom-sheet.show,
+  .pawnshop-modal.modal-bottom-sheet.show,
+  .dbety-modal.modal-bottom-sheet.show {
+    display: flex;
+  }
+
+  .modal-bottom-sheet .modal-content,
+  .modal-bottom-sheet .pawnshop-modal-content,
+  .modal-bottom-sheet .dbety-modal-content {
+    position: relative;
+    width: 100%;
+    max-height: 90vh;
+    background: #000000;
+    border: 2px solid var(--color-primary-300);
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+    box-shadow: var(--shadow-glow-pink);
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform var(--transition-base);
+  }
+
+  .modal-bottom-sheet.show .modal-content,
+  .modal-bottom-sheet.show .pawnshop-modal-content,
+  .modal-bottom-sheet.show .dbety-modal-content {
+    transform: translateY(0);
+  }
+
+  /* Mobile: No sticky header (fits in viewport) */
+  .modal-bottom-sheet .modal-header,
+  .modal-bottom-sheet .pawnshop-modal-header,
+  .modal-bottom-sheet .dbety-modal-header {
+    position: relative;
+  }
+
+  /* Swipe indicator */
+  .modal-bottom-sheet .modal-content::before,
+  .modal-bottom-sheet .pawnshop-modal-content::before,
+  .modal-bottom-sheet .dbety-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+}
+
+/* ===================================
+   CLOSE BUTTON (All Sizes)
+   =================================== */
+
+.modal-close,
+.pawnshop-modal-close,
+.dbety-modal-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.modal-close:hover,
+.pawnshop-modal-close:hover,
+.dbety-modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.modal-close:focus,
+.pawnshop-modal-close:focus,
+.dbety-modal-close:focus {
+  outline: 2px solid var(--color-primary-300);
+  outline-offset: 2px;
+}
+
+/* ===================================
+   ANIMATIONS
+   =================================== */
+
+/* Fade in overlay */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-overlay,
+.pawnshop-modal-overlay,
+.dbety-modal-overlay {
+  animation: fadeIn var(--transition-base);
+}
+
+/* ===================================
+   ACCESSIBILITY
+   =================================== */
+
+/* Focus trap within modal */
+.modal[aria-hidden="true"],
+.pawnshop-modal[aria-hidden="true"],
+.dbety-modal[aria-hidden="true"] {
+  visibility: hidden;
+}
+
+.modal[aria-hidden="false"],
+.pawnshop-modal[aria-hidden="false"],
+.dbety-modal[aria-hidden="false"] {
+  visibility: visible;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .modal-content,
+  .pawnshop-modal-content,
+  .dbety-modal-content {
+    border-width: 3px;
+  }
+
+  .modal-overlay,
+  .pawnshop-modal-overlay,
+  .dbety-modal-overlay {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .pawnshop-modal,
+  .dbety-modal,
+  .modal-content,
+  .pawnshop-modal-content,
+  .dbety-modal-content,
+  .modal-close,
+  .pawnshop-modal-close,
+  .dbety-modal-close {
+    transition: none;
+    animation: none;
+  }
+
+  .modal-center .modal-content,
+  .modal-center .pawnshop-modal-content,
+  .modal-center .dbety-modal-content {
+    transform: scale(1);
+  }
+
+  .modal-bottom-sheet .modal-content,
+  .modal-bottom-sheet .pawnshop-modal-content,
+  .modal-bottom-sheet .dbety-modal-content {
+    transform: translateY(0);
+  }
+}

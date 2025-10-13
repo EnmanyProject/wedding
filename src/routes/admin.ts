@@ -654,11 +654,11 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       u.created_at,
       u.updated_at,
       u.last_login_at,
-      -- Photo statistics
-      COALESCE(photo_stats.total_photos, 0) as photo_count,
-      COALESCE(photo_stats.approved_photos, 0) as approved_photos,
-      COALESCE(photo_stats.pending_photos, 0) as pending_photos,
-      COALESCE(photo_stats.rejected_photos, 0) as rejected_photos,
+      -- Photo statistics (Mock data - table doesn't exist yet)
+      0 as photo_count,
+      0 as approved_photos,
+      0 as pending_photos,
+      0 as rejected_photos,
       -- Quiz statistics
       COALESCE(quiz_stats.quiz_responses, 0) as quiz_responses,
       -- Trait statistics
@@ -667,19 +667,10 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       COALESCE(affinity_stats.max_affinity_score, 0) as max_affinity_score
      FROM users u
      LEFT JOIN (
-       SELECT user_id,
-              COUNT(*) as total_photos,
-              COUNT(*) FILTER (WHERE moderation_status = 'APPROVED') as approved_photos,
-              COUNT(*) FILTER (WHERE moderation_status = 'PENDING') as pending_photos,
-              COUNT(*) FILTER (WHERE moderation_status = 'REJECTED') as rejected_photos
-       FROM user_photos
-       GROUP BY user_id
-     ) photo_stats ON u.id = photo_stats.user_id
-     LEFT JOIN (
-       SELECT user_id,
+       SELECT asker_id as user_id,
               COUNT(DISTINCT session_id) as quiz_responses
        FROM quiz_sessions
-       GROUP BY user_id
+       GROUP BY asker_id
      ) quiz_stats ON u.id = quiz_stats.user_id
      LEFT JOIN (
        SELECT user_id,

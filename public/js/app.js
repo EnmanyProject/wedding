@@ -150,6 +150,58 @@ class App {
 
     // Initialize user session
     await this.initializeUserSession();
+
+    // Initialize Hybrid Design System
+    await this.initializeHybridDesign();
+  }
+
+  // Initialize Hybrid Design System
+  async initializeHybridDesign() {
+    try {
+      console.log('🎨 [App] Initializing Hybrid Design System');
+
+      // Wait for ResponsiveDetector to be ready
+      if (window.ResponsiveDetector) {
+        console.log('✅ [App] Responsive Detector initialized:', window.ResponsiveDetector.currentMode);
+
+        // Initialize Navigation Manager
+        if (window.NavigationManager) {
+          window.navManager = window.NavigationManager;
+          console.log('✅ [App] Navigation Manager initialized');
+        }
+
+        // Initialize Card Grid Manager for partner cards
+        if (window.CardGridManager) {
+          window.partnerGridManager = new window.CardGridManager('partner-cards-container');
+          console.log('✅ [App] Card Grid Manager initialized');
+        }
+
+        // Initialize Modal Manager
+        if (window.ModalManager) {
+          window.modalManager = window.ModalManager;
+          console.log('✅ [App] Modal Manager initialized');
+        }
+
+        // Listen for layout mode changes
+        window.addEventListener('layoutModeChange', (e) => {
+          console.log('🔄 [App] Layout mode changed to:', e.detail.mode);
+
+          // Refresh UI components based on new mode
+          if (window.navManager && typeof window.navManager.render === 'function') {
+            window.navManager.render();
+          }
+          if (window.partnerGridManager && typeof window.partnerGridManager.render === 'function') {
+            window.partnerGridManager.render();
+          }
+        });
+
+        console.log('🎉 [App] Hybrid Design System initialized successfully');
+      } else {
+        console.warn('⚠️ [App] ResponsiveDetector not available');
+      }
+    } catch (error) {
+      console.error('❌ [App] Failed to initialize Hybrid Design System:', error);
+    }
   }
 
   // Initialize user session

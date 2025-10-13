@@ -386,16 +386,22 @@ body {
 }
 
 .welcome-section h2 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   margin-bottom: 6px;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .welcome-section p {
   color: var(--text-secondary);
-  font-size: 15px;
+  font-size: 14px;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Quiz Suggestion Card */
@@ -1029,6 +1035,8 @@ body {
   justify-content: center;
   word-wrap: break-word;
   box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.3;
 }
 
 .quiz-option:hover {
@@ -1062,6 +1070,12 @@ body {
 .option-label {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .vs-divider {
@@ -1193,12 +1207,16 @@ body {
 }
 
 .nav-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.1;
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* 모바일 최적화 및 반응형 디자인 */
@@ -1226,7 +1244,7 @@ body {
   }
 
   .nav-label {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 
@@ -1448,8 +1466,12 @@ body {
 
   .quiz-option {
     padding: 10px 6px; /* 모바일에서 패딩 더 줄임 */
-    font-size: 14px; /* 폰트 크기 약간 줄임 */
+    font-size: 13px; /* 폰트 크기 약간 줄임 */
     min-height: 40px; /* 모바일에서 높이 줄임 */
+  }
+
+  .option-label {
+    font-size: 12px;
   }
 
   .quiz-modal .modal-content {

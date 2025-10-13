@@ -122,8 +122,13 @@ app.use('/uploads', express.static('public/uploads', {
   }
 }));
 
-// API routes
+// API routes (routing priority: admin routes before catch-all)
 app.use('/api/auth', authRouter);
+// Admin routes must come BEFORE /api photosRouter to avoid being caught by it
+app.use('/api/admin-auth', adminAuthRouter);
+app.use('/api/admin/recommendations', adminRecommendationsRouter);
+app.use('/api/admin', adminRouter);
+// Other API routes
 app.use('/api', photosRouter);
 app.use('/api/quiz', quizRouter);
 app.use('/api/rings', ringsRouter);
@@ -132,9 +137,6 @@ app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/affinity', affinityRouter);
 app.use('/api/meeting', meetingRouter);
 app.use('/api/profile', profileRouter);
-app.use('/api/admin-auth', adminAuthRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/admin/recommendations', adminRecommendationsRouter);
 
 // Assets route for photo serving
 app.get('/api/assets/*', async (req, res) => {
