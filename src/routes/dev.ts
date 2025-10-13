@@ -253,7 +253,7 @@ router.get('/users', checkDevMode, asyncHandler(async (
   res: Response
 ) => {
   const users = await seedService.db.query(
-    `SELECT id, name, email, created_at, is_active
+    `SELECT id, name, email, profile_image_url, created_at, is_active
      FROM users
      WHERE is_active = true
      ORDER BY created_at
@@ -270,6 +270,217 @@ router.get('/users', checkDevMode, asyncHandler(async (
   };
 
   res.json(response);
+}));
+
+/**
+ * POST /dev/update-profile-images
+ * Update profile images for users to use local images
+ */
+router.post('/update-profile-images', checkDevMode, requireAdmin, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  console.log('📸 Updating profile images to local files...');
+
+  // 로컬 프로필 이미지 경로 매핑 (데이터베이스 첫 10명 사용자)
+  const profileImages = [
+    { name: '김소영', image: '/images/profiles/user1.jpg' },
+    { name: '이수진', image: '/images/profiles/user2.png' },
+    { name: '박지현', image: '/images/profiles/user3.jpg' },
+    { name: '최은영', image: '/images/profiles/user4.png' },
+    { name: '정다영', image: '/images/profiles/user5.jpg' },
+    { name: '김나연', image: '/images/profiles/user6.png' },
+    { name: '윤서연', image: '/images/profiles/user7.jpg' },
+    { name: '장태연', image: '/images/profiles/user8.jpg' },
+    { name: '임소영', image: '/images/profiles/user9.jpg' },
+    { name: '한지민', image: '/images/profiles/user10.jpg' },
+  ];
+
+  let updateCount = 0;
+
+  // 각 사용자의 프로필 이미지 업데이트
+  for (const user of profileImages) {
+    try {
+      console.log(`🔍 Searching for user: ${user.name}`);
+      const result = await seedService.db.query(
+        `UPDATE users
+         SET profile_image_url = $1, updated_at = NOW()
+         WHERE name = $2
+         RETURNING id, name, profile_image_url`,
+        [user.image, user.name]
+      );
+
+      console.log(`📊 Query result length: ${result.length}`);
+      if (result.length > 0) {
+        updateCount++;
+        console.log(`✅ Updated ${user.name}: ${user.image}`);
+        console.log(`   User ID: ${result[0].id}`);
+      } else {
+        console.log(`⚠️ User not found: ${user.name}`);
+      }
+    } catch (error) {
+      console.error(`❌ Error updating ${user.name}:`, error);
+    }
+  }
+
+  console.log(`📸 Profile images updated: ${updateCount}/${profileImages.length}`);
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      updated: updateCount,
+      total: profileImages.length,
+      message: `Successfully updated ${updateCount} profile images`
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
+/**
+ * POST /dev/run-migration
+ * Run a specific migration file
+ */
+router.post('/run-migration', checkDevMode, requireAdmin, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  const { filename } = req.body;
+
+  if (!filename || typeof filename !== 'string') {
+    throw createError('Migration filename is required', 400, 'INVALID_FILENAME');
+  }
+
+  console.log(`🔄 Running migration: ${filename}`);
+
+  try {
+    // Read migration file
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const migrationPath = path.join(process.cwd(), 'migrations', filename);
+
+    const sql = await fs.readFile(migrationPath, 'utf-8');
+
+    // Execute migration
+    await seedService.db.query(sql);
+
+    console.log(`✅ Migration completed: ${filename}`);
+
+    const response: ApiResponse = {
+      success: true,
+      data: {
+        filename,
+        message: `Successfully executed migration: ${filename}`
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error(`❌ Migration failed: ${filename}`, error);
+    throw createError(`Migration failed: ${error.message}`, 500, 'MIGRATION_ERROR');
+  }
+}));
+
+/**
+ * POST /dev/update-all-profile-images
+ * Update profile images for ALL users using rotation of 10 local images
+ */
+router.post('/update-all-profile-images', checkDevMode, requireAdmin, asyncHandler(async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  console.log('📸 Updating ALL user profile images with local files...');
+
+  // 로컬 프로필 이미지 목록 (10개)
+  const images = [
+    '/images/profiles/user1.jpg',
+    '/images/profiles/user2.png',
+    '/images/profiles/user3.jpg',
+    '/images/profiles/user4.png',
+    '/images/profiles/user5.jpg',
+    '/images/profiles/user6.png',
+    '/images/profiles/user7.jpg',
+    '/images/profiles/user8.jpg',
+    '/images/profiles/user9.jpg',
+    '/images/profiles/user10.jpg',
+  ];
+
+  try {
+    // 모든 활성 사용자 조회
+    const users = await seedService.db.query(
+      `SELECT id, name, email
+       FROM users
+       WHERE is_active = true
+       ORDER BY created_at`
+    );
+
+    console.log(`👥 Found ${users.length} active users`);
+
+    let updateCount = 0;
+    const updates = [];
+
+    // 각 사용자에게 순환 방식으로 이미지 할당
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      const image = images[i % images.length]; // 순환
+
+      try {
+        const result = await seedService.db.query(
+          `UPDATE users
+           SET profile_image_url = $1, updated_at = NOW()
+           WHERE id = $2
+           RETURNING id, name, profile_image_url`,
+          [image, user.id]
+        );
+
+        if (result.length > 0) {
+          updateCount++;
+          const imageName = image.split('/').pop();
+          updates.push({
+            index: i + 1,
+            name: user.name,
+            email: user.email,
+            image: imageName
+          });
+
+          // 10명마다 진행 상황 로그
+          if (updateCount % 10 === 0) {
+            console.log(`✅ Updated ${updateCount}/${users.length} users...`);
+          }
+        }
+      } catch (error) {
+        console.error(`❌ Error updating user ${user.id}:`, error);
+      }
+    }
+
+    console.log(`📸 Profile images updated: ${updateCount}/${users.length}`);
+
+    // 이미지별 사용 횟수 계산
+    const imageUsage = {};
+    images.forEach(img => {
+      const imgName = img.split('/').pop();
+      imageUsage[imgName] = updates.filter(u => u.image === imgName).length;
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      data: {
+        updated: updateCount,
+        total: users.length,
+        imageUsage,
+        message: `Successfully updated ${updateCount} profile images`,
+        sampleUpdates: updates.slice(0, 20) // 처음 20명만 표시
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('❌ Failed to update profile images:', error);
+    throw createError(`Failed to update profile images: ${error.message}`, 500, 'UPDATE_ERROR');
+  }
 }));
 
 export default router;

@@ -523,13 +523,13 @@ export class QuizService {
     console.log('👥 [QuizService] getAvailableQuizTargets 시작:', { askerId });
 
     const result = await this.db.query(
-      `SELECT u.id, u.name, u.display_name, COUNT(qr.id) as quiz_count,
+      `SELECT u.id, u.name, u.display_name, u.profile_image_url, COUNT(qr.id) as quiz_count,
               COALESCE(a.score, 0) as affinity_score
        FROM users u
        INNER JOIN quiz_responses qr ON u.id = qr.user_id
        LEFT JOIN affinity a ON a.viewer_id = $1 AND a.target_id = u.id
        WHERE u.id != $1 AND u.is_active = true
-       GROUP BY u.id, u.name, u.display_name, a.score
+       GROUP BY u.id, u.name, u.display_name, u.profile_image_url, a.score
        HAVING COUNT(qr.id) > 0
        ORDER BY u.display_name`,
       [askerId]

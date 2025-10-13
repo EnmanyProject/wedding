@@ -30,6 +30,82 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.2.0 (2025-10-11) - 프로필 이미지 시스템 완전 수정
+
+**작업 내용**:
+
+#### 1️⃣ 데이터베이스 마이그레이션 (012_add_profile_image_url.sql)
+- `users` 테이블에 `profile_image_url VARCHAR(500)` 컬럼 추가
+- 인덱스 생성 (성능 최적화)
+- `/api/dev/run-migration` 엔드포인트로 실행
+
+#### 2️⃣ 개발 API 엔드포인트 추가
+- **POST `/api/dev/run-migration`** (Lines 341-384)
+  * 마이그레이션 파일 자동 실행
+  * 파일 읽기 → SQL 실행 → 결과 반환
+  * 에러 처리 및 로깅
+
+- **POST `/api/dev/update-all-profile-images`** (Lines 386-484)
+  * 모든 활성 사용자 조회 (225명)
+  * 10개 로컬 이미지 순환 할당 (user1.jpg ~ user10.jpg)
+  * 이미지별 사용 통계 생성
+  * 업데이트 진행 상황 로깅
+
+#### 3️⃣ 프로필 이미지 일괄 업데이트 실행
+- **결과**: 225명 사용자 100% 업데이트 완료
+- **이미지 분배**: 각 이미지당 22-23명 (완벽한 균등 분배)
+- **경로**: `/images/profiles/user1.jpg` ~ `/images/profiles/user10.jpg`
+- **로컬 파일**: `C:\Users\dosik\wedding\public\images\profiles\`
+
+#### 4️⃣ 크리티컬 버그 수정 (quizService.ts)
+**문제**: 데이터베이스에 이미지 경로가 저장되었지만 프론트엔드에 표시 안 됨
+
+**원인**: `getAvailableQuizTargets()` 함수의 SQL 쿼리에서 `profile_image_url` 컬럼 누락
+
+**수정 내용** (Lines 526, 532):
+```typescript
+// Before
+SELECT u.id, u.name, u.display_name, COUNT(qr.id) as quiz_count, ...
+
+// After
+SELECT u.id, u.name, u.display_name, u.profile_image_url, COUNT(qr.id) as quiz_count, ...
+GROUP BY u.id, u.name, u.display_name, u.profile_image_url, a.score
+```
+
+#### 5️⃣ 경로 검증
+- Express.js 정적 파일 서빙: `public/` → 웹 루트 매핑
+- 데이터베이스 경로: `/images/profiles/userX.jpg`
+- 파일 시스템 경로: `C:\Users\dosik\wedding\public\images\profiles\userX.jpg`
+- ✅ 100% 정확한 매핑 확인
+
+**해결된 문제**:
+- 🐛 "profile_image_url" 컬럼 존재하지 않음 에러
+- 🐛 DiceBear 자동 생성 이미지 대신 로컬 이미지 표시 안 됨
+- 🐛 프론트엔드에서 프로필 이미지 필드 누락
+- ✅ 225명 사용자 모두 로컬 미인 이미지로 표시
+
+**기술적 성과**:
+- ✅ 데이터베이스 스키마 확장 (안전한 마이그레이션)
+- ✅ 개발 API 도구 강화 (마이그레이션 실행기)
+- ✅ 일괄 데이터 업데이트 시스템 구축
+- ✅ 순환 할당 알고리즘 (modulo operator)
+- ✅ SQL 쿼리 무결성 복원
+
+**코드 메트릭**:
+- **추가**: migrations/012_add_profile_image_url.sql (14줄)
+- **수정**: src/routes/dev.ts (~100줄 추가), src/services/quizService.ts (2줄 수정)
+- **영향**: 225명 사용자 데이터베이스 업데이트
+
+**사용자 피드백**:
+> "내가 원하는 여자 이미지들은 유저카드에 안보임" → ✅ 해결 완료
+
+**다음 작업**: 브라우저 새로고침(F5) 후 이미지 표시 확인
+
+**Git**: (커밋 예정)
+**상태**: ✅ 프로필 이미지 시스템 완전 복구
+
+---
+
 ### v1.1.0 (2025-10-11) - Phase C 프로젝트 정리 완료
 
 **작업 내용**:

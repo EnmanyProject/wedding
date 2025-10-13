@@ -577,6 +577,200 @@ router.get('/stats', authenticateAdmin, asyncHandler(async (
 }));
 
 /**
+ * GET /admin/users
+ * Get all users with pagination, search, and filters
+ */
+router.get('/users', authenticateAdmin, asyncHandler(async (
+  req: AdminAuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    console.log('=== 🔍 [AdminUsers] ENDPOINT HIT ===');
+    console.log('📋 [AdminUsers] GET /admin/users request received');
+    console.log('📋 [AdminUsers] Timestamp:', new Date().toISOString());
+    console.log('📋 [AdminUsers] Query params:', req.query);
+    console.log('📋 [AdminUsers] Request URL:', req.url);
+    console.log('📋 [AdminUsers] Request path:', req.path);
+
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+  const offset = (page - 1) * limit;
+
+  console.log('📋 [AdminUsers] Pagination:', { page, limit, offset });
+
+  const search = req.query.search as string || '';
+  const status = req.query.status as string || 'all';
+  const gender = req.query.gender as string || 'all';
+
+  console.log('📋 [AdminUsers] Filters:', { search, status, gender });
+
+  let whereClause = '1=1';
+  const params: any[] = [];
+  let paramIndex = 1;
+
+  // Status filter
+  if (status === 'active') {
+    whereClause += ` AND is_active = true`;
+  } else if (status === 'inactive') {
+    whereClause += ` AND is_active = false`;
+  }
+
+  // Gender filter
+  if (gender !== 'all') {
+    whereClause += ` AND gender = $${paramIndex}`;
+    params.push(gender);
+    paramIndex++;
+  }
+
+  // Search filter (name or email)
+  if (search) {
+    whereClause += ` AND (name ILIKE $${paramIndex} OR email ILIKE $${paramIndex})`;
+    params.push(`%${search}%`);
+    paramIndex++;
+  }
+
+  // Push limit and offset to params, then capture their indices
+  params.push(limit, offset);
+  const limitIndex = paramIndex;
+  const offsetIndex = paramIndex + 1;
+
+  console.log('📋 [AdminUsers] WHERE clause:', whereClause);
+  console.log('📋 [AdminUsers] Params:', params);
+  console.log('📋 [AdminUsers] Param indices - limit: $' + limitIndex + ', offset: $' + offsetIndex);
+  console.log('📋 [AdminUsers] Executing main query...');
+
+  const users = await db.query(
+    `SELECT
+      u.id,
+      u.name,
+      u.email,
+      u.gender,
+      u.age,
+      u.location as region,
+      u.bio,
+      u.profile_image_url,
+      u.profile_complete,
+      u.is_active,
+      u.created_at,
+      u.updated_at,
+      u.last_login_at,
+      -- Photo statistics
+      COALESCE(photo_stats.total_photos, 0) as photo_count,
+      COALESCE(photo_stats.approved_photos, 0) as approved_photos,
+      COALESCE(photo_stats.pending_photos, 0) as pending_photos,
+      COALESCE(photo_stats.rejected_photos, 0) as rejected_photos,
+      -- Quiz statistics
+      COALESCE(quiz_stats.quiz_responses, 0) as quiz_responses,
+      -- Trait statistics
+      COALESCE(trait_stats.trait_responses, 0) as trait_responses,
+      -- Max affinity score
+      COALESCE(affinity_stats.max_affinity_score, 0) as max_affinity_score
+     FROM users u
+     LEFT JOIN (
+       SELECT user_id,
+              COUNT(*) as total_photos,
+              COUNT(*) FILTER (WHERE moderation_status = 'APPROVED') as approved_photos,
+              COUNT(*) FILTER (WHERE moderation_status = 'PENDING') as pending_photos,
+              COUNT(*) FILTER (WHERE moderation_status = 'REJECTED') as rejected_photos
+       FROM user_photos
+       GROUP BY user_id
+     ) photo_stats ON u.id = photo_stats.user_id
+     LEFT JOIN (
+       SELECT user_id,
+              COUNT(DISTINCT session_id) as quiz_responses
+       FROM quiz_sessions
+       GROUP BY user_id
+     ) quiz_stats ON u.id = quiz_stats.user_id
+     LEFT JOIN (
+       SELECT user_id,
+              COUNT(*) as trait_responses
+       FROM user_traits
+       GROUP BY user_id
+     ) trait_stats ON u.id = trait_stats.user_id
+     LEFT JOIN (
+       SELECT target_id,
+              MAX(score) as max_affinity_score
+       FROM affinity_scores
+       GROUP BY target_id
+     ) affinity_stats ON u.id = affinity_stats.target_id
+     WHERE ${whereClause}
+     ORDER BY u.created_at DESC
+     LIMIT $${limitIndex} OFFSET $${offsetIndex}`,
+    params
+  );
+
+  console.log('📋 [AdminUsers] Main query completed. Users found:', users.length);
+
+  const [total] = await db.query(
+    `SELECT COUNT(*) as count FROM users WHERE ${whereClause}`,
+    params.slice(0, -2)
+  );
+
+  console.log('📋 [AdminUsers] Count query completed. Total:', total?.count || 0);
+
+  // Transform users to match frontend expectations (nest statistics under 'stats')
+  console.log('📋 [AdminUsers] Transforming users data...');
+  const usersWithStats = users.map(user => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    gender: user.gender,
+    age: user.age,
+    region: user.region,
+    bio: user.bio,
+    profile_image_url: user.profile_image_url,
+    profile_complete: user.profile_complete,
+    is_active: user.is_active,
+    created_at: user.created_at,
+    updated_at: user.updated_at,
+    last_login_at: user.last_login_at,
+    stats: {
+      photo_count: user.photo_count,
+      approved_photos: user.approved_photos,
+      pending_photos: user.pending_photos,
+      rejected_photos: user.rejected_photos,
+      quiz_responses: user.quiz_responses,
+      trait_responses: user.trait_responses,
+      max_affinity_score: user.max_affinity_score
+    }
+  }));
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      users: usersWithStats,
+      pagination: {
+        page,
+        per_page: limit,
+        total: total?.count || 0,
+        has_next: offset + limit < (total?.count || 0),
+        has_prev: page > 1
+      }
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  console.log('📋 [AdminUsers] Sending response...');
+  res.json(response);
+  console.log('✅ [AdminUsers] Response sent successfully');
+
+  } catch (error: any) {
+    console.error('❌ [AdminUsers] FATAL ERROR IN ENDPOINT:', {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      position: error.position,
+      internalQuery: error.internalQuery,
+      stack: error.stack?.substring(0, 500)
+    });
+
+    throw error;
+  }
+}));
+
+/**
  * GET /admin/quizzes
  * Get all A&B quizzes with pagination
  */
