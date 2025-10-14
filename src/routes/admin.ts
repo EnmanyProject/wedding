@@ -297,14 +297,17 @@ router.delete('/trait-pairs/:id', authenticateAdmin, asyncHandler(async (
     throw createError('성향 질문을 찾을 수 없습니다', 404, 'TRAIT_PAIR_NOT_FOUND');
   }
 
-  // Check if pair has responses
+  // DEV MODE: Always hard delete for development
+  // TODO: 라이브 배포 시 아래 주석을 해제하고 현재 DELETE 구문을 주석 처리하세요
+  /*
+  // PRODUCTION: Check if pair has responses
   const hasResponses = await db.queryOne(
     'SELECT COUNT(*) as count FROM user_traits WHERE pair_id = $1',
     [pairId]
   );
 
   if (hasResponses && hasResponses.count > 0) {
-    // Soft delete - just deactivate
+    // Soft delete - just deactivate (데이터 무결성 보호)
     await db.query(
       'UPDATE trait_pairs SET is_active = false, updated_at = NOW() WHERE id = $1',
       [pairId]
@@ -313,6 +316,10 @@ router.delete('/trait-pairs/:id', authenticateAdmin, asyncHandler(async (
     // Hard delete if no responses
     await db.query('DELETE FROM trait_pairs WHERE id = $1', [pairId]);
   }
+  */
+
+  // DEV MODE: Always delete (개발 단계에서만 사용)
+  await db.query('DELETE FROM trait_pairs WHERE id = $1', [pairId]);
 
   const response: ApiResponse = {
     success: true,

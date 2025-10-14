@@ -30,6 +30,103 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.0 (2025-10-14) - Unified Quiz Structure & Edit/Delete System
+
+**작업 내용**:
+
+#### 1. 퀴즈 구조 통합 완료
+- **DB 마이그레이션** (migrations/013_unify_quiz_structure.sql):
+  * `trait_pairs` 테이블에 `ab_quizzes`와 동일한 필드 추가
+  * `description TEXT` - 퀴즈 설명
+  * `left_image VARCHAR(255)` - 왼쪽 옵션 이미지
+  * `right_image VARCHAR(255)` - 오른쪽 옵션 이미지
+  * `updated_at TIMESTAMP` - 수정 시간
+  * `created_by UUID` - 생성자 (관리자)
+  * 자동 `updated_at` 업데이트 트리거 추가
+
+- **scripts/run-migration.js 생성**:
+  * 마이그레이션 실행 스크립트
+  * 사용법: `node scripts/run-migration.js 013_unify_quiz_structure.sql`
+
+#### 2. 시스템 퀴즈 수정 기능 구현
+- **admin.js 수정 버튼** (Line 2083):
+  * `data-quiz-type` 속성 추가
+  * 시스템 퀴즈(trait_pair)와 관리자 퀴즈(ab_quiz) 구분
+
+- **editQuiz() 함수 수정** (Line 907-959):
+  * 통합 `/admin/all-quizzes` 엔드포인트에서 데이터 로드
+  * 시스템 퀴즈와 관리자 퀴즈 동일하게 처리
+  * 이미지 미리보기 지원
+
+#### 3. 저장 로직 퀴즈 타입별 분기
+- **saveQuiz() 함수 재작성** (Line 520-610):
+  * 퀴즈 타입 감지: `modal.dataset.quizType`
+  * **trait_pair (시스템 퀴즈)**:
+    - 엔드포인트: `PUT /admin/trait-pairs/:id`
+    - 필드: `key`, `left_label`, `right_label`, `left_image`, `right_image`
+  * **ab_quiz (관리자 퀴즈)**:
+    - 엔드포인트: `PUT /admin/quizzes/:id`
+    - 필드: `title`, `option_a_title`, `option_b_title`, `option_a_image`, `option_b_image`
+
+#### 4. 삭제 버그 수정
+- **중복 이벤트 핸들러 제거** (Line 159-173):
+  * 예전 전역 이벤트 핸들러에서 퀴즈 케이스 제거
+  * 퀴즈는 `setupQuizEventListeners()`에서만 처리
+  * 중복 삭제 요청 문제 해결
+
+#### 5. 삭제 로직 개발/프로덕션 분리
+- **admin.ts 삭제 로직 수정** (Line 300-322):
+  * **개발 모드** (현재): 항상 실제 삭제 (`DELETE`)
+  * **프로덕션 모드** (라이브 배포 시):
+    - 응답 데이터 있음 → 소프트 삭제 (비활성화)
+    - 응답 데이터 없음 → 하드 삭제
+  * 주석으로 프로덕션 코드 보존
+
+**🚨 라이브 배포 시 필수 작업**:
+
+```typescript
+// src/routes/admin.ts Line 300-322
+// TODO: 라이브 배포 시 아래 작업 필수!
+
+// 1. Line 302-319 주석 해제 (/* ... */)
+// 2. Line 322 주석 처리 (// await db.query('DELETE...'))
+// 3. 데이터 무결성 보호를 위한 조건부 삭제 활성화
+```
+
+**기술적 성과**:
+- ✅ 시스템 퀴즈와 관리자 퀴즈 완전 통합
+- ✅ 통합 CRUD 시스템 (생성/수정/삭제/상태변경)
+- ✅ 이미지 업로드 양쪽 모두 지원
+- ✅ 중복 이벤트 핸들러 제거
+- ✅ 개발/프로덕션 환경 분리
+
+**코드 메트릭**:
+- **신규**: migrations/013_unify_quiz_structure.sql (42줄)
+- **신규**: scripts/run-migration.js (56줄)
+- **수정**: admin.js (80줄 - saveQuiz, editQuiz, 이벤트 핸들러)
+- **수정**: admin.ts (23줄 - 삭제 로직)
+- **총 변경**: ~201줄
+
+**해결된 문제**:
+- ✅ 시스템 퀴즈 수정 모달 열림
+- ✅ 시스템 퀴즈 이미지 추가/수정 가능
+- ✅ 저장 시 올바른 엔드포인트 호출
+- ✅ 중복 삭제 요청 오류 해결
+- ✅ 개발 중 불필요한 데이터 삭제 가능
+
+**시스템 상태**:
+```
+✅ Admin Panel: 통합 퀴즈 관리 시스템 완성
+✅ Trait Pairs: 이미지/설명 필드 추가 완료
+✅ CRUD: 시스템/관리자 퀴즈 동일하게 관리 가능
+✅ 삭제: 개발 모드 (항상 삭제) / 프로덕션 모드 (조건부 삭제)
+⚠️ 라이브 배포 전: admin.ts 삭제 로직 변경 필수!
+```
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.61.0 (2025-10-14) - Quiz Edit Button & Data Verification
 
 **작업 내용**:

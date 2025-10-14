@@ -156,7 +156,7 @@ class AdminManager {
         return;
       }
 
-      // Handle dynamic button clicks
+      // Handle dynamic button clicks (trait-pairs only, quiz handling is in setupQuizEventListeners)
       const action = e.target.dataset.action;
       if (!action) return;
 
@@ -169,15 +169,6 @@ class AdminManager {
           break;
         case 'delete-trait':
           deleteTraitPair(e.target.dataset.id);
-          break;
-        case 'add-quiz':
-          openQuizCreationModal();
-          break;
-        case 'edit-quiz':
-          editQuiz(e.target.dataset.id);
-          break;
-        case 'delete-quiz':
-          deleteQuiz(e.target.dataset.id);
           break;
       }
     });
@@ -519,49 +510,93 @@ class AdminManager {
 
   async saveQuiz() {
     try {
-      const formData = new FormData();
-      formData.append('category', document.getElementById('quiz-category').value);
-      formData.append('title', document.getElementById('quiz-title').value);
-      formData.append('description', document.getElementById('quiz-description').value || '');
-      formData.append('option_a_title', document.getElementById('option-a-title').value);
-      formData.append('option_a_description', document.getElementById('option-a-description').value || '');
-      formData.append('option_b_title', document.getElementById('option-b-title').value);
-      formData.append('option_b_description', document.getElementById('option-b-description').value || '');
-      formData.append('is_active', document.getElementById('quiz-active').checked);
+      // 퀴즈 타입 확인 (모달의 dataset에서 가져오기)
+      const modal = document.getElementById('quiz-creation-modal');
+      const quizType = modal.dataset.quizType;
 
-      // Add image files if selected
-      const optionAImage = document.getElementById('option-a-image').files[0];
-      if (optionAImage) {
-        formData.append('option_a_image', optionAImage);
-      }
-
-      const optionBImage = document.getElementById('option-b-image').files[0];
-      if (optionBImage) {
-        formData.append('option_b_image', optionBImage);
-      }
+      console.log('💾 [SaveQuiz]', { quizId: this.currentQuizId, quizType });
 
       let result;
-      if (this.currentQuizId) {
-        // Update existing
-        result = await api.requestWithFile(`/admin/quizzes/${this.currentQuizId}`, {
-          method: 'PUT',
-          body: formData
-        });
+
+      if (quizType === 'trait_pair') {
+        // Trait Pair 저장 (시스템 퀴즈)
+        const formData = new FormData();
+        formData.append('key', document.getElementById('quiz-title').value); // title을 key로 사용
+        formData.append('left_label', document.getElementById('option-a-title').value);
+        formData.append('right_label', document.getElementById('option-b-title').value);
+        formData.append('category', document.getElementById('quiz-category').value);
+        formData.append('description', document.getElementById('quiz-description').value || '');
+        formData.append('is_active', document.getElementById('quiz-active').checked);
+
+        // Add image files if selected
+        const leftImage = document.getElementById('option-a-image').files[0];
+        if (leftImage) {
+          formData.append('left_image', leftImage);
+        }
+
+        const rightImage = document.getElementById('option-b-image').files[0];
+        if (rightImage) {
+          formData.append('right_image', rightImage);
+        }
+
+        if (this.currentQuizId) {
+          // Update existing trait pair
+          result = await api.requestWithFile(`/admin/trait-pairs/${this.currentQuizId}`, {
+            method: 'PUT',
+            body: formData
+          });
+        } else {
+          // Create new trait pair
+          result = await api.requestWithFile('/admin/trait-pairs', {
+            method: 'POST',
+            body: formData
+          });
+        }
       } else {
-        // Create new
-        result = await api.requestWithFile('/admin/quizzes', {
-          method: 'POST',
-          body: formData
-        });
+        // AB Quiz 저장 (관리자 퀴즈)
+        const formData = new FormData();
+        formData.append('category', document.getElementById('quiz-category').value);
+        formData.append('title', document.getElementById('quiz-title').value);
+        formData.append('description', document.getElementById('quiz-description').value || '');
+        formData.append('option_a_title', document.getElementById('option-a-title').value);
+        formData.append('option_a_description', document.getElementById('option-a-description').value || '');
+        formData.append('option_b_title', document.getElementById('option-b-title').value);
+        formData.append('option_b_description', document.getElementById('option-b-description').value || '');
+        formData.append('is_active', document.getElementById('quiz-active').checked);
+
+        // Add image files if selected
+        const optionAImage = document.getElementById('option-a-image').files[0];
+        if (optionAImage) {
+          formData.append('option_a_image', optionAImage);
+        }
+
+        const optionBImage = document.getElementById('option-b-image').files[0];
+        if (optionBImage) {
+          formData.append('option_b_image', optionBImage);
+        }
+
+        if (this.currentQuizId) {
+          // Update existing ab quiz
+          result = await api.requestWithFile(`/admin/quizzes/${this.currentQuizId}`, {
+            method: 'PUT',
+            body: formData
+          });
+        } else {
+          // Create new ab quiz
+          result = await api.requestWithFile('/admin/quizzes', {
+            method: 'POST',
+            body: formData
+          });
+        }
       }
 
-      this.showAlert('선호 퀴즈가 성공적으로 저장되었습니다', 'success');
+      this.showAlert('퀴즈가 성공적으로 저장되었습니다', 'success');
       closeQuizCreationModal();
       this.loadQuizList();
 
     } catch (error) {
       console.error('퀴즈 저장 실패:', error);
-      this.showAlert(error.message || '선호 퀴즈 저장에 실패했습니다', 'error');
+      this.showAlert(error.message || '퀴즈 저장에 실패했습니다', 'error');
     }
   }
 
@@ -2080,7 +2115,7 @@ AdminManager.prototype.renderQuizList = function() {
             </td>
             <td style="padding: 0.5rem; text-align: center;">
               <div style="display: flex; gap: 0.25rem; justify-content: center; white-space: nowrap;">
-                <button data-action="edit-quiz" data-quiz-id="${quiz.id}" class="btn-sm"
+                <button data-action="edit-quiz" data-quiz-id="${quiz.id}" data-quiz-type="${quiz.quiz_type}" class="btn-sm"
                         style="background: #f39c12; color: white; border: none; padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">
                   수정
                 </button>
