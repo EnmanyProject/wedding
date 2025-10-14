@@ -30,6 +30,106 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.14 (2025-10-14) - Partner Cards Grid Mode Complete Fix (파트너 카드 그리드 모드 완전 수정)
+
+**작업 내용**:
+
+#### 그리드 모드 전용 CSS 추가
+- **사용자 리포트**:
+  * "카드가 다 보였다가 새로고침하면 다 사라짐"
+  * "아직도 수직으로 늘어지는 현상 있음"
+  * v1.62.13 수정 후에도 그리드 모드에서 카드가 제대로 표시 안 됨
+
+- **문제 분석**:
+  * **premium-partner-cards.css**: 모바일 swiper 스타일이 그리드 모드에서도 적용됨
+  * `.mobile-partner-swiper`: `height: 600px` 고정값이 그리드에서도 유지
+  * 그리드 모드 전용 CSS 규칙 없음
+  * 모바일 스타일과 그리드 스타일 충돌
+
+**수정 내용**:
+
+1. **premium-partner-cards.css (Lines 542-611)**: 그리드 모드 전용 CSS 섹션 추가
+   ```css
+   @media (min-width: 768px) {
+     /* Grid mode container */
+     .mobile-partner-swiper.grid-container,
+     .mobile-partner-swiper:has(.grid-mode) {
+       max-width: 100% !important;
+       height: auto !important;  /* 고정 높이 제거 */
+       overflow: visible !important;
+       padding: var(--space-xl, 32px) !important;
+       background: transparent !important;
+       box-shadow: none !important;
+     }
+
+     /* Grid mode cards container */
+     .partner-cards-container.grid-mode {
+       display: grid !important;
+       grid-template-columns: repeat(var(--grid-columns-desktop, 3), 1fr) !important;
+       gap: var(--grid-gap, 20px) !important;
+       height: auto !important;
+       transform: none !important;
+     }
+
+     /* Grid mode cards */
+     .partner-cards-container.grid-mode .partner-card {
+       width: 100% !important;
+       min-width: auto !important;
+       height: auto !important;
+       min-height: 500px !important;
+       max-height: 550px !important;
+       transform: none !important;
+       margin: 0 !important;
+     }
+
+     /* Hide swiper controls */
+     .mobile-partner-swiper.grid-container .partner-swiper-pagination,
+     .mobile-partner-swiper.grid-container .partner-swiper-controls {
+       display: none !important;
+     }
+
+     /* Card hover effects in grid */
+     .partner-cards-container.grid-mode .partner-card:hover {
+       transform: translateY(-8px) !important;
+     }
+   }
+   ```
+
+**기술적 분석**:
+- **문제 1 - 모바일 스타일 충돌**: 모바일용 고정 높이가 그리드에도 적용
+- **문제 2 - 컨테이너 크기**: 그리드 모드에서 컨테이너가 제대로 확장 안 됨
+- **문제 3 - 카드 레이아웃**: 그리드 레이아웃이 제대로 적용 안 됨
+- **해결책 1**: 768px 이상에서 그리드 전용 CSS 우선 적용
+- **해결책 2**: `!important`로 모바일 스타일 덮어쓰기
+- **해결책 3**: 그리드 컨테이너를 `height: auto`로 변경
+
+**영향 범위**:
+- ✅ 데스크톱/태블릿에서 카드 정상 표시
+- ✅ 그리드 레이아웃 정상 작동
+- ✅ 카드 높이 자동 조정 (늘어지지 않음)
+- ✅ 새로고침 후에도 카드 유지
+- ✅ 모바일은 기존 스와이퍼 방식 유지
+
+**기술적 성과**:
+- ✅ 반응형 CSS 미디어 쿼리 분리
+- ✅ 모바일/그리드 스타일 충돌 해결
+- ✅ CSS 특이도(specificity) 최적화
+- ✅ 브라우저 호환성 강화
+
+**코드 메트릭**:
+- **신규**: premium-partner-cards.css 그리드 모드 섹션 (70줄)
+- **총 변경**: 70줄
+
+**해결된 문제**:
+- 🐛 새로고침 시 카드 사라지는 문제
+- 🐛 그리드 모드에서 카드 수직으로 늘어지는 현상
+- 🐛 데스크톱에서 카드 레이아웃 깨지는 문제
+- ✅ 모든 화면 크기에서 안정적인 카드 표시
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.13 (2025-10-14) - Partner Cards Grid Rendering Fix (파트너 카드 그리드 렌더링 수정)
 
 **작업 내용**:

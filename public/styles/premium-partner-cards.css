@@ -540,6 +540,77 @@
 }
 
 /* ==========================================
+   그리드 모드 (768px+)
+   ========================================== */
+@media (min-width: 768px) {
+  /* Grid mode container adjustments */
+  .mobile-partner-swiper.grid-container,
+  .mobile-partner-swiper:has(.grid-mode) {
+    max-width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: var(--space-xl, 32px) !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Grid mode cards container */
+  .partner-cards-container.grid-mode {
+    display: grid !important;
+    grid-template-columns: repeat(var(--grid-columns-desktop, 3), 1fr) !important;
+    gap: var(--grid-gap, 20px) !important;
+    height: auto !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Grid mode cards */
+  .partner-cards-container.grid-mode .partner-card {
+    width: 100% !important;
+    min-width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 500px !important;
+    max-height: 550px !important;
+    transform: none !important;
+    margin: 0 !important;
+    scroll-snap-align: none !important;
+  }
+
+  /* Grid mode card content */
+  .partner-cards-container.grid-mode .partner-card .card-content {
+    height: 100% !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Hide swiper controls in grid mode */
+  .partner-cards-container.grid-mode ~ .partner-swiper-pagination,
+  .partner-cards-container.grid-mode ~ .partner-swiper-controls {
+    display: none !important;
+  }
+
+  .mobile-partner-swiper.grid-container .partner-swiper-pagination,
+  .mobile-partner-swiper.grid-container .partner-swiper-controls,
+  .mobile-partner-swiper:has(.grid-mode) .partner-swiper-pagination,
+  .mobile-partner-swiper:has(.grid-mode) .partner-swiper-controls {
+    display: none !important;
+  }
+
+  /* Card hover effects in grid */
+  .partner-cards-container.grid-mode .partner-card:hover {
+    transform: translateY(-8px) !important;
+  }
+
+  .partner-cards-container.grid-mode .partner-card:hover .card-content {
+    transform: none !important;
+  }
+}
+
+/* ==========================================
    반응형 디자인 - 모바일 최적화
    ========================================== */
 @media (max-width: 768px) {
