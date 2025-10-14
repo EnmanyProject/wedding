@@ -18,7 +18,19 @@
    =================================== */
 
 @media (min-width: 768px) {
-  /* Parent container adjustments for grid mode */
+  /* Parent container adjustments for grid mode (Fallback for :has() support) */
+  .mobile-partner-swiper.grid-container,
+  .mobile-user-swiper.grid-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Parent container adjustments for grid mode (Modern browsers with :has() support) */
   .mobile-partner-swiper:has(.grid-mode),
   .mobile-user-swiper:has(.grid-mode) {
     max-width: 100% !important;

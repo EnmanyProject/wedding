@@ -938,9 +938,13 @@ class UIManager {
   // Render user avatars as partner swiper cards
   renderUserAvatars(targets) {
     const partnerSwiper = document.getElementById('mobile-partner-swiper');
-    if (!partnerSwiper) return;
+    if (!partnerSwiper) {
+      console.error('❌ [UI] Partner swiper element not found');
+      return;
+    }
 
     if (targets.length === 0) {
+      console.log('ℹ️ [UI] No targets available, showing empty state');
       this.renderEmptyPartnerSwiper();
       return;
     }
@@ -948,9 +952,25 @@ class UIManager {
     this.currentPartners = targets;
     this.currentPartnerIndex = 0;
 
+    console.log('👥 [UI] Rendering', targets.length, 'partner cards');
+
     // Check if we should show grid (768px+: tablet, hybrid, desktop, large)
-    const currentMode = window.ResponsiveDetector ? window.ResponsiveDetector.getCurrentMode() : 'mobile';
-    const shouldShowGrid = ['tablet', 'hybrid', 'desktop', 'large'].includes(currentMode);
+    // Fallback to viewport width check if ResponsiveDetector unavailable
+    let currentMode = 'mobile';
+    let shouldShowGrid = false;
+
+    if (window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function') {
+      currentMode = window.ResponsiveDetector.getCurrentMode();
+      shouldShowGrid = ['tablet', 'hybrid', 'desktop', 'large'].includes(currentMode);
+    } else {
+      // Fallback: Direct viewport width check
+      const viewportWidth = window.innerWidth;
+      shouldShowGrid = viewportWidth >= 768;
+      currentMode = viewportWidth >= 768 ? 'desktop' : 'mobile';
+      console.warn('⚠️ [UI] ResponsiveDetector unavailable, using viewport width fallback:', viewportWidth, 'px');
+    }
+
+    console.log('📱 [UI] Current mode:', currentMode, '| Show grid:', shouldShowGrid);
 
     if (shouldShowGrid) {
       this.renderPartnerGrid(targets);
@@ -969,11 +989,19 @@ class UIManager {
   renderPartnerGrid(targets) {
     console.log('🖥️ [UI] Rendering partner cards in grid mode');
     const cardsContainer = document.getElementById('partner-cards-container');
-    if (!cardsContainer) return;
+    const partnerSwiper = document.getElementById('mobile-partner-swiper');
 
-    // Add grid mode class
+    if (!cardsContainer || !partnerSwiper) {
+      console.error('❌ [UI] Grid containers not found');
+      return;
+    }
+
+    // Add grid mode class to cards container
     cardsContainer.classList.add('grid-mode');
     cardsContainer.classList.remove('swiper-mode');
+
+    // Add grid-container class to parent for :has() fallback
+    partnerSwiper.classList.add('grid-container');
 
     // Render all cards (no swiper initialization needed)
     this.renderPartnerCards(targets);
@@ -983,6 +1011,8 @@ class UIManager {
     const controls = document.getElementById('partner-swiper-controls');
     if (pagination) pagination.style.display = 'none';
     if (controls) controls.style.display = 'none';
+
+    console.log('✅ [UI] Grid mode activated successfully');
   }
 
   // Render empty partner swiper (delegated to ui-components utility)

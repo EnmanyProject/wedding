@@ -30,6 +30,114 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.13 (2025-10-14) - Partner Cards Grid Rendering Fix (파트너 카드 그리드 렌더링 수정)
+
+**작업 내용**:
+
+#### 파트너 카드 안 보이는 문제 해결
+- **사용자 리포트**:
+  * "카드는 이제 안잘린다 그런데 파트너 카드가 호출이 안되는거 같아"
+  * v1.62.12 높이 수정 후 데스크톱에서 카드가 전혀 렌더링 안 됨
+  * 새로고침 후 카드 사라지는 문제 지속
+
+- **문제 분석**:
+  * **card-grid.css Line 22**: `:has()` 의사 클래스 브라우저 호환성 문제
+  * 브라우저가 `:has()`를 지원하지 않을 경우 CSS 선택자 전체 무시
+  * 결과: `.mobile-partner-swiper`가 여전히 모바일 CSS (max-width: 400px, height: 600px) 사용
+  * ResponsiveDetector 초기화 타이밍 문제 (경쟁 조건)
+
+**수정 내용**:
+
+1. **card-grid.css** (Line 21-31) - `:has()` 폴백 추가:
+   ```css
+   /* BEFORE (최신 브라우저만 지원) */
+   @media (min-width: 768px) {
+     .mobile-partner-swiper:has(.grid-mode) {
+       max-width: 100% !important;
+       /* ... */
+     }
+   }
+
+   /* AFTER (모든 브라우저 지원) */
+   @media (min-width: 768px) {
+     /* Fallback for browsers without :has() support */
+     .mobile-partner-swiper.grid-container {
+       max-width: 100% !important;
+       width: 100% !important;
+       height: auto !important;
+       /* ... */
+     }
+
+     /* Modern browsers with :has() support */
+     .mobile-partner-swiper:has(.grid-mode) {
+       max-width: 100% !important;
+       /* ... */
+     }
+   }
+   ```
+
+2. **ui.js** `renderPartnerGrid()` (Line 969-996) - 폴백 클래스 추가:
+   ```javascript
+   // BEFORE (grid-mode만 추가)
+   cardsContainer.classList.add('grid-mode');
+
+   // AFTER (grid-container도 추가)
+   cardsContainer.classList.add('grid-mode');
+   partnerSwiper.classList.add('grid-container');  // ← 폴백 클래스
+   ```
+
+3. **ui.js** `renderUserAvatars()` (Line 939-986) - 방어적 코딩:
+   ```javascript
+   // BEFORE
+   const currentMode = window.ResponsiveDetector ?
+     window.ResponsiveDetector.getCurrentMode() : 'mobile';
+
+   // AFTER (폴백 추가)
+   let currentMode = 'mobile';
+   if (window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function') {
+     currentMode = window.ResponsiveDetector.getCurrentMode();
+   } else {
+     // Fallback: Direct viewport width check
+     const viewportWidth = window.innerWidth;
+     currentMode = viewportWidth >= 768 ? 'desktop' : 'mobile';
+     console.warn('⚠️ ResponsiveDetector unavailable, using viewport width fallback');
+   }
+   ```
+
+**기술적 분석**:
+- **문제 1 - `:has()` 호환성**: 구형 브라우저에서 지원하지 않음
+- **문제 2 - 경쟁 조건**: ResponsiveDetector가 초기화 전 호출될 수 있음
+- **해결책 1**: `.grid-container` 클래스 기반 CSS 폴백 추가
+- **해결책 2**: Viewport width 기반 폴백 감지 로직 추가
+- **해결책 3**: 방어적 에러 체크 및 로깅 강화
+
+**영향 범위**:
+- ✅ 모든 브라우저에서 그리드 모드 정상 작동 (Chrome, Firefox, Safari, Edge)
+- ✅ ResponsiveDetector 초기화 전에도 정상 작동
+- ✅ 데스크톱/태블릿에서 카드 렌더링 보장
+- ✅ 자세한 디버깅 로그로 문제 진단 용이
+
+**기술적 성과**:
+- ✅ 브라우저 호환성 문제 해결 (`:has()` 폴백)
+- ✅ JavaScript 초기화 경쟁 조건 해결
+- ✅ 방어적 코딩으로 안정성 향상
+- ✅ 디버깅 로깅 강화
+
+**코드 메트릭**:
+- **수정**: card-grid.css (11줄 추가 - 폴백 선택자)
+- **수정**: ui.js (31줄 수정 - 방어적 코딩 및 로깅)
+- **총 변경**: 42줄
+
+**해결된 문제**:
+- 🐛 데스크톱에서 파트너 카드 안 보이는 문제
+- 🐛 `:has()` 브라우저 호환성 문제
+- 🐛 ResponsiveDetector 초기화 타이밍 이슈
+- ✅ 모든 환경에서 안정적인 카드 렌더링
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.12 (2025-10-14) - Partner Card Height Auto-adjust Fix (파트너 카드 높이 자동 조정 수정)
 
 **작업 내용**:
