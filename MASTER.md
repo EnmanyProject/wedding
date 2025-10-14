@@ -18,6 +18,47 @@
 
 ## ✅ 최근 완료 작업
 
+### v1.62.6: 홈 화면 추천 시스템 연동 ✅ (2025-10-14)
+
+**작업 내용**:
+
+#### 1️⃣ 홈 화면 파트너 카드 추천 시스템 연동
+- **문제**: 홈 화면의 "미래의 반려자 찾기 💖" 카드가 추천 시스템을 사용하지 않음
+  * `loadUserAvatars()` 함수가 모든 사용자를 표시 (`api.getAvailableQuizTargets()` 사용)
+  * 추천 API는 존재하지만 랭킹 탭에서만 사용
+
+- **해결**: `public/js/ui.js` (Lines 881-936) 수정
+  * **Two-tier 데이터 로딩 구조**:
+    1. 추천 API 우선 호출 (`api.getTodayRecommendations()`)
+    2. 데이터 변환: recommendation format → partner card format
+    3. Fallback: 추천 실패 시 전체 사용자 표시
+
+- **데이터 변환 매핑**:
+  * `recommendedUserId` → `id`
+  * `userName` → `name`
+  * `userDisplayName` → `display_name`, `display_name_for_ui`
+  * `score` → `affinity_score` (매칭 점수를 친밀도로 표시)
+  * 추가: `recommendation_rank` 필드 (순위 정보)
+
+**기술적 성과**:
+- ✅ 홈 화면이 개인화된 추천 표시 (룰 베이스 알고리즘 적용)
+- ✅ Graceful degradation (추천 없을 시 전체 사용자 표시)
+- ✅ 일관된 UI/UX (partner card 형식 유지)
+- ✅ 향후 자동화 준비 완료
+
+**코드 메트릭**:
+- **수정**: public/js/ui.js (56줄 수정)
+- **로직**: Nested try-catch 패턴 (내부: 추천 API, 외부: 전체 에러)
+- **데이터 변환**: 7개 필드 매핑
+
+**개발 노트**:
+- 현재는 수동 추천 생성 필요 (`api.generateRecommendations()` 콘솔 호출)
+- 프로덕션 배포 전 스케줄러 구현 필요 (MASTER.md "다음 작업" 참고)
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.61.0: 퀴즈 수정 기능 및 데이터 검증 ✅ (2025-10-14)
 
 **작업 내용**:
@@ -1216,7 +1257,17 @@
    - 개발 환경 개선
    - 도구 업그레이드
 
-2. **Phase 1B - AI 일일 추천 시스템** (업그레이드 대기)
+2. **추천 시스템 자동화** (프로덕션 필수)
+   - **현재 상태**: 수동 생성 필요 (개발 버전)
+     * 개발 환경에서 `api.generateRecommendations()` 브라우저 콘솔 호출로 테스트 가능
+     * v1.62.6: 홈 화면 파트너 카드가 추천 API 우선 사용하도록 수정 완료
+   - **필요 작업**: 일일 자동 생성 스케줄러 구현
+     * Cron job 또는 Node scheduler 사용
+     * 매일 자정 전체 활성 사용자 추천 생성
+     * 추천 품질 모니터링 및 로깅
+   - **우선순위**: 프로덕션 배포 전 필수 구현
+
+3. **Phase 1B - AI 일일 추천 시스템** (업그레이드 대기)
    - AI 기반 일일 파트너 추천
    - 개인화 알고리즘 구현
    - 추천 품질 최적화
