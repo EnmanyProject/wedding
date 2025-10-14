@@ -30,6 +30,88 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.10 (2025-10-14) - Hybrid Layout Viewport Fix (하이브리드 레이아웃 뷰포트 수정)
+
+**작업 내용**:
+
+#### 데스크톱 화면 잘림 문제 수정
+- **사용자 리포트**:
+  * "ck1 캡쳐 파일을 찾아서 화면이 하이브리드 작업 후 잘리고 일부만 보이는 문제 수정해줘"
+  * screenshot/ck1.png: 사이드바는 보이지만 메인 콘텐츠가 뷰포트 밖으로 밀려남
+
+- **문제 분석**:
+  * CSS Grid layout: `grid-template-columns: var(--sidebar-width) 1fr`
+  * sidebar-nav.css: `margin-left: var(--sidebar-width)` 추가
+  * **이중 조정**: Grid가 이미 240px 확보 + margin-left도 240px 추가
+  * **결과**: 콘텐츠 너비 = viewport - 240px(grid) - 240px(margin) = 뷰포트 초과
+
+- **public/styles/components/navigation/sidebar-nav.css 수정** (Line 193-206):
+  * **제거**: `body.has-sidebar .app-header { margin-left: var(--sidebar-width) }`
+  * **제거**: `body.has-sidebar .main-content { margin-left: var(--sidebar-width) }`
+  * **이유**: CSS Grid의 `grid-area`가 이미 자동 위치 지정
+  * **설명 주석 추가**: 향후 개발자를 위한 명확한 설명
+
+**변경 코드**:
+```css
+/* BEFORE (중복 조정 - 화면 잘림) */
+body.has-sidebar .app-header {
+  margin-left: var(--sidebar-width) !important;
+  transition: margin-left var(--transition-layout);
+}
+
+body.has-sidebar .main-content {
+  margin-left: var(--sidebar-width) !important;
+  transition: margin-left var(--transition-layout);
+}
+
+/* AFTER (Grid 자동 처리) */
+/* REMOVED: CSS Grid layout in base-layout.css already handles sidebar spacing
+ * Adding margin-left here causes content to extend beyond viewport
+ * Grid uses: grid-template-columns: var(--sidebar-width) 1fr
+ * Grid children with grid-area automatically position correctly
+ */
+```
+
+**기술적 분석**:
+- **base-layout.css의 Grid 시스템**:
+  ```css
+  .app-container {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    grid-template-areas:
+      "sidebar header"
+      "sidebar content";
+  }
+  ```
+- Grid의 첫 번째 컬럼(240px)이 사이드바 공간 확보
+- Grid의 두 번째 컬럼(1fr)이 남은 공간 자동 채움
+- `grid-area: header`, `grid-area: content`가 자동 위치 지정
+- 추가 margin 불필요 (오히려 레이아웃 깨짐)
+
+**영향 범위**:
+- ✅ 데스크톱 모드(1280px+) 레이아웃 정상화
+- ✅ 사이드바와 메인 콘텐츠 완벽 정렬
+- ✅ 뷰포트 초과 문제 완전 해결
+- ✅ 모든 화면 요소가 뷰포트 내 표시
+
+**기술적 성과**:
+- ✅ CSS Grid와 margin 충돌 해결
+- ✅ 하이브리드 레이아웃 안정화
+- ✅ 데스크톱 UX 완벽 복원
+
+**코드 메트릭**:
+- **수정**: sidebar-nav.css (14줄 - 중복 margin 제거 및 설명 추가)
+- **총 변경**: 14줄
+
+**해결된 문제**:
+- 🐛 메인 콘텐츠가 뷰포트 밖으로 밀림
+- 🐛 CSS Grid + margin 이중 조정 충돌
+- ✅ 데스크톱 화면 전체 영역 정상 표시
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.5 (2025-10-14) - Quiz Deletion Bug Fix (퀴즈 삭제 버그 수정)
 
 **작업 내용**:

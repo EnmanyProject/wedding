@@ -190,8 +190,12 @@
     display: none !important;
   }
 
-  /* Adjust main content and header for sidebar ONLY when sidebar is active */
-  body.has-sidebar .app-header {
+  /* REMOVED: CSS Grid layout in base-layout.css already handles sidebar spacing
+   * Adding margin-left here causes content to extend beyond viewport
+   * Grid uses: grid-template-columns: var(--sidebar-width) 1fr
+   * Grid children with grid-area automatically position correctly
+   */
+  /* body.has-sidebar .app-header {
     margin-left: var(--sidebar-width) !important;
     transition: margin-left var(--transition-layout);
   }
@@ -199,7 +203,7 @@
   body.has-sidebar .main-content {
     margin-left: var(--sidebar-width) !important;
     transition: margin-left var(--transition-layout);
-  }
+  } */
 }
 
 /* ===================================
