@@ -30,6 +30,55 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.1 (2025-10-14) - Gemini API Dark Background Enhancement
+
+**작업 내용**:
+
+#### Gemini API 이미지 생성 배경색 변경
+- **사용자 요청**:
+  * "gemini api가 사진을 생성할떄 배경색을 하얀색으로 주로 만드는데 이걸 어두운색으로 만들게 프롬프트로 요청할수있나?"
+  * 옵션 1 선택 (간단한 방법: 모든 프롬프트를 어두운 배경으로 변경)
+
+- **admin.ts 수정** (Line 1656-1706):
+  * `applyPhotographyEnhancements()` 함수의 모든 "white background" → "dark background" 변경
+  * **Line 1660**: `baseEnhancements` - 기본 사진 스타일
+  * **Line 1666**: 음식 카테고리 - "isolated on white" → "isolated on dark background"
+  * **Line 1686**: 물건 카테고리 - "pure white background" → "pure dark background"
+  * **Line 1703**: 기본 fallback - "white background" → "dark background"
+
+**변경 상세**:
+```typescript
+// Before
+const baseEnhancements = '... white background ...';
+'음식': { base: '... clean white background ... isolated on white' }
+'물건': { base: '... pure white background ...' }
+default: { base: '... white background' }
+
+// After
+const baseEnhancements = '... dark background ...';
+'음식': { base: '... clean dark background ... isolated on dark background' }
+'물건': { base: '... pure dark background ...' }
+default: { base: '... dark background' }
+```
+
+**영향 범위**:
+- ✅ 모든 Gemini API 이미지 생성 시 어두운 배경 적용
+- ✅ 음식, 물건, 사람, 장소, 활동, 동물, 자연 모든 카테고리
+- ✅ 기존 기능 완전 호환 (프롬프트 문자열만 변경)
+
+**기술적 성과**:
+- ✅ 4개 위치 일괄 변경 (일관성 유지)
+- ✅ 사용자 요청 즉시 반영
+- ✅ 프롬프트 엔지니어링 개선
+
+**코드 메트릭**:
+- **수정**: admin.ts (4개 문자열, 8줄 영향)
+- **총 변경**: ~8줄
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.0 (2025-10-14) - Unified Quiz Structure & Edit/Delete System
 
 **작업 내용**:

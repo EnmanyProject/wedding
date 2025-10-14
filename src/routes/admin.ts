@@ -1657,13 +1657,13 @@ function applyPhotographyEnhancements(prompt, category) {
   const analysis = analyzePromptContext(prompt);
   const actualCategory = category || analysis.category;
 
-  const baseEnhancements = 'high quality realistic professional photography studio lighting white background clean minimalist background 4k ultra realistic photo safe for work';
+  const baseEnhancements = 'high quality realistic professional photography studio lighting dark background clean minimalist background 4k ultra realistic photo safe for work';
   const negativePrompts = 'not abstract art not cartoon not anime not painting not drawing not illustration not artistic not stylized not decorative background not busy background';
 
   // Enhanced category-specific photography styles
   const categoryPhotography = {
     '음식': {
-      base: 'professional food photography clean white background studio lighting commercial food photo realistic detailed appetizing restaurant quality real food isolated on white',
+      base: 'professional food photography clean dark background studio lighting commercial food photo realistic detailed appetizing restaurant quality real food isolated on dark background',
       style: analysis.style === '전통' ? 'traditional Korean cuisine presentation ceramic dishware' : 'modern food styling contemporary plating',
       lighting: 'soft diffused lighting highlighting textures colors natural food appearance'
     },
@@ -1683,7 +1683,7 @@ function applyPhotographyEnhancements(prompt, category) {
       lighting: 'natural lighting capturing motion clear sharp focus'
     },
     '물건': {
-      base: 'product photography pure white background studio lighting commercial photo real object isolated',
+      base: 'product photography pure dark background studio lighting commercial photo real object isolated',
       style: analysis.style === '전통' ? 'traditional Korean object cultural artifact heritage piece' : 'modern product design contemporary styling',
       lighting: 'even studio lighting no harsh shadows product showcase lighting'
     },
@@ -1700,7 +1700,7 @@ function applyPhotographyEnhancements(prompt, category) {
   };
 
   const photoConfig = categoryPhotography[actualCategory] || {
-    base: 'professional photo white background',
+    base: 'professional photo dark background',
     style: 'clean professional photography',
     lighting: 'studio lighting'
   };
