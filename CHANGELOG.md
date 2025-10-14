@@ -30,6 +30,52 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.4 (2025-10-14) - Display Quiz Titles as Options (선택지 표시)
+
+**작업 내용**:
+
+#### 시스템 퀴즈 제목 표시 개선
+- **사용자 요청**:
+  * "시스템의 만든 퀴즈의 ____와 이상한 숫자를 일괄 지워줄수있을까 순 한글만 남겨줘"
+  * 관리자 패널에서 시스템 퀴즈 제목에 언더스코어와 해시 표시 문제
+
+- **문제 분석**:
+  * `key` 필드(제목)에 언더스코어와 숫자 포함: "누구가_좋아__6a973671"
+  * DB의 UNIQUE constraint로 인해 일괄 정리 불가능
+  * 대신 프론트엔드에서 표시 방식 개선
+
+- **public/js/admin.js 수정** (Line 2081-2082):
+  * 시스템 퀴즈(trait_pair): 선택지로 표시
+  * 관리자 퀴즈(ab_quiz): 원래 제목 그대로
+  * Before: "누구가_좋아__6a973671"
+  * After: "새 vs 물고기" (보라색 강조)
+
+**변경 코드**:
+```javascript
+// Before
+${quiz.title}
+
+// After
+${quiz.quiz_type === 'trait_pair'
+  ? `<span style="color: #9b59b6;">${quiz.left_option}</span>
+     <span style="color: #888;">vs</span>
+     <span style="color: #9b59b6;">${quiz.right_option}</span>`
+  : quiz.title}
+```
+
+**기술적 성과**:
+- ✅ 시스템 퀴즈 제목 깔끔하게 표시
+- ✅ 언더스코어/해시 완전 제거 (화면)
+- ✅ DB 변경 없이 UI만 개선
+- ✅ 직관적인 "A vs B" 형식
+
+**코드 메트릭**:
+- **수정**: public/js/admin.js (2줄 - 제목 표시 로직)
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.3 (2025-10-14) - Clean Trait Labels (순수 한글 정리)
 
 **작업 내용**:
@@ -76,7 +122,7 @@
 - **신규**: scripts/clean-trait-labels.ts (99줄)
 - **실행**: 6개 라벨 업데이트
 
-**Git**: (커밋 예정) ✅
+**Git**: 9b2aeb6 커밋 완료 ✅
 
 ---
 

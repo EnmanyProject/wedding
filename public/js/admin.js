@@ -2078,8 +2078,8 @@ AdminManager.prototype.renderQuizList = function() {
           <tr>
             <td style="padding: 0.5rem 0.75rem; color: #666; font-size: 0.85rem;">${startIndex + index + 1}</td>
             <td style="padding: 0.5rem 0.75rem;">
-              <div style="font-size: 0.8rem; font-weight: 500; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;" title="${quiz.title}">
-                ${quiz.title}
+              <div style="font-size: 0.8rem; font-weight: 500; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;" title="${quiz.quiz_type === 'trait_pair' ? `${quiz.left_option} vs ${quiz.right_option}` : quiz.title}">
+                ${quiz.quiz_type === 'trait_pair' ? `<span style="color: #9b59b6;">${quiz.left_option}</span> <span style="color: #888;">vs</span> <span style="color: #9b59b6;">${quiz.right_option}</span>` : quiz.title}
               </div>
             </td>
             <td style="padding: 0.5rem 0.75rem;">
