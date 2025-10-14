@@ -30,6 +30,60 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.15 (2025-10-15) - Partner Cards Grid Centering Fix (파트너 카드 그리드 중앙 정렬 수정)
+
+**작업 내용**:
+
+#### 그리드 중앙 정렬 문제 해결
+- **사용자 리포트**:
+  * Screenshot `ck2.png` 제공
+  * "파트너 카드가 컨테이너의 정가운데 위치하지 않아"
+  * 그리드 카드들이 좌측 정렬됨 (중앙 정렬 안 됨)
+
+- **문제 분석**:
+  * **premium-partner-cards.css**: 그리드 컨테이너에 중앙 정렬 속성 누락
+  * `.partner-cards-container.grid-mode`: 기본 정렬이 `start` (좌측)
+  * CSS Grid의 `justify-content`, `justify-items` 속성 미적용
+
+**수정 내용**:
+
+1. **premium-partner-cards.css (Lines 561-570)**
+   ```css
+   .partner-cards-container.grid-mode {
+     display: grid !important;
+     grid-template-columns: repeat(var(--grid-columns-desktop, 3), 1fr) !important;
+     gap: var(--grid-gap, 20px) !important;
+     height: auto !important;
+     transform: none !important;
+     transition: none !important;
+     justify-content: center !important;    /* NEW: 그리드 콘텐츠 수평 중앙 정렬 */
+     justify-items: center !important;      /* NEW: 개별 그리드 아이템 중앙 정렬 */
+   }
+   ```
+
+**기술적 세부사항**:
+
+- **CSS Grid 정렬 시스템**:
+  * `justify-content: center` → 그리드 전체 콘텐츠를 컨테이너 내에서 수평 중앙 정렬
+  * `justify-items: center` → 각 그리드 셀 내에서 개별 아이템을 중앙 정렬
+  * `!important` 사용으로 우선순위 보장
+
+- **영향 범위**:
+  * 768px 이상 모든 뷰포트 (tablet, hybrid, desktop, large)
+  * 그리드 모드에서만 적용 (모바일 swiper 모드는 영향 없음)
+
+**테스트 방법**:
+```bash
+# 1. 브라우저에서 localhost:3002 접속
+# 2. 브라우저 창 크기 768px 이상으로 조정
+# 3. 파트너 카드가 그리드 컨테이너 중앙에 정렬되는지 확인
+# 4. 여러 뷰포트 크기 테스트 (tablet/desktop/large)
+```
+
+**Git 커밋**: aa0bb06
+
+---
+
 ### v1.62.14 (2025-10-14) - Partner Cards Grid Mode Complete Fix (파트너 카드 그리드 모드 완전 수정)
 
 **작업 내용**:
