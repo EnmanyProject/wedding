@@ -908,50 +908,50 @@ async function editQuiz(quizId, quizType) {
   try {
     console.log('✏️ [EditQuiz]', { quizId, quizType });
 
-    // trait_pair는 수정 불가 (시스템 생성 퀴즈)
-    if (quizType === 'trait_pair') {
-      admin.showAlert('시스템 생성 퀴즈는 수정할 수 없습니다.\n상세 보기에서 활성화/비활성화만 가능합니다.', 'error');
+    // 통합 퀴즈 목록에서 해당 퀴즈 찾기
+    const data = await api.request('/admin/all-quizzes?per_page=1000');
+    const quiz = data.data.quizzes.find(q => q.id === quizId);
+
+    if (!quiz) {
+      admin.showAlert('퀴즈를 찾을 수 없습니다', 'error');
       return;
     }
 
-    // ab_quiz만 수정 가능
-    const data = await api.request('/admin/quizzes');
-    const quiz = data.data.quizzes.find(q => q.id === quizId);
+    openQuizCreationModal(quizId);
 
-    if (quiz) {
-      openQuizCreationModal(quizId);
+    // 통합된 형식으로 폼 채우기
+    document.getElementById('quiz-category').value = quiz.category;
+    document.getElementById('quiz-title').value = quiz.title || quiz.left_option; // title 또는 left_option
+    document.getElementById('quiz-description').value = quiz.description || '';
+    document.getElementById('option-a-title').value = quiz.left_option;
+    document.getElementById('option-a-description').value = quiz.option_a_description || '';
+    document.getElementById('option-b-title').value = quiz.right_option;
+    document.getElementById('option-b-description').value = quiz.option_b_description || '';
+    document.getElementById('quiz-active').checked = quiz.is_active;
 
-      // Fill form with existing data
-      document.getElementById('quiz-category').value = quiz.category;
-      document.getElementById('quiz-title').value = quiz.title;
-      document.getElementById('quiz-description').value = quiz.description || '';
-      document.getElementById('option-a-title').value = quiz.option_a_title;
-      document.getElementById('option-a-description').value = quiz.option_a_description || '';
-      document.getElementById('option-b-title').value = quiz.option_b_title;
-      document.getElementById('option-b-description').value = quiz.option_b_description || '';
-      document.getElementById('quiz-active').checked = quiz.is_active;
-
-      // Show existing image previews if available
-      if (quiz.option_a_image) {
-        document.getElementById('option-a-preview').innerHTML =
-          `<img src="/uploads/${quiz.option_a_image}" alt="옵션 A" style="max-width: 200px; max-height: 150px; border-radius: 8px;">`;
-        document.getElementById('option-a-preview').style.display = 'block';
-      } else {
-        // 이미지가 없는 경우 미리보기를 숨김
-        document.getElementById('option-a-preview').style.display = 'none';
-        document.getElementById('option-a-preview').innerHTML = '';
-      }
-
-      if (quiz.option_b_image) {
-        document.getElementById('option-b-preview').innerHTML =
-          `<img src="/uploads/${quiz.option_b_image}" alt="옵션 B" style="max-width: 200px; max-height: 150px; border-radius: 8px;">`;
-        document.getElementById('option-b-preview').style.display = 'block';
-      } else {
-        // 이미지가 없는 경우 미리보기를 숨김
-        document.getElementById('option-b-preview').style.display = 'none';
-        document.getElementById('option-b-preview').innerHTML = '';
-      }
+    // 이미지 미리보기 (left_image/right_image 사용)
+    if (quiz.left_image) {
+      const imgPath = quiz.left_image.startsWith('/') ? quiz.left_image : `/uploads/${quiz.left_image}`;
+      document.getElementById('option-a-preview').innerHTML =
+        `<img src="${imgPath}" alt="옵션 A" style="max-width: 200px; max-height: 150px; border-radius: 8px;">`;
+      document.getElementById('option-a-preview').style.display = 'block';
+    } else {
+      document.getElementById('option-a-preview').style.display = 'none';
+      document.getElementById('option-a-preview').innerHTML = '';
     }
+
+    if (quiz.right_image) {
+      const imgPath = quiz.right_image.startsWith('/') ? quiz.right_image : `/uploads/${quiz.right_image}`;
+      document.getElementById('option-b-preview').innerHTML =
+        `<img src="${imgPath}" alt="옵션 B" style="max-width: 200px; max-height: 150px; border-radius: 8px;">`;
+      document.getElementById('option-b-preview').style.display = 'block';
+    } else {
+      document.getElementById('option-b-preview').style.display = 'none';
+      document.getElementById('option-b-preview').innerHTML = '';
+    }
+
+    // 퀴즈 타입을 모달에 저장 (제출 시 사용)
+    document.getElementById('quiz-creation-modal').dataset.quizType = quizType;
   } catch (error) {
     console.error('퀴즈 로딩 실패:', error);
     admin.showAlert('퀴즈 데이터를 불러올 수 없습니다', 'error');

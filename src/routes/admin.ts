@@ -2192,8 +2192,8 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
           key as title,
           left_label as left_option,
           right_label as right_option,
-          NULL as left_image,
-          NULL as right_image,
+          left_image,
+          right_image,
           is_active,
           created_at,
           NULL as creator_info
