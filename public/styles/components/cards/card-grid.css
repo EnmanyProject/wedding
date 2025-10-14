@@ -18,13 +18,25 @@
    =================================== */
 
 @media (min-width: 768px) {
+  /* Parent container adjustments for grid mode */
+  .mobile-partner-swiper:has(.grid-mode),
+  .mobile-user-swiper:has(.grid-mode) {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   /* Grid Container */
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {
     display: grid;
-    grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
-    gap: var(--grid-gap);
-    padding: var(--space-xl);
+    grid-template-columns: repeat(var(--grid-columns-desktop, 3), 1fr);
+    gap: var(--grid-gap, 20px);
+    padding: var(--space-xl, 32px);
     width: 100%;
     /* Remove transform from swiper mode */
     transform: none !important;
@@ -36,7 +48,7 @@
   .grid-mode .user-card {
     width: 100%;
     height: auto;
-    min-height: var(--card-min-height-desktop);
+    min-height: var(--card-min-height-desktop, 400px);
     /* Remove swiper-specific transforms */
     transform: none !important;
     margin: 0;
@@ -207,8 +219,8 @@
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--grid-gap-tablet);
-    padding: var(--space-lg);
+    gap: var(--grid-gap-tablet, 16px);
+    padding: var(--space-lg, 24px);
   }
 }
 
@@ -217,8 +229,8 @@
   .partner-cards-container.grid-mode,
   .user-cards-container.grid-mode {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--grid-gap-desktop);
-    padding: var(--space-lg);
+    gap: var(--grid-gap-desktop, 20px);
+    padding: var(--space-lg, 24px);
   }
 }
 
