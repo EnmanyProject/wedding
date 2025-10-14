@@ -24,9 +24,9 @@ export const authenticateAdmin = async (
       if (authHeader && authHeader.includes('dev-admin-token')) {
         console.log('🔧 [DEV] Admin auth bypassed for development');
 
-        // Create fake admin user for development
+        // Create fake admin user for development (using valid UUID format)
         req.admin = {
-          id: 'dev-admin-id',
+          id: '00000000-0000-0000-0000-000000000001',
           username: 'dev-admin',
           name: 'Dev Admin',
           role: 'super_admin',
@@ -34,7 +34,7 @@ export const authenticateAdmin = async (
           created_at: new Date(),
           updated_at: new Date()
         } as AdminUser;
-        req.adminId = 'dev-admin-id';
+        req.adminId = '00000000-0000-0000-0000-000000000001';
 
         return next();
       }
