@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A&B 미팅 어드민 - 선호 퀴즈 관리</title>
+    <title>A&B 미팅 어드민 - 퀴즈 관리</title>
     <meta name="description" content="A&B 미팅 앱 관리자 페이지">
 
     <!-- PWA Meta Tags -->
@@ -527,7 +527,7 @@
                 <img src="/images/d-bety.png" alt="Admin Bety" class="admin-mascot character-float">
                 <div>
                     <h1>A&B 미팅 어드민</h1>
-                    <div class="subtitle">선호 퀴즈 및 선호 질문 관리 시스템</div>
+                    <div class="subtitle">퀴즈 통합 관리 시스템</div>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
@@ -547,8 +547,7 @@
                 <button class="nav-tab active" data-tab="dashboard">대시보드</button>
                 <button class="nav-tab" data-tab="recommendations">✨ 추천 시스템</button>
                 <button class="nav-tab" data-tab="users">👥 유저 관리</button>
-                <button class="nav-tab" data-tab="trait-pairs">선호 질문</button>
-                <button class="nav-tab" data-tab="quiz-management">📝 선호 퀴즈 관리</button>
+                <button class="nav-tab" data-tab="quiz-management">📝 퀴즈 관리</button>
                 <button class="nav-tab" data-tab="visuals">시각 자료</button>
                 <button class="nav-tab" data-tab="ai-prompts">🎨 AI 프롬프트</button>
             </div>
@@ -753,51 +752,11 @@
             </div>
         </div>
 
-        <!-- Trait Pairs Tab -->
-        <div class="tab-content" id="trait-pairs-tab">
+        <!-- Quiz Management Tab (Unified) -->
+        <div class="tab-content" id="quiz-management-tab">
             <div class="admin-section">
                 <div class="section-header">
-                    <h2 class="section-title">선호 질문 관리</h2>
-                    <div class="section-actions">
-                        <div class="trait-pairs-counter" style="margin-right: 1rem; padding: 0.5rem 1rem; background: #3498db; color: white; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
-                            <span>📊</span>
-                            <span>표시: <span id="trait-pairs-count">-</span>개 | 전체: <span id="trait-pairs-total">-</span>개</span>
-                        </div>
-                        <button class="btn btn-primary" id="add-trait-pair-btn">새 질문 추가</button>
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-bottom: 1rem;">
-                    <div class="form-group">
-                        <label class="form-label">카테고리 필터</label>
-                        <select class="form-control" id="category-filter">
-                            <option value="">전체 카테고리</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">상태 필터</label>
-                        <select class="form-control" id="status-filter">
-                            <option value="">전체 상태</option>
-                            <option value="true">활성</option>
-                            <option value="false">비활성</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="trait-pairs-list">
-                    <div class="loading">
-                        <img src="/images/Bety1.png" alt="Loading Bety" class="bety-character character-float" style="width: 40px; height: 40px; margin-right: 0.5rem;">
-                        선호 질문을 불러오는 중...
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quiz Creation Tab -->
-        <div class="tab-content" id="quiz-creation-tab">
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2 class="section-title">📝 선호 퀴즈 관리</h2>
+                    <h2 class="section-title">📝 퀴즈 관리</h2>
                     <div class="section-actions">
                         <button class="btn btn-secondary" id="refresh-quiz-btn">🔄 새로고침</button>
                         <button class="btn btn-primary" id="add-quiz-btn">✨ 새 퀴즈 생성</button>

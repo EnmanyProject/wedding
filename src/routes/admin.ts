@@ -2178,7 +2178,7 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
           option_b_image as right_image,
           is_active,
           created_at,
-          (SELECT email FROM admins WHERE id = created_by) as creator_info
+          (SELECT email FROM admin_users WHERE id = created_by) as creator_info
         FROM ab_quizzes
         WHERE ${whereClauseAB}
 
