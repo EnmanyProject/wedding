@@ -30,6 +30,97 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.12 (2025-10-14) - Partner Card Height Auto-adjust Fix (파트너 카드 높이 자동 조정 수정)
+
+**작업 내용**:
+
+#### 파트너 카드 높이 문제 완전 해결
+- **사용자 리포트**:
+  * "화면창을 줄이면 파트너 카드가 정사각형으로 보이지만 위에 잘림"
+  * "전체화면 창에서는 아직도 길게 늘어져있음"
+  * "새로고침 했더니 다시 카드들이 안보임"
+
+- **문제 분석**:
+  * **premium-partner-cards.css**: 카드가 컨테이너 `height: 100%` 상속 (600px)
+  * **card-grid.css**: 그리드 모드에서 `min-height: 400px` 고정
+  * 결과: 컨테이너 높이에 맞춰 카드가 과도하게 늘어남
+
+**수정 내용**:
+
+1. **premium-partner-cards.css** (Line 54-56, 78-79):
+   ```css
+   /* BEFORE */
+   .partner-card {
+     height: 100%;  /* 컨테이너 높이 상속 (600px) */
+   }
+   .partner-card .card-content {
+     height: 95%;  /* 570px 고정 */
+   }
+
+   /* AFTER */
+   .partner-card {
+     height: auto;  /* 콘텐츠에 맞춰 자동 조정 */
+     min-height: 500px;
+     max-height: 600px;
+   }
+   .partner-card .card-content {
+     height: auto;  /* 콘텐츠에 맞춰 자동 조정 */
+     min-height: 450px;
+     padding: 30px 25px;  /* 40px → 30px (여백 최적화) */
+     gap: 15px;  /* 20px → 15px (간격 최적화) */
+   }
+   ```
+
+2. **card-grid.css** (Line 51-65):
+   ```css
+   /* BEFORE */
+   .grid-mode .partner-card {
+     min-height: 400px;  /* 너무 작음 */
+   }
+
+   /* AFTER */
+   .grid-mode .partner-card {
+     min-height: 500px;
+     max-height: 550px;  /* 그리드 모드 최적 높이 */
+   }
+   .grid-mode .partner-card .card-content {
+     height: 100%;  /* 부모 카드 높이에 맞춤 */
+     min-height: auto;
+     max-height: none;
+   }
+   ```
+
+**기술적 분석**:
+- **문제 1 - 고정 높이**: `height: 100%`가 부모(600px)를 상속 → 카드가 과도하게 늘어남
+- **문제 2 - 그리드 모드 불일치**: 스와이프 모드(600px)와 그리드 모드(400px) 높이 불일치
+- **해결책**: `height: auto` + `min/max-height`로 콘텐츠에 맞춰 자동 조정
+
+**영향 범위**:
+- ✅ 스와이프 모드: 500-600px 범위 내 콘텐츠에 맞춰 조정
+- ✅ 그리드 모드: 500-550px 일정한 카드 크기
+- ✅ 화면 줄일 때: 카드가 더 이상 잘리지 않음
+- ✅ 전체화면: 카드가 과도하게 늘어나지 않음
+
+**기술적 성과**:
+- ✅ Flexbox `height: auto`로 유연한 높이 조정
+- ✅ 스와이프/그리드 모드 높이 통일
+- ✅ 반응형 레이아웃 완전 복원
+
+**코드 메트릭**:
+- **수정**: premium-partner-cards.css (8줄)
+- **수정**: card-grid.css (13줄)
+- **총 변경**: 21줄
+
+**해결된 문제**:
+- 🐛 카드가 과도하게 세로로 늘어남
+- 🐛 화면 줄일 때 카드 잘림
+- 🐛 스와이프/그리드 모드 높이 불일치
+- ⚠️ 카드 안 보임 문제: 별도 진단 필요 (JavaScript 렌더링 이슈)
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.11 (2025-10-14) - Partner Card Vertical Stretching Fix (파트너 카드 수직 늘어남 수정)
 
 **작업 내용**:

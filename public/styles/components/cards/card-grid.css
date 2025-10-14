@@ -48,11 +48,20 @@
   .grid-mode .user-card {
     width: 100%;
     height: auto;
-    min-height: var(--card-min-height-desktop, 400px);
+    min-height: 500px;
+    max-height: 550px;
     /* Remove swiper-specific transforms */
     transform: none !important;
     margin: 0;
     flex-shrink: 1;
+  }
+
+  /* Card content in grid mode */
+  .grid-mode .partner-card .card-content,
+  .grid-mode .user-card .card-content {
+    height: 100%;
+    min-height: auto;
+    max-height: none;
   }
 
   /* Hide swiper controls in grid mode */
