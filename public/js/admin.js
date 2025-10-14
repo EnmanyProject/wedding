@@ -849,18 +849,26 @@ document.addEventListener('DOMContentLoaded', () => {
   localStorage.setItem('admin_token', devAdminToken);
   localStorage.setItem('admin_user', JSON.stringify(devAdminUser));
 
-  // Set admin token for API calls
-  if (window.api) {
-    window.api.setAdminToken(devAdminToken);
+  // Wait for window.api to be available before initializing
+  function initializeAdminWhenReady() {
+    if (window.api) {
+      console.log('✅ [DEV] API 인스턴스 확인 완료');
+      window.api.setAdminToken(devAdminToken);
+
+      // Show admin name
+      const adminNameElement = document.getElementById('admin-name');
+      if (adminNameElement) {
+        adminNameElement.textContent = `${devAdminUser.name} (개발모드)`;
+      }
+
+      window.admin = new AdminManager();
+    } else {
+      console.log('⏳ [DEV] API 인스턴스 대기 중...');
+      setTimeout(initializeAdminWhenReady, 50);
+    }
   }
 
-  // Show admin name
-  const adminNameElement = document.getElementById('admin-name');
-  if (adminNameElement) {
-    adminNameElement.textContent = `${devAdminUser.name} (개발모드)`;
-  }
-
-  window.admin = new AdminManager();
+  initializeAdminWhenReady();
 });
 
 // Logout function
@@ -1862,7 +1870,13 @@ AdminManager.prototype.loadQuizzes = async function() {
   try {
     console.log('📝 [QuizManagement] 퀴즈 목록 로딩 시작');
 
-    const response = await api.get('/admin/all-quizzes');
+    // Initialize category filter if not set
+    if (this.selectedQuizCategory === undefined) {
+      this.selectedQuizCategory = '';
+    }
+
+    // 모든 퀴즈를 가져오기 위해 per_page를 충분히 큰 값으로 설정
+    const response = await api.get('/admin/all-quizzes?per_page=1000');
 
     if (response.success) {
       this.allQuizzes = response.data.quizzes || [];
@@ -1910,14 +1924,13 @@ AdminManager.prototype.updateQuizStats = function() {
 
 AdminManager.prototype.getFilteredQuizzes = function() {
   const searchInput = document.querySelector('#quiz-search');
-  const categorySelect = document.querySelector('#quiz-category-filter');
   const typeSelect = document.querySelector('#quiz-type-filter');
   const statusSelect = document.querySelector('#quiz-status-filter');
 
   const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-  const categoryFilter = categorySelect ? categorySelect.value : 'all';
-  const typeFilter = typeSelect ? typeSelect.value : 'all';
-  const statusFilter = statusSelect ? statusSelect.value : 'all';
+  const categoryFilter = this.selectedQuizCategory !== undefined ? this.selectedQuizCategory : '';
+  const typeFilter = typeSelect ? typeSelect.value : '';
+  const statusFilter = statusSelect ? statusSelect.value : '';
 
   return this.allQuizzes.filter(quiz => {
     // Search filter
@@ -1926,16 +1939,16 @@ AdminManager.prototype.getFilteredQuizzes = function() {
       quiz.left_option.toLowerCase().includes(searchTerm) ||
       quiz.right_option.toLowerCase().includes(searchTerm);
 
-    // Category filter
-    const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
+    // Category filter - empty string means "all"
+    const matchesCategory = categoryFilter === '' || quiz.category === categoryFilter;
 
-    // Type filter
-    const matchesType = typeFilter === 'all' || quiz.quiz_type === typeFilter;
+    // Type filter - empty string means "all"
+    const matchesType = typeFilter === '' || quiz.quiz_type === typeFilter;
 
-    // Status filter
-    const matchesStatus = statusFilter === 'all' ||
-      (statusFilter === 'active' && quiz.is_active) ||
-      (statusFilter === 'inactive' && !quiz.is_active);
+    // Status filter - empty string means "all"
+    const matchesStatus = statusFilter === '' ||
+      (statusFilter === 'true' && quiz.is_active) ||
+      (statusFilter === 'false' && !quiz.is_active);
 
     return matchesSearch && matchesCategory && matchesType && matchesStatus;
   });
@@ -1947,6 +1960,17 @@ AdminManager.prototype.renderQuizList = function() {
 
   const filteredQuizzes = this.getFilteredQuizzes();
 
+  // 페이지네이션 초기화
+  if (this.currentQuizPage === undefined) {
+    this.currentQuizPage = 1;
+  }
+
+  const itemsPerPage = 50;
+  const totalPages = Math.ceil(filteredQuizzes.length / itemsPerPage);
+  const startIndex = (this.currentQuizPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuizzes = filteredQuizzes.slice(startIndex, endIndex);
+
   if (filteredQuizzes.length === 0) {
     container.innerHTML = `
       <div class="no-data" style="text-align: center; padding: 2rem; color: #666;">
@@ -1956,64 +1980,130 @@ AdminManager.prototype.renderQuizList = function() {
     return;
   }
 
-  container.innerHTML = filteredQuizzes.map(quiz => `
-    <div class="quiz-item" style="border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: white;">
-      <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 0.5rem;">
-        <div style="flex: 1;">
-          <h4 style="margin: 0 0 0.5rem 0; color: #2c3e50;">
-            ${quiz.title}
-            <span class="quiz-type-badge" style="
-              background: ${quiz.quiz_type === 'ab_quiz' ? '#3498db' : '#9b59b6'};
-              color: white;
-              padding: 0.2rem 0.5rem;
-              border-radius: 12px;
-              font-size: 0.7rem;
-              margin-left: 0.5rem;
-            ">
-              ${quiz.quiz_type === 'ab_quiz' ? '선호' : '선호'}
-            </span>
-            ${quiz.is_active ?
-              '<span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; margin-left: 0.5rem;">활성</span>' :
-              '<span style="background: #95a5a6; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; margin-left: 0.5rem;">비활성</span>'
-            }
-          </h4>
-          <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.5rem;">
-            카테고리: <strong>${quiz.category || '미분류'}</strong> |
-            생성일: <strong>${new Date(quiz.created_at).toLocaleDateString()}</strong>
-          </div>
-        </div>
-      </div>
+  container.innerHTML = `
+    <style>
+      .quiz-table tbody tr {
+        border-bottom: 1px solid #eee;
+        transition: background 0.2s;
+      }
+      .quiz-table tbody tr:hover {
+        background: #f8f9fa !important;
+      }
+      .quiz-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+      }
+      .quiz-pagination button {
+        padding: 0.5rem 1rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      .quiz-pagination button:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+      }
+      .quiz-pagination button:not(:disabled):hover {
+        background: #2980b9;
+      }
+    </style>
+    <table class="quiz-table" style="width: 100%; border-collapse: collapse; background: white;">
+      <thead>
+        <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+          <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #2c3e50; width: 60px;">#</th>
+          <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #2c3e50;">제목</th>
+          <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #2c3e50; width: 120px;">카테고리</th>
+          <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #2c3e50; width: 200px;">선택지 A</th>
+          <th style="padding: 0.75rem; text-align: left; font-weight: 600; color: #2c3e50; width: 200px;">선택지 B</th>
+          <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #2c3e50; width: 80px;">유형</th>
+          <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #2c3e50; width: 60px;">상태</th>
+          <th style="padding: 0.75rem; text-align: center; font-weight: 600; color: #2c3e50; width: 150px;">작업</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${paginatedQuizzes.map((quiz, index) => `
+          <tr>
+            <td style="padding: 0.5rem 0.75rem; color: #666; font-size: 0.85rem;">${startIndex + index + 1}</td>
+            <td style="padding: 0.5rem 0.75rem;">
+              <div style="font-size: 0.8rem; font-weight: 500; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;" title="${quiz.title}">
+                ${quiz.title}
+              </div>
+            </td>
+            <td style="padding: 0.5rem 0.75rem;">
+              <span style="background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; white-space: nowrap;">
+                ${quiz.category || '미분류'}
+              </span>
+            </td>
+            <td style="padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #555;">
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${quiz.left_option}">
+                  ${quiz.left_option}
+                </span>
+                ${quiz.left_image ? '<span title="이미지 있음" style="font-size: 0.9rem;">🖼️</span>' : ''}
+              </div>
+            </td>
+            <td style="padding: 0.5rem 0.75rem; font-size: 0.8rem; color: #555;">
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;" title="${quiz.right_option}">
+                  ${quiz.right_option}
+                </span>
+                ${quiz.right_image ? '<span title="이미지 있음" style="font-size: 0.9rem;">🖼️</span>' : ''}
+              </div>
+            </td>
+            <td style="padding: 0.5rem 0.75rem; text-align: center;">
+              <span style="background: ${quiz.quiz_type === 'ab_quiz' ? '#3498db' : '#9b59b6'}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; white-space: nowrap;">
+                ${quiz.quiz_type === 'ab_quiz' ? '관리자' : '시스템'}
+              </span>
+            </td>
+            <td style="padding: 0.5rem 0.75rem; text-align: center;">
+              <span style="background: ${quiz.is_active ? '#27ae60' : '#95a5a6'}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; white-space: nowrap;">
+                ${quiz.is_active ? '활성' : '비활성'}
+              </span>
+            </td>
+            <td style="padding: 0.5rem; text-align: center;">
+              <div style="display: flex; gap: 0.25rem; justify-content: center; white-space: nowrap;">
+                <button data-action="edit-quiz" data-quiz-id="${quiz.id}" class="btn-sm"
+                        style="background: #f39c12; color: white; border: none; padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">
+                  수정
+                </button>
+                <button data-action="view-quiz-details" data-quiz-id="${quiz.id}" class="btn-sm"
+                        style="background: #3498db; color: white; border: none; padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">
+                  상세
+                </button>
+                <button data-action="delete-quiz" data-quiz-id="${quiz.id}" data-quiz-type="${quiz.quiz_type}" class="btn-sm"
+                        style="background: #e74c3c; color: white; border: none; padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; font-size: 0.7rem;">
+                  삭제
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
 
-      <div class="quiz-options" style="display: flex; gap: 1rem; margin: 1rem 0;">
-        <div style="flex: 1; background: #f8f9fa; padding: 0.75rem; border-radius: 6px; border-left: 4px solid #3498db;">
-          <strong>A: ${quiz.left_option}</strong>
-        </div>
-        <div style="flex: 1; background: #f8f9fa; padding: 0.75rem; border-radius: 6px; border-left: 4px solid #e74c3c;">
-          <strong>B: ${quiz.right_option}</strong>
-        </div>
+    ${totalPages > 1 ? `
+      <div class="quiz-pagination">
+        <button data-action="quiz-prev-page" ${this.currentQuizPage === 1 ? 'disabled' : ''}>
+          ◀ 이전
+        </button>
+        <span style="font-size: 0.9rem; color: #2c3e50; font-weight: 500;">
+          페이지 ${this.currentQuizPage} / ${totalPages} (전체 ${filteredQuizzes.length}개)
+        </span>
+        <button data-action="quiz-next-page" ${this.currentQuizPage === totalPages ? 'disabled' : ''}>
+          다음 ▶
+        </button>
       </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-        <div style="font-size: 0.8rem; color: #666;">
-          ID: ${quiz.id}
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button data-action="edit-quiz" data-quiz-id="${quiz.id}"
-                  style="background: #f39c12; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-            수정
-          </button>
-          <button data-action="toggle-quiz-status" data-quiz-id="${quiz.id}" data-new-status="${!quiz.is_active}"
-                  style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-            ${quiz.is_active ? '비활성화' : '활성화'}
-          </button>
-          <button data-action="view-quiz-details" data-quiz-id="${quiz.id}"
-                  style="background: #3498db; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
-            상세보기
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
+    ` : ''}
+  `;
 };
 
 AdminManager.prototype.setupQuizEventListeners = function() {
@@ -2021,23 +2111,44 @@ AdminManager.prototype.setupQuizEventListeners = function() {
   const searchInput = document.querySelector('#quiz-search');
   if (searchInput) {
     searchInput.addEventListener('input', () => {
+      this.currentQuizPage = 1; // 검색 시 첫 페이지로
       this.renderQuizList();
     });
   }
 
-  // Filter functionality
-  const filters = ['#quiz-category-filter', '#quiz-type-filter', '#quiz-status-filter'];
+  // Category tab functionality
+  const categoryTabs = document.querySelectorAll('.quiz-cat-tab');
+  categoryTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Update active state
+      document.querySelectorAll('.quiz-cat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Store selected category
+      this.selectedQuizCategory = tab.dataset.category || '';
+
+      // 카테고리 변경 시 첫 페이지로
+      this.currentQuizPage = 1;
+
+      // Re-render quiz list
+      this.renderQuizList();
+    });
+  });
+
+  // Filter functionality (type and status only)
+  const filters = ['#quiz-type-filter', '#quiz-status-filter'];
   filters.forEach(selector => {
     const element = document.querySelector(selector);
     if (element) {
       element.addEventListener('change', () => {
+        this.currentQuizPage = 1; // 필터 변경 시 첫 페이지로
         this.renderQuizList();
       });
     }
   });
 
   // Refresh button
-  const refreshBtn = document.querySelector('#refresh-quizzes');
+  const refreshBtn = document.querySelector('#refresh-quiz-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       this.loadQuizzes();
@@ -2053,14 +2164,30 @@ AdminManager.prototype.setupQuizEventListeners = function() {
 
       const action = button.dataset.action;
       const quizId = button.dataset.quizId;
-      const newStatus = button.dataset.newStatus;
+      const quizType = button.dataset.quizType;
+
+      console.log('🔍 [QuizAction]', { action, quizId, quizType, button });
 
       switch (action) {
-        case 'toggle-quiz-status':
-          this.toggleQuizStatus(quizId, newStatus === 'true');
+        case 'edit-quiz':
+          editQuiz(quizId);
           break;
         case 'view-quiz-details':
           this.viewQuizDetails(quizId);
+          break;
+        case 'delete-quiz':
+          console.log('🗑️ [DeleteQuiz] Calling deleteQuiz with:', { quizId, quizType });
+          this.deleteQuiz(quizId, quizType);
+          break;
+        case 'quiz-prev-page':
+          if (this.currentQuizPage > 1) {
+            this.currentQuizPage--;
+            this.renderQuizList();
+          }
+          break;
+        case 'quiz-next-page':
+          this.currentQuizPage++;
+          this.renderQuizList();
           break;
       }
     });
@@ -2095,6 +2222,41 @@ AdminManager.prototype.toggleQuizStatus = async function(quizId, newStatus) {
   } catch (error) {
     console.error('퀴즈 상태 변경 실패:', error);
     this.showError('퀴즈 상태 변경에 실패했습니다');
+  }
+};
+
+AdminManager.prototype.deleteQuiz = async function(quizId, quizType) {
+  if (!confirm('⚠️ 정말로 이 퀴즈를 삭제하시겠습니까?\n\n삭제된 퀴즈는 복구할 수 없으며, 관련된 모든 응답 데이터도 함께 삭제됩니다.')) {
+    return;
+  }
+
+  try {
+    // Determine endpoint based on quiz type
+    const endpoint = quizType === 'ab_quiz' ?
+      `/admin/quizzes/${quizId}` :
+      `/admin/trait-pairs/${quizId}`;
+
+    const response = await api.request(endpoint, {
+      method: 'DELETE'
+    });
+
+    if (response.success) {
+      this.showSuccess('퀴즈가 성공적으로 삭제되었습니다');
+
+      // 현재 페이지에 아무것도 남지 않으면 이전 페이지로
+      const filteredQuizzes = this.getFilteredQuizzes().filter(q => q.id !== quizId);
+      const itemsPerPage = 50;
+      const totalPages = Math.ceil(filteredQuizzes.length / itemsPerPage);
+
+      if (this.currentQuizPage > totalPages && totalPages > 0) {
+        this.currentQuizPage = totalPages;
+      }
+
+      this.loadQuizzes(); // 목록 새로고침
+    }
+  } catch (error) {
+    console.error('퀴즈 삭제 실패:', error);
+    this.showError(error.message || '퀴즈 삭제에 실패했습니다');
   }
 };
 
