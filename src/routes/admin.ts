@@ -1236,21 +1236,14 @@ router.post('/generate-image', authenticateAdmin, logAdminActivity('GENERATE_IMA
     finalPrompt += `, ${body.description}`;
   }
 
-  // Analyze prompt context for intelligent enhancement
-  const promptAnalysis = analyzePromptContext(body.prompt);
-  const category = templateInfo?.category || body.category || promptAnalysis.category;
+  // Use clean prompt - only user input without heavy enhancements
+  // Add minimal quality settings only
+  const simpleQualityEnhancement = 'high quality professional photo realistic 4k';
+  finalPrompt = `${finalPrompt}, ${simpleQualityEnhancement}`;
 
-  console.log('🎨 Generating image with Gemini Nano Banana, original prompt:', body.prompt);
-  console.log('🧠 Context analysis:', {
-    category: promptAnalysis.category,
-    emotion: promptAnalysis.emotion,
-    style: promptAnalysis.style,
-    finalCategory: category
-  });
-
-  finalPrompt = applyPhotographyEnhancements(finalPrompt, category);
-
-  console.log('🎨 Final enhanced prompt:', finalPrompt);
+  console.log('🎨 Generating image with Gemini Nano Banana');
+  console.log('🎨 Original prompt:', body.prompt);
+  console.log('🎨 Final prompt (clean):', finalPrompt);
   console.log('🎨 Using template:', templateInfo?.title || 'None');
 
   try {
