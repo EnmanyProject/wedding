@@ -68,7 +68,7 @@
 
 #### 3. Gemini API 확인
 - **.env 파일 확인**:
-  * `GEMINI_API_KEY=AIzaSyAt5VjkzGKnceSjTzuzVZqkFFJW2-2G8bo` 존재 확인
+  * `GEMINI_API_KEY` 존재 확인 (실제 키는 보안상 비공개)
 
 - **Admin 엔드포인트 확인**:
   * `/admin/generate-image` 엔드포인트 이미 구현됨 (src/routes/admin.ts)
