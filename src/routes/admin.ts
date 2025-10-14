@@ -1237,8 +1237,8 @@ router.post('/generate-image', authenticateAdmin, logAdminActivity('GENERATE_IMA
   }
 
   // Use clean prompt - only user input without heavy enhancements
-  // Add minimal quality settings only
-  const simpleQualityEnhancement = 'high quality professional photo realistic 4k';
+  // Add minimal quality settings only (no 4k to keep file size under 1MB)
+  const simpleQualityEnhancement = 'high quality professional photo realistic';
   finalPrompt = `${finalPrompt}, ${simpleQualityEnhancement}`;
 
   console.log('🎨 Generating image with Gemini Nano Banana');

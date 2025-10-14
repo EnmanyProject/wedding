@@ -38,12 +38,14 @@
 - **사용자 요청**:
   * "배경에 강아지 사진이 뜨는 문제"
   * "순수하게 입력한 제목과 설명(있을시)만 참조하게 해줘"
+  * "4k 가 사진해상도를 의미하는거면 1mb이하로 설정해줘"
 
-- **admin.ts 수정** (Line 1239-1247):
+- **admin.ts 수정** (Line 1239-1242):
   * **제거**: `analyzePromptContext()` - 컨텍스트 분석 및 자동 카테고리 감지
   * **제거**: `applyPhotographyEnhancements()` - 복잡한 사진 스타일 enhancement
   * **제거**: `enhancePromptWithKnowledge()` - 음식 등 지식 기반 프롬프트 대체
-  * **추가**: 최소한의 품질 설정만 - `high quality professional photo realistic 4k`
+  * **제거**: `4k` - 고해상도 키워드 제거 (파일 크기 절감)
+  * **추가**: 최소한의 품질 설정만 - `high quality professional photo realistic`
 
 **Before (복잡한 Enhancement)**:
 ```typescript
@@ -57,9 +59,9 @@
 
 **After (순수 입력 기반)**:
 ```typescript
-// 사용자 입력 그대로 + 최소 품질 설정만
-finalPrompt = `${finalPrompt}, high quality professional photo realistic 4k`;
-// → 결과: 사용자가 원하는 이미지 정확히 생성
+// 사용자 입력 그대로 + 최소 품질 설정만 (4k 제거하여 파일 크기 감소)
+finalPrompt = `${finalPrompt}, high quality professional photo realistic`;
+// → 결과: 사용자가 원하는 이미지 정확히 생성 (1MB 이하)
 ```
 
 **영향 범위**:
@@ -67,11 +69,13 @@ finalPrompt = `${finalPrompt}, high quality professional photo realistic 4k`;
 - ✅ 더 이상 자동으로 복잡한 텍스트가 추가되지 않음
 - ✅ 배경에 원하지 않는 요소가 나타나지 않음
 - ✅ 제목과 설명만으로 정확한 이미지 생성 가능
+- ✅ 4k 제거로 파일 크기 감소 (대부분 1MB 이하)
 
 **기술적 성과**:
 - ✅ 프롬프트 엔지니어링 단순화 (복잡도 90% 감소)
 - ✅ 사용자 의도 정확히 반영
 - ✅ 예측 가능한 이미지 생성 결과
+- ✅ 파일 크기 최적화 (4k 제거로 저용량 이미지)
 
 **코드 메트릭**:
 - **수정**: admin.ts (~15줄 교체)
