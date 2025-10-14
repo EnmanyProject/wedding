@@ -904,8 +904,17 @@ async function logout() {
   }
 }
 
-async function editQuiz(quizId) {
+async function editQuiz(quizId, quizType) {
   try {
+    console.log('✏️ [EditQuiz]', { quizId, quizType });
+
+    // trait_pair는 수정 불가 (시스템 생성 퀴즈)
+    if (quizType === 'trait_pair') {
+      admin.showAlert('시스템 생성 퀴즈는 수정할 수 없습니다.\n상세 보기에서 활성화/비활성화만 가능합니다.', 'error');
+      return;
+    }
+
+    // ab_quiz만 수정 가능
     const data = await api.request('/admin/quizzes');
     const quiz = data.data.quizzes.find(q => q.id === quizId);
 
@@ -2170,7 +2179,7 @@ AdminManager.prototype.setupQuizEventListeners = function() {
 
       switch (action) {
         case 'edit-quiz':
-          editQuiz(quizId);
+          editQuiz(quizId, quizType);
           break;
         case 'view-quiz-details':
           this.viewQuizDetails(quizId);
