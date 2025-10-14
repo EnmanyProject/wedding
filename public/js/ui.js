@@ -878,15 +878,49 @@ class UIManager {
     return num.toString();
   }
 
-  // Load user avatars for quiz selection
+  // Load user avatars for quiz selection (추천 시스템 우선)
   async loadUserAvatars() {
     try {
-      console.log('🎭 [UI] 사용자 아바타 로딩 중...');
+      console.log('🎭 [UI] 오늘의 추천 파트너 로딩 중...');
+
+      // 1️⃣ 먼저 추천 시스템 시도
+      try {
+        const recommendationsResponse = await api.getTodayRecommendations();
+
+        if (recommendationsResponse.success &&
+            recommendationsResponse.recommendations &&
+            recommendationsResponse.recommendations.length > 0) {
+
+          console.log('✨ [UI] 오늘의 추천 파트너:', recommendationsResponse.recommendations.length, '명');
+
+          // 추천 데이터를 파트너 카드 형식으로 변환
+          const targets = recommendationsResponse.recommendations.map(rec => ({
+            id: rec.recommendedUserId,
+            name: rec.userName,
+            display_name: rec.userDisplayName,
+            display_name_for_ui: rec.userDisplayName,
+            quiz_count: 0, // 추천 API에는 퀴즈 카운트 없음
+            affinity_score: Math.round(rec.score), // 매칭 점수를 친밀도로 표시
+            age: rec.userAge,
+            region: rec.userRegion,
+            recommendation_rank: rec.rank
+          }));
+
+          this.renderUserAvatars(targets);
+          return;
+        }
+      } catch (recError) {
+        console.warn('⚠️ [UI] 추천 시스템 오류, fallback 사용:', recError);
+      }
+
+      // 2️⃣ Fallback: 추천이 없거나 실패 시 전체 사용자 표시
+      console.log('🔄 [UI] 전체 퀴즈 대상 로딩 중...');
       const targetsData = await api.getAvailableQuizTargets();
       const targets = targetsData.data.targets;
 
       console.log('👥 [UI] 로드된 사용자 수:', targets.length);
       this.renderUserAvatars(targets);
+
     } catch (error) {
       console.error('Error loading user avatars:', error);
       const grid = document.getElementById('user-avatars-grid');
