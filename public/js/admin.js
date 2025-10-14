@@ -497,8 +497,8 @@ class AdminManager {
               <td>${new Date(quiz.created_at).toLocaleDateString('ko-KR')}</td>
               <td>
                 <div class="actions">
-                  <button class="btn btn-secondary" data-action="edit-quiz" data-id="${quiz.id}">수정</button>
-                  <button class="btn btn-danger" data-action="delete-quiz" data-id="${quiz.id}">삭제</button>
+                  <button class="btn btn-secondary" data-action="edit-quiz" data-quiz-id="${quiz.id}" data-quiz-type="ab_quiz">수정</button>
+                  <button class="btn btn-danger" data-action="delete-quiz" data-quiz-id="${quiz.id}" data-quiz-type="ab_quiz">삭제</button>
                 </div>
               </td>
             </tr>
