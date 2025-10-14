@@ -565,6 +565,8 @@
     height: auto !important;
     transform: none !important;
     transition: none !important;
+    justify-content: center !important;
+    justify-items: center !important;
   }
 
   /* Grid mode cards */
