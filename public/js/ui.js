@@ -1048,8 +1048,8 @@ class UIManager {
             <div class="partner-avatar-large">
               <img src="${profileImageUrl}" alt="${displayName}" class="profile-image">
             </div>
-            <p class="partner-username">${displayName}</p>
             <div class="partner-info">
+              <h3>${displayName}</h3>
             </div>
             <div class="partner-quiz-stats">
               <div class="partner-stat-item">
