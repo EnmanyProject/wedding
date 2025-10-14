@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
-import { AdminAuthenticatedRequest, authenticateAdminToken } from '../../middleware/adminAuth';
+import { AdminAuthenticatedRequest, authenticateAdmin } from '../../middleware/adminAuth';
 import { asyncHandler, createError } from '../../middleware/errorHandler';
 import { ApiResponse } from '../../types/api';
 import { db } from '../../utils/database';
@@ -25,7 +25,7 @@ const updateUserSchema = z.object({
  * GET /admin/users
  * Get paginated users list with filters
  */
-router.get('/', authenticateAdminToken, asyncHandler(async (
+router.get('/', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
@@ -72,12 +72,15 @@ router.get('/', authenticateAdminToken, asyncHandler(async (
         u.created_at,
         u.updated_at,
         COUNT(DISTINCT up.id) as photo_count,
+        COUNT(DISTINCT CASE WHEN up.moderation_status = 'APPROVED' THEN up.id END) as approved_photos,
         COUNT(DISTINCT ut.id) as trait_responses,
-        COUNT(DISTINCT qr.id) as quiz_responses
+        COUNT(DISTINCT qr.id) as quiz_responses,
+        MAX(a.score) as max_affinity_score
       FROM users u
-      LEFT JOIN user_photos up ON u.id = up.user_id AND up.moderation_status = 'APPROVED'
+      LEFT JOIN user_photos up ON u.id = up.user_id
       LEFT JOIN user_traits ut ON u.id = ut.user_id
       LEFT JOIN quiz_responses qr ON u.id = qr.user_id
+      LEFT JOIN affinity a ON u.id = a.target_id
       ${whereClause}
       GROUP BY u.id, u.name, u.display_name, u.is_active, u.created_at, u.updated_at
       ORDER BY u.created_at DESC
@@ -85,7 +88,7 @@ router.get('/', authenticateAdminToken, asyncHandler(async (
     `;
 
     queryParams.push(limit, offset);
-    const users = await db.queryAll(usersQuery, queryParams);
+    const users = await db.query(usersQuery, queryParams);
 
     const response: ApiResponse = {
       success: true,
@@ -95,11 +98,15 @@ router.get('/', authenticateAdminToken, asyncHandler(async (
           name: user.name,
           display_name: user.display_name,
           is_active: user.is_active,
-          photo_count: parseInt(user.photo_count),
-          trait_responses: parseInt(user.trait_responses),
-          quiz_responses: parseInt(user.quiz_responses),
           created_at: user.created_at,
-          updated_at: user.updated_at
+          updated_at: user.updated_at,
+          stats: {
+            photo_count: parseInt(user.photo_count) || 0,
+            approved_photos: parseInt(user.approved_photos) || 0,
+            trait_responses: parseInt(user.trait_responses) || 0,
+            quiz_responses: parseInt(user.quiz_responses) || 0,
+            max_affinity_score: parseInt(user.max_affinity_score) || 0
+          }
         })),
         pagination: {
           page,
@@ -132,7 +139,7 @@ router.get('/', authenticateAdminToken, asyncHandler(async (
  * GET /admin/users/:userId
  * Get detailed user information
  */
-router.get('/:userId', authenticateAdminToken, asyncHandler(async (
+router.get('/:userId', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
@@ -169,7 +176,7 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
       WHERE up.user_id = $1
       ORDER BY up.created_at DESC
     `;
-    const photos = await db.queryAll(photosQuery, [userId]);
+    const photos = await db.query(photosQuery, [userId]);
 
     // Get user trait responses
     const traitsQuery = `
@@ -182,7 +189,7 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
       ORDER BY ut.created_at DESC
       LIMIT 10
     `;
-    const traits = await db.queryAll(traitsQuery, [userId]);
+    const traits = await db.query(traitsQuery, [userId]);
 
     // Get user quiz responses
     const quizQuery = `
@@ -195,7 +202,7 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
       ORDER BY qr.created_at DESC
       LIMIT 10
     `;
-    const quizzes = await db.queryAll(quizQuery, [userId]);
+    const quizzes = await db.query(quizQuery, [userId]);
 
     // Get affinity data (as target)
     const affinityQuery = `
@@ -208,7 +215,13 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
       ORDER BY a.score DESC
       LIMIT 10
     `;
-    const affinity = await db.queryAll(affinityQuery, [userId]);
+    const affinity = await db.query(affinityQuery, [userId]);
+
+    // Calculate photo statistics
+    const totalPhotos = photos.length;
+    const approvedPhotos = photos.filter(p => p.moderation_status === 'APPROVED').length;
+    const pendingPhotos = photos.filter(p => p.moderation_status === 'PENDING').length;
+    const rejectedPhotos = photos.filter(p => p.moderation_status === 'REJECTED').length;
 
     const response: ApiResponse = {
       success: true,
@@ -219,7 +232,13 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
           display_name: user.display_name,
           is_active: user.is_active,
           created_at: user.created_at,
-          updated_at: user.updated_at
+          updated_at: user.updated_at,
+          stats: {
+            total_photos: totalPhotos,
+            approved_photos: approvedPhotos,
+            pending_photos: pendingPhotos,
+            rejected_photos: rejectedPhotos
+          }
         },
         photos: photos.map(photo => ({
           id: photo.id,
@@ -244,15 +263,18 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
           option_b_title: quiz.option_b_title,
           created_at: quiz.created_at
         })),
-        affinity: affinity.map(aff => ({
-          viewer_id: aff.viewer_id,
-          viewer_name: aff.viewer_name,
-          viewer_display_name: aff.viewer_display_name,
-          score: aff.score,
-          stages_unlocked: aff.stages_unlocked
-        })),
+        affinity: {
+          towards_user: affinity.map(aff => ({
+            viewer_id: aff.viewer_id,
+            viewer_name: aff.viewer_name,
+            viewer_display_name: aff.viewer_display_name,
+            score: aff.score,
+            stages_unlocked: aff.stages_unlocked
+          })),
+          from_user: [] // TODO: 이 유저가 다른 사람에게 보낸 호감도
+        },
         stats: {
-          photo_count: photos.length,
+          photo_count: totalPhotos,
           trait_responses: traits.length,
           quiz_responses: quizzes.length,
           affinity_received: affinity.length
@@ -274,7 +296,7 @@ router.get('/:userId', authenticateAdminToken, asyncHandler(async (
  * PUT /admin/users/:userId
  * Update user information
  */
-router.put('/:userId', authenticateAdminToken, asyncHandler(async (
+router.put('/:userId', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
@@ -348,7 +370,7 @@ router.put('/:userId', authenticateAdminToken, asyncHandler(async (
  * DELETE /admin/users/:userId
  * Deactivate user (soft delete)
  */
-router.delete('/:userId', authenticateAdminToken, asyncHandler(async (
+router.delete('/:userId', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {
@@ -410,7 +432,7 @@ router.delete('/:userId', authenticateAdminToken, asyncHandler(async (
  * POST /admin/users/:userId/activate
  * Reactivate user
  */
-router.post('/:userId/activate', authenticateAdminToken, asyncHandler(async (
+router.post('/:userId/activate', authenticateAdmin, asyncHandler(async (
   req: AdminAuthenticatedRequest,
   res: Response
 ) => {

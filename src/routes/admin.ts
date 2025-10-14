@@ -13,6 +13,7 @@ import {
   TraitVisual,
   ApiResponse
 } from '../types/database';
+import usersRouter from './admin/users';
 
 const router = Router();
 const db = Database.getInstance();
@@ -646,7 +647,7 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       u.email,
       u.gender,
       u.age,
-      u.region,
+      u.location,
       u.bio,
       u.profile_image_url,
       u.profile_complete,
@@ -654,11 +655,11 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       u.created_at,
       u.updated_at,
       u.last_login_at,
-      -- Photo statistics (Mock data - table doesn't exist yet)
-      0 as photo_count,
-      0 as approved_photos,
-      0 as pending_photos,
-      0 as rejected_photos,
+      -- Photo statistics (실제 user_photos 테이블에서 카운트)
+      COALESCE(photo_stats.photo_count, 0) as photo_count,
+      COALESCE(photo_stats.approved_photos, 0) as approved_photos,
+      COALESCE(photo_stats.pending_photos, 0) as pending_photos,
+      COALESCE(photo_stats.rejected_photos, 0) as rejected_photos,
       -- Quiz statistics
       COALESCE(quiz_stats.quiz_responses, 0) as quiz_responses,
       -- Trait statistics
@@ -667,8 +668,17 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
       COALESCE(affinity_stats.max_affinity_score, 0) as max_affinity_score
      FROM users u
      LEFT JOIN (
+       SELECT user_id,
+              COUNT(*) as photo_count,
+              COUNT(CASE WHEN moderation_status = 'APPROVED' THEN 1 END) as approved_photos,
+              COUNT(CASE WHEN moderation_status = 'PENDING' THEN 1 END) as pending_photos,
+              COUNT(CASE WHEN moderation_status = 'REJECTED' THEN 1 END) as rejected_photos
+       FROM user_photos
+       GROUP BY user_id
+     ) photo_stats ON u.id = photo_stats.user_id
+     LEFT JOIN (
        SELECT asker_id as user_id,
-              COUNT(DISTINCT session_id) as quiz_responses
+              COUNT(*) as quiz_responses
        FROM quiz_sessions
        GROUP BY asker_id
      ) quiz_stats ON u.id = quiz_stats.user_id
@@ -707,7 +717,7 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
     email: user.email,
     gender: user.gender,
     age: user.age,
-    region: user.region,
+    region: user.location,
     bio: user.bio,
     profile_image_url: user.profile_image_url,
     profile_complete: user.profile_complete,
@@ -759,6 +769,157 @@ router.get('/users', authenticateAdmin, asyncHandler(async (
 
     throw error;
   }
+}));
+
+/**
+ * POST /admin/users/:userId/upload-photo
+ * Upload photo for a specific user account (admin only)
+ */
+router.post('/users/:userId/upload-photo', authenticateAdmin, upload.single('photo'), asyncHandler(async (
+  req: AdminAuthenticatedRequest,
+  res: Response
+) => {
+  const userId = req.params.userId;
+  const file = req.file;
+
+  if (!file) {
+    throw createError('사진 파일이 필요합니다', 400, 'FILE_REQUIRED');
+  }
+
+  console.log('📸 [AdminPhotoUpload] Uploading photo for user:', userId);
+  console.log('📸 [AdminPhotoUpload] File:', file.filename);
+
+  // Check if user exists
+  const user = await db.queryOne(
+    'SELECT id, name FROM users WHERE id = $1',
+    [userId]
+  );
+
+  if (!user) {
+    // Clean up uploaded file
+    const filePath = path.join('public/uploads', file.filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    throw createError('사용자를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
+  }
+
+  // Generate photo ID
+  const photoId = uuidv4();
+
+  // Storage key (using similar pattern to photos.ts)
+  const extension = path.extname(file.originalname).toLowerCase() || '.jpg';
+  const storageKey = `/uploads/${file.filename}`;
+
+  // Save to user_photos table
+  await db.query(
+    `INSERT INTO user_photos (
+      id, user_id, role, order_idx, is_safe, moderation_status, created_at, updated_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())`,
+    [photoId, userId, 'PROFILE', 0, true, 'APPROVED']
+  );
+
+  // Create photo_assets record for the uploaded file
+  await db.query(
+    `INSERT INTO photo_assets (
+      id, photo_id, variant, storage_key, mime_type, size_bytes, created_at
+    ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+    [uuidv4(), photoId, 'ORIG', storageKey, file.mimetype, file.size]
+  );
+
+  console.log('✅ [AdminPhotoUpload] Photo saved successfully');
+  console.log('✅ [AdminPhotoUpload] Photo ID:', photoId);
+  console.log('✅ [AdminPhotoUpload] Storage key:', storageKey);
+
+  // Note: NOT updating users.profile_image_url as per user requirement
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      photo_id: photoId,
+      user_id: userId,
+      user_name: user.name,
+      storage_key: storageKey,
+      url: storageKey,
+      mime_type: file.mimetype,
+      size: file.size,
+      message: '사진이 성공적으로 업로드되었습니다'
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
+}));
+
+/**
+ * GET /admin/users/:userId/photos
+ * Get all photos for a specific user
+ */
+router.get('/users/:userId/photos', authenticateAdmin, asyncHandler(async (
+  req: AdminAuthenticatedRequest,
+  res: Response
+) => {
+  const userId = req.params.userId;
+
+  // Check if user exists
+  const user = await db.queryOne(
+    'SELECT id, name, profile_image_url FROM users WHERE id = $1',
+    [userId]
+  );
+
+  if (!user) {
+    throw createError('사용자를 찾을 수 없습니다', 404, 'USER_NOT_FOUND');
+  }
+
+  // Get all photos for this user
+  const photos = await db.query(
+    `SELECT
+      up.id,
+      up.role,
+      up.order_idx,
+      up.is_safe,
+      up.moderation_status,
+      up.created_at,
+      pa.storage_key,
+      pa.mime_type,
+      pa.size_bytes,
+      pa.width,
+      pa.height
+    FROM user_photos up
+    LEFT JOIN photo_assets pa ON up.id = pa.photo_id AND pa.variant = 'ORIG'
+    WHERE up.user_id = $1
+    ORDER BY up.created_at DESC`,
+    [userId]
+  );
+
+  const response: ApiResponse = {
+    success: true,
+    data: {
+      user: {
+        id: user.id,
+        name: user.name,
+        profile_image_url: user.profile_image_url
+      },
+      photos: photos.map(photo => ({
+        id: photo.id,
+        role: photo.role,
+        order_idx: photo.order_idx,
+        is_safe: photo.is_safe,
+        moderation_status: photo.moderation_status,
+        storage_key: photo.storage_key,
+        url: photo.storage_key,
+        mime_type: photo.mime_type,
+        size: photo.size_bytes,
+        width: photo.width,
+        height: photo.height,
+        created_at: photo.created_at
+      })),
+      total_photos: photos.length
+    },
+    timestamp: new Date().toISOString()
+  };
+
+  res.json(response);
 }));
 
 /**
@@ -2086,5 +2247,8 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
 
   res.json(response);
 }));
+
+// Mount users router
+router.use('/users', usersRouter);
 
 export default router;

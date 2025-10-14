@@ -1501,7 +1501,7 @@ AdminManager.prototype.renderUserDetailModal = function(data) {
 
       <div style="margin-top: 2rem;">
         <h4>📸 사진 목록</h4>
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px;">
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
           ${data.photos && data.photos.length > 0 ?
             (() => {
               // 사진 ID별로 그룹화 (여러 variant가 있을 수 있음)
@@ -1552,13 +1552,156 @@ AdminManager.prototype.renderUserDetailModal = function(data) {
             : '<div>등록된 사진이 없습니다</div>'
           }
         </div>
+
+        <div style="background: #fff; padding: 1rem; border-radius: 8px; border: 2px dashed #3498db;">
+          <h5 style="margin-top: 0; margin-bottom: 1rem; color: #2c3e50;">✨ 새 사진 업로드</h5>
+          <form id="admin-photo-upload-form" data-user-id="${data.user.id}" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <input type="file" id="admin-photo-file" accept="image/*" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+              <div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
+                * 최대 5MB, JPG/PNG/GIF/WebP 형식
+              </div>
+            </div>
+            <div id="admin-photo-preview" style="display: none; text-align: center; margin: 0.5rem 0;">
+              <img id="admin-photo-preview-img" src="" alt="미리보기" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #3498db;">
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn btn-primary" style="flex: 1;">
+                📤 사진 업로드
+              </button>
+              <button type="button" class="btn btn-secondary" id="admin-photo-cancel" style="flex: 1;">
+                취소
+              </button>
+            </div>
+            <div id="admin-photo-upload-status" style="display: none; padding: 0.75rem; border-radius: 4px; font-size: 0.9rem;"></div>
+          </form>
+        </div>
       </div>
     `;
   }
 
   if (modal) {
     modal.style.display = 'block';
+
+    // Setup photo upload handlers
+    this.setupPhotoUploadHandlers(data.user.id);
   }
+};
+
+// Photo upload handlers
+AdminManager.prototype.setupPhotoUploadHandlers = function(userId) {
+  const fileInput = document.getElementById('admin-photo-file');
+  const previewDiv = document.getElementById('admin-photo-preview');
+  const previewImg = document.getElementById('admin-photo-preview-img');
+  const uploadForm = document.getElementById('admin-photo-upload-form');
+  const cancelBtn = document.getElementById('admin-photo-cancel');
+  const statusDiv = document.getElementById('admin-photo-upload-status');
+
+  if (!fileInput || !uploadForm) return;
+
+  // File input change handler - show preview and validate size
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      previewDiv.style.display = 'none';
+      return;
+    }
+
+    // Validate file size (5MB = 5 * 1024 * 1024 bytes)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.showError('파일 크기는 5MB 이하여야 합니다');
+      fileInput.value = '';
+      previewDiv.style.display = 'none';
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      this.showError('JPG, PNG, GIF, WebP 형식만 지원됩니다');
+      fileInput.value = '';
+      previewDiv.style.display = 'none';
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      previewDiv.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Cancel button handler
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      previewDiv.style.display = 'none';
+      statusDiv.style.display = 'none';
+    });
+  }
+
+  // Form submit handler
+  uploadForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const file = fileInput.files[0];
+    if (!file) {
+      this.showError('사진을 선택해주세요');
+      return;
+    }
+
+    // Show loading status
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#d1ecf1';
+    statusDiv.style.color = '#0c5460';
+    statusDiv.textContent = '⏳ 업로드 중...';
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch(`/api/admin/users/${userId}/upload-photo`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Show success message
+        statusDiv.style.background = '#d4edda';
+        statusDiv.style.color = '#155724';
+        statusDiv.textContent = '✅ 사진이 성공적으로 업로드되었습니다!';
+
+        this.showSuccess(result.data.message || '사진 업로드 완료');
+
+        // Clear form
+        fileInput.value = '';
+        previewDiv.style.display = 'none';
+
+        // Reload user detail and user list to show new photo (2 second delay for DB commit)
+        setTimeout(() => {
+          this.viewUserDetail(userId);
+          this.loadUsers(); // 유저 리스트도 새로고침하여 사진 카운트 업데이트
+        }, 2000);
+      } else {
+        throw new Error(result.error || '업로드에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('사진 업로드 실패:', error);
+      statusDiv.style.background = '#f8d7da';
+      statusDiv.style.color = '#721c24';
+      statusDiv.textContent = `❌ ${error.message || '업로드에 실패했습니다'}`;
+      this.showError(error.message || '사진 업로드에 실패했습니다');
+    }
+  });
 };
 
 AdminManager.prototype.toggleUserStatus = async function(userId, newStatus) {
@@ -1855,6 +1998,10 @@ AdminManager.prototype.renderQuizList = function() {
           ID: ${quiz.id}
         </div>
         <div style="display: flex; gap: 0.5rem;">
+          <button data-action="edit-quiz" data-quiz-id="${quiz.id}"
+                  style="background: #f39c12; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+            수정
+          </button>
           <button data-action="toggle-quiz-status" data-quiz-id="${quiz.id}" data-new-status="${!quiz.is_active}"
                   style="background: ${quiz.is_active ? '#e74c3c' : '#27ae60'}; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
             ${quiz.is_active ? '비활성화' : '활성화'}
