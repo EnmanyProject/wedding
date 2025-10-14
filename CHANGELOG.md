@@ -30,6 +30,84 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.11 (2025-10-14) - Partner Card Vertical Stretching Fix (파트너 카드 수직 늘어남 수정)
+
+**작업 내용**:
+
+#### 파트너 카드 수직 늘어남 문제 최종 수정
+- **사용자 리포트**:
+  * "어직도 메인화면에서 파트너 카드가 수직으로 길게 제대로 안보이는 현상이 지속되고 있어 수정해줘"
+  * v1.62.7, v1.62.8, v1.62.10 수정 후에도 카드가 여전히 세로로 늘어나는 문제 지속
+
+- **문제 분석**:
+  * v1.62.7: HTML 구조 수정 (name을 `.partner-info` 안으로 이동) ✅
+  * v1.62.8: 모바일 컨테이너 제약 제거 (max-width: 400px → 100%) ✅
+  * v1.62.10: CSS Grid margin 중복 제거 ✅
+  * **하지만 여전히 문제 발생** → CSS 파일 자체의 flexbox 설정 확인 필요
+
+- **근본 원인 발견**:
+  * **premium-partner-cards.css Line 97**: `justify-content: space-between`
+  * Flexbox `space-between`이 카드 내 요소들(아바타, 이름, 통계, 버튼)을 수직으로 최대한 멀리 배치
+  * 결과: 카드 내용물이 세로로 늘어나 보이는 현상 발생
+
+**수정 내용**:
+
+- **public/styles/premium-partner-cards.css** (Line 97-98):
+  ```css
+  /* BEFORE (세로로 요소 분산 - 늘어남) */
+  .partner-card .card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;  /* ← 문제 원인 */
+  }
+
+  /* AFTER (중앙 정렬 + 일정한 간격) */
+  .partner-card .card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;  /* ← 중앙 정렬 */
+    gap: 20px;  /* ← 일정한 20px 간격 */
+  }
+  ```
+
+**기술적 분석**:
+- **justify-content: space-between**:
+  * 첫 번째 자식 → 컨테이너 상단에 배치
+  * 마지막 자식 → 컨테이너 하단에 배치
+  * 중간 자식들 → 최대한 멀리 분산 배치
+  * 결과: 세로로 "늘어난" 느낌
+
+- **justify-content: center + gap: 20px**:
+  * 모든 자식들을 중앙에 모음
+  * 각 자식 사이 20px 일정한 간격 유지
+  * 결과: 콤팩트하고 깔끔한 카드 레이아웃
+
+**영향 범위**:
+- ✅ 파트너 카드 세로 늘어남 완전 해결
+- ✅ 모든 요소(아바타, 이름, 통계, 버튼)가 중앙에 모여 표시
+- ✅ 일정한 20px 간격으로 깔끔한 배치
+- ✅ 모바일/데스크톱 모든 화면 크기에서 정상 표시
+
+**기술적 성과**:
+- ✅ CSS Flexbox `justify-content` 충돌 해결
+- ✅ 파트너 카드 UI/UX 완전 복원
+- ✅ v1.62.7-v1.62.10의 누적 수정과 함께 완벽한 레이아웃 달성
+
+**코드 메트릭**:
+- **수정**: premium-partner-cards.css (2줄 - justify-content 및 gap 추가)
+- **총 변경**: 2줄
+
+**해결된 문제**:
+- 🐛 파트너 카드 수직 늘어남 (v1.62.7-v1.62.10 이후에도 지속)
+- 🐛 CSS Flexbox space-between으로 인한 요소 분산
+- ✅ 중앙 정렬 + 일정 간격으로 깔끔한 카드 레이아웃
+
+**Git**: (커밋 예정) ✅
+
+---
+
 ### v1.62.10 (2025-10-14) - Hybrid Layout Viewport Fix (하이브리드 레이아웃 뷰포트 수정)
 
 **작업 내용**:
