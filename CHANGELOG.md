@@ -40,7 +40,7 @@
 - `public/js/utils/ring-system.js` (Lines 660-669)
 - `public/index.html` (Lines 160-166)
 
-**Git**: `[커밋 후 추가 예정]`
+**Git**: `ea34b3b`
 
 ---
 
