@@ -84,12 +84,24 @@
      */
     setupEventListeners() {
       // Bankbook 버튼
-      this.bankbookBtn.addEventListener('click', () => this.openBankbook());
+      this.bankbookBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+        this.openBankbook();
+      });
 
       // Action 버튼들
-      this.pawnPhotoBtn.addEventListener('click', () => this.openPawnPhoto());
-      this.pawnInfoBtn.addEventListener('click', () => this.openPawnInfo());
-      this.viewOthersBtn.addEventListener('click', () => this.openViewOthers());
+      this.pawnPhotoBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+        this.openPawnPhoto();
+      });
+      this.pawnInfoBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+        this.openPawnInfo();
+      });
+      this.viewOthersBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+        this.openViewOthers();
+      });
 
       // 모달 닫기 버튼들
       const closeButtons = document.querySelectorAll('.pawnshop-modal-close');
@@ -104,22 +116,35 @@
       const overlays = document.querySelectorAll('.pawnshop-modal-overlay');
       overlays.forEach(overlay => {
         overlay.addEventListener('click', (e) => {
-          // ✅ FIX: 200ms 보호 - 모달 열린 직후 클릭 무시
-          const timeSinceOpen = Date.now() - this.modalOpenTime;
-          if (timeSinceOpen > 200) {
-            const modal = e.target.closest('.pawnshop-modal');
-            this.closeModal(modal);
+          // ✅ FIX: 오버레이 자체를 클릭한 경우만 닫기
+          if (e.target === overlay) {
+            // ✅ FIX: 500ms 보호 - 모달 열린 직후 클릭 무시 (200ms → 500ms)
+            const timeSinceOpen = Date.now() - this.modalOpenTime;
+            console.log('🕐 [Pawnshop] Overlay clicked - time since open:', timeSinceOpen + 'ms');
+            if (timeSinceOpen > 500) {
+              const modal = overlay.closest('.pawnshop-modal');
+              console.log('🚪 [Pawnshop] Closing modal via overlay click');
+              this.closeModal(modal);
+            } else {
+              console.log('⏱️ [Pawnshop] Overlay click ignored - too soon after open (' + timeSinceOpen + 'ms < 500ms)');
+            }
+          } else {
+            console.log('🎯 [Pawnshop] Click target is not overlay, ignoring');
           }
-        });
+        }, true); // ✅ FIX: useCapture = true로 이벤트 캡처 단계에서 처리
       });
 
       // ESC 키로 닫기
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          // ✅ FIX: 200ms 보호 - 모달 열린 직후 ESC 무시
+          // ✅ FIX: 500ms 보호 - 모달 열린 직후 ESC 무시 (200ms → 500ms)
           const timeSinceOpen = Date.now() - this.modalOpenTime;
-          if (timeSinceOpen > 200) {
+          console.log('⌨️ [Pawnshop] ESC pressed - time since open:', timeSinceOpen + 'ms');
+          if (timeSinceOpen > 500) {
+            console.log('🚪 [Pawnshop] Closing modal via ESC key');
             this.closeAllModals();
+          } else {
+            console.log('⏱️ [Pawnshop] ESC ignored - too soon after open (' + timeSinceOpen + 'ms < 500ms)');
           }
         }
       });
@@ -574,15 +599,20 @@
      * 모달 열기
      */
     openModal(modal) {
-      if (!modal) return;
+      if (!modal) {
+        console.error('🏦 [Pawnshop] Cannot open modal - modal is null');
+        return;
+      }
 
       // ✅ FIX: 타임스탬프 먼저 기록
       this.modalOpenTime = Date.now();
+      console.log('🏦 [Pawnshop] Modal opening timestamp:', this.modalOpenTime);
 
       // ✅ FIX: requestAnimationFrame으로 타이밍 개선
       requestAnimationFrame(() => {
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        console.log('✅ [Pawnshop] Modal opened:', modal.id);
       });
     }
 
