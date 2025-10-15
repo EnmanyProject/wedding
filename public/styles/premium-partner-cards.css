@@ -395,7 +395,7 @@
   bottom: 24px;
   left: 0;
   right: 0;
-  display: flex;
+  display: none; /* 🔧 HIDDEN: 스와이프 제스처만 사용 (화살표 네비게이션 제거) */
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
@@ -486,8 +486,8 @@
 
 .partner-pagination-dot,
 .pagination-dot {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -500,8 +500,8 @@
 
 .partner-pagination-dot.active,
 .pagination-dot.active {
-  width: 18px;
-  border-radius: 3px;
+  width: 12px;
+  border-radius: 2px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
