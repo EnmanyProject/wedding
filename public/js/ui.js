@@ -72,6 +72,7 @@ class UIManager {
     this.setupNavigation();
     this.setupModals();
     this.setupToasts();
+    this.setupGlobalClickLogger(); // 🔍 [DEBUG] Global click event tracker
 
     // loadUserData는 App에서 호출하도록 변경 (토큰 설정 후)
     // this.loadUserData();
@@ -766,6 +767,18 @@ class UIManager {
       }
 
       modal.addEventListener('click', (e) => {
+        // 🔍 [DEBUG] Enhanced logging for modal close diagnosis
+        console.log('🔍 [Modal Click Debug]:', {
+          modalId: modal.id,
+          eventTarget: e.target.tagName + '.' + (e.target.className || ''),
+          modalElement: modal.tagName,
+          targetIsModal: e.target === modal,
+          modalIsActive: modal.classList.contains('active'),
+          modalOpenTime: this.modalOpenTime,
+          currentTime: Date.now(),
+          timeSinceOpen: Date.now() - this.modalOpenTime
+        });
+
         // ✅ FIX: Only close if modal is fully active AND sufficient time has passed since opening
         if (e.target === modal && modal.classList.contains('active')) {
           const timeSinceOpen = Date.now() - this.modalOpenTime;
@@ -775,6 +788,8 @@ class UIManager {
           } else {
             console.log('⏱️ [Modal] 모달 열린 지 200ms 미만 - 닫기 무시');
           }
+        } else {
+          console.log('ℹ️ [Modal] 닫기 조건 불충족 - 모달 유지');
         }
       });
     });
@@ -814,23 +829,43 @@ class UIManager {
   openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-      modal.classList.add('active');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
+      // ✅ FIX: Record modal open time BEFORE showing
+      this.modalOpenTime = Date.now();
 
-      // ✅ FIX: Use requestAnimationFrame for immediate focus (better than setTimeout)
-      const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
-      if (firstFocusable) {
-        requestAnimationFrame(() => {
-          firstFocusable.focus();
-        });
-      }
+      // ✅ FIX: Use requestAnimationFrame for reliable timing
+      requestAnimationFrame(() => {
+        modal.classList.add('active');
+        modal.classList.add('show'); // ✅ FIX: Add 'show' class for opacity animation
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        console.log('✅ [Modal] 모달 열림:', modalId);
+
+        // Focus management
+        const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) {
+          requestAnimationFrame(() => {
+            firstFocusable.focus();
+          });
+        }
+      });
     }
   }
 
   closeModal(modalId) {
+    // 🔍 [DEBUG] Track who is calling closeModal
+    console.log('🚪 [closeModal] 호출됨:', {
+      modalId,
+      timestamp: Date.now(),
+      stackTrace: new Error().stack
+    });
+
     const modal = document.getElementById(modalId);
     if (modal) {
+      // ✅ FIX: Reset modal opening flag when closing
+      this.isModalOpening = false;
+      console.log('🔓 [Modal] isModalOpening flag reset in closeModal');
+
       // Remove focus from any element inside the modal before hiding
       const focusedElement = modal.querySelector(':focus');
       if (focusedElement) {
@@ -838,8 +873,11 @@ class UIManager {
       }
 
       modal.classList.remove('active');
+      modal.classList.remove('show'); // ✅ FIX: Remove 'show' class too
       modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+
+      console.log('❌ [Modal] 모달 닫힘:', modalId);
 
       // Return focus to the element that opened the modal or body
       setTimeout(() => {
@@ -857,6 +895,54 @@ class UIManager {
   // Toast notifications
   setupToasts() {
     this.toastContainer = document.getElementById('toast-container');
+  }
+
+  // 🔍 [DEBUG] Global click event tracker
+  setupGlobalClickLogger() {
+    console.log('🔍 [Global Click Logger] 글로벌 클릭 추적 시작');
+
+    // Track ALL clicks at document level (capture phase)
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('user-profile-modal');
+      if (modal && modal.classList.contains('active')) {
+        console.log('🔍 [Global Click] 모달 활성화 중 클릭 감지:', {
+          timestamp: Date.now(),
+          target: e.target.tagName + '.' + (e.target.className || ''),
+          targetId: e.target.id || 'no-id',
+          modalIsActive: modal.classList.contains('active'),
+          eventPhase: e.eventPhase,
+          bubbles: e.bubbles,
+          defaultPrevented: e.defaultPrevented,
+          timeSinceModalOpen: Date.now() - this.modalOpenTime
+        });
+      }
+    }, true); // Use capture phase
+
+    // Track modal visibility changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const modal = mutation.target;
+          if (modal.id === 'user-profile-modal') {
+            console.log('🔍 [Modal Mutation] user-profile-modal 클래스 변경:', {
+              timestamp: Date.now(),
+              classList: Array.from(modal.classList),
+              hasActive: modal.classList.contains('active'),
+              stackTrace: new Error().stack
+            });
+          }
+        }
+      });
+    });
+
+    // Observe modal
+    const modal = document.getElementById('user-profile-modal');
+    if (modal) {
+      observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+      console.log('✅ [Global Click Logger] user-profile-modal 관찰 시작');
+    } else {
+      console.warn('⚠️ [Global Click Logger] user-profile-modal를 찾을 수 없음');
+    }
   }
 
   showToast(message, type = 'info', duration = 3000) {
@@ -1177,8 +1263,19 @@ class UIManager {
     const partnerCards = cardsContainer.querySelectorAll('.partner-card');
     partnerCards.forEach(card => {
       card.addEventListener('click', (e) => {
+        // 🔍 [DEBUG] Card click event details
+        console.log('🔍 [Card Click Debug]:', {
+          timestamp: Date.now(),
+          eventType: e.type,
+          eventTarget: e.target.tagName,
+          eventPhase: e.eventPhase,
+          bubbles: e.bubbles,
+          cardId: card.getAttribute('data-user-id')
+        });
+
         // ✅ FIX 1: Prevent event bubbling to modal overlay
         e.stopPropagation();
+        console.log('🛑 [Click] stopPropagation() 호출됨');
 
         // ✅ FIX 2: Prevent rapid-click multiple modal opens
         if (this.isModalOpening) {
@@ -1204,6 +1301,7 @@ class UIManager {
 
           // Set modal opening flag
           this.isModalOpening = true;
+          console.log('🔒 [Click] isModalOpening = true');
 
           // 카드 클릭 시 사용자 상호작용 감지
           this.onUserInteraction();
@@ -1415,7 +1513,7 @@ class UIManager {
 
   // Show user profile preview modal
   showUserProfileModal(userId, userData) {
-    console.log('👤 [Profile Modal] 모달 표시:', { userId, userData });
+    console.log('👤 [Profile Modal] 모달 표시 시작:', { userId, userData });
 
     const modal = document.getElementById('user-profile-modal');
     const profileImage = document.getElementById('profile-preview-image');
@@ -1426,6 +1524,15 @@ class UIManager {
       console.error('👤 [Profile Modal] 모달 요소를 찾을 수 없음');
       return;
     }
+
+    // 🔍 [DEBUG] Modal state before showing
+    console.log('🔍 [Profile Modal Debug] State before showing:', {
+      modalExists: !!modal,
+      modalId: modal.id,
+      modalIsActive: modal.classList.contains('active'),
+      modalAriaHidden: modal.getAttribute('aria-hidden'),
+      isModalOpening: this.isModalOpening
+    });
 
     // Set profile image
     const displayName = userData.display_name_for_ui || userData.display_name || userData.name;
@@ -1459,6 +1566,7 @@ class UIManager {
     // Show modal using requestAnimationFrame for reliable timing
     requestAnimationFrame(() => {
       modal.classList.add('active');
+      modal.classList.add('show'); // ✅ FIX: Add 'show' class for opacity animation
       document.body.style.overflow = 'hidden';
       console.log('✅ [Profile Modal] 모달 표시 완료');
     });
