@@ -40,8 +40,9 @@ class CardGridManager {
     // Setup layout change listener
     this.setupLayoutListener();
 
-    // Initial render
-    this.render();
+    // 🔧 FIX: 초기 렌더링 건너뛰기 - ui.js가 이미 카드를 렌더링했음
+    // Initial render는 setCards()가 호출될 때만 실행
+    // this.render();
   }
 
   setupLayoutListener() {

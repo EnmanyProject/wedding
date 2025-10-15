@@ -30,6 +30,60 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.17 (2025-10-15) - Partner Cards Display Fix
+
+**작업 내용**:
+
+#### CardGridManager 초기화 시점 문제 수정
+- **문제**: 파트너 카드가 화면에 표시되지 않음
+  - 콘솔 로그에서는 "19개 카드 렌더링 완료" 표시
+  - 실제 DOM에서는 카드 0개, 빈 상태 메시지만 표시
+  - `document.querySelectorAll('.partner-card').length` → 0 반환
+
+- **원인**: 초기화 순서 문제 (Race Condition)
+  1. ui.js가 19개 파트너 카드를 성공적으로 렌더링
+  2. CardGridManager가 초기화되면서 `init()` 실행
+  3. `init()`에서 빈 배열 상태(`this.cards = []`)로 `render()` 호출
+  4. `renderEmptyGrid()`가 실행되어 ui.js의 카드를 "아직 카드가 없습니다" 메시지로 덮어씀
+
+- **해결**: CardGridManager 초기 렌더링 건너뛰기
+  - `public/js/card-grid-manager.js` (Line 45): `this.render()` 주석 처리
+  - ui.js가 이미 렌더링한 카드를 보존
+  - CardGridManager는 다음 경우에만 렌더링:
+    - `setCards()` 메서드가 명시적으로 호출될 때
+    - 레이아웃 모드 변경(`layoutModeChange` 이벤트) 시
+
+**수정 파일**:
+- `public/js/card-grid-manager.js` (Lines 35-46): `init()` 메서드 수정
+
+**코드 변경**:
+```javascript
+// Before:
+init() {
+  this.currentMode = window.ResponsiveDetector.getCurrentMode();
+  console.log(`🎴 [CardGrid] Initial mode: ${this.currentMode}`);
+  this.setupLayoutListener();
+  this.render();  // ← 문제: 빈 배열로 렌더링하여 카드 덮어씀
+}
+
+// After:
+init() {
+  this.currentMode = window.ResponsiveDetector.getCurrentMode();
+  console.log(`🎴 [CardGrid] Initial mode: ${this.currentMode}`);
+  this.setupLayoutListener();
+  // 🔧 FIX: 초기 렌더링 건너뛰기 - ui.js가 이미 카드를 렌더링했음
+  // Initial render는 setCards()가 호출될 때만 실행
+  // this.render();
+}
+```
+
+**기술적 성과**:
+- ✅ 파트너 카드 19개 정상 표시
+- ✅ 하이브리드 디자인 시스템 유지 (grid/swiper 모드)
+- ✅ 반응형 레이아웃 전환 기능 보존
+
+---
+
 ### v1.62.16 (2025-10-15) - CSP Compliance, Server Errors, and Auth Race Condition Fixes
 
 **작업 내용**:
