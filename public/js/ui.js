@@ -249,13 +249,32 @@ class UIManager {
   async loadRankingsPreview() {
     try {
       const rankingsData = await api.getMyRanking();
-      this.updateHomeRankings(rankingsData.data.rankings.slice(0, 3));
+      // ✅ FIX: Convert snake_case to camelCase
+      const rankings = this.convertRankingsData(rankingsData.data.rankings);
+      this.updateHomeRankings(rankings.slice(0, 3));
       return { success: true };
     } catch (error) {
       console.warn('⚠️ Rankings failed:', error);
       this.updateHomeRankings([]);
       throw error;
     }
+  }
+
+  // ✅ FIX: Convert backend snake_case to frontend camelCase for rankings data
+  convertRankingsData(rankings) {
+    if (!rankings || !Array.isArray(rankings)) {
+      console.warn('⚠️ [convertRankingsData] Invalid rankings data:', rankings);
+      return [];
+    }
+
+    return rankings.map(r => ({
+      targetId: r.target_id,
+      targetName: r.target_name,
+      rankPosition: r.rank_position,
+      affinityScore: r.affinity_score,
+      photosUnlocked: r.photos_unlocked,
+      canMeet: r.can_meet
+    }));
   }
 
   async loadMeetingsPreview() {
@@ -297,7 +316,9 @@ class UIManager {
 
       // Then load rankings
       const rankingsData = await api.getMyRanking();
-      this.renderDetailedRankings(rankingsData.data.rankings);
+      // ✅ FIX: Convert snake_case to camelCase
+      const rankings = this.convertRankingsData(rankingsData.data.rankings);
+      this.renderDetailedRankings(rankings);
     } catch (error) {
       console.error('Error loading rankings:', error);
       this.showToast('랭킹 데이터 로딩 실패', 'error');
