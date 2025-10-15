@@ -51,7 +51,7 @@
 - ✅ 카드가 더 크고 명확하게 보임
 - ✅ 160px 빈 공간 → 50px 여유 공간으로 최적화
 
-**Git Commit**: (commit hash will be added)
+**Git Commit**: `de786b8`
 
 ---
 
