@@ -24,6 +24,9 @@ class UIManager {
     this.currentPartnerIndex = 0;
     this.partnerSwiperInitialized = false;
     this.isPartnerSwiping = false;
+    this.lastSwipeTime = 0;
+    this.modalOpenTime = 0;
+    this.isModalOpening = false; // Prevent rapid-click multiple modal opens
     this.hintTimeout = null;
     this.isHintVisible = false;
 
@@ -763,9 +766,15 @@ class UIManager {
       }
 
       modal.addEventListener('click', (e) => {
-        // ✅ FIX 2: Only close if modal is fully active (prevent immediate close during opening)
+        // ✅ FIX: Only close if modal is fully active AND sufficient time has passed since opening
         if (e.target === modal && modal.classList.contains('active')) {
-          this.closeModal(modal.id);
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            console.log('🚪 [Modal] 백그라운드 클릭으로 모달 닫기');
+            this.closeModal(modal.id);
+          } else {
+            console.log('⏱️ [Modal] 모달 열린 지 200ms 미만 - 닫기 무시');
+          }
         }
       });
     });
@@ -775,7 +784,14 @@ class UIManager {
       if (e.key === 'Escape') {
         const openModal = document.querySelector('.modal.active, .modal[aria-hidden="false"]');
         if (openModal) {
-          this.closeModal(openModal.id);
+          // ✅ FIX: Add 200ms protection for ESC key same as mouse click
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            console.log('⌨️ [Modal] ESC 키로 모달 닫기');
+            this.closeModal(openModal.id);
+          } else {
+            console.log('⏱️ [Modal] ESC 키 무시 - 모달 열린 지 200ms 미만');
+          }
         }
       }
     });
@@ -802,10 +818,12 @@ class UIManager {
       modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
 
-      // Focus on modal for accessibility
+      // ✅ FIX: Use requestAnimationFrame for immediate focus (better than setTimeout)
       const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
       if (firstFocusable) {
-        setTimeout(() => firstFocusable.focus(), 100);
+        requestAnimationFrame(() => {
+          firstFocusable.focus();
+        });
       }
     }
   }
@@ -1162,21 +1180,30 @@ class UIManager {
         // ✅ FIX 1: Prevent event bubbling to modal overlay
         e.stopPropagation();
 
-        // Check if swipe just happened (within last 200ms)
-        if (this.lastSwipeTime && Date.now() - this.lastSwipeTime < 200) {
-          console.log('❌ [Click] 스와이프 직후 클릭 무시 (200ms 이내)');
+        // ✅ FIX 2: Prevent rapid-click multiple modal opens
+        if (this.isModalOpening) {
+          console.log('⏳ [Click] 모달 열기 진행 중 - 중복 클릭 무시');
+          return;
+        }
+
+        // ✅ FIX 3: Check swipe state (removed redundant lastSwipeTime check)
+        // isPartnerSwiping already handles swipe protection (300ms timeout)
+        if (this.isPartnerSwiping) {
+          console.log('❌ [Click] 클릭 무시 - 스와이프 진행 중');
           return;
         }
 
         console.log('🎯 [Click] 카드 클릭 감지:', {
-          isPartnerSwiping: this.isPartnerSwiping,
           userId: card.getAttribute('data-user-id'),
           userName: card.getAttribute('data-user-name')
         });
 
-        // 스와이프 중이 아닐 때만 클릭 처리
-        if (!this.isPartnerSwiping) {
+        // Process click event
+        if (true) {
           console.log('✅ [Click] 클릭 이벤트 처리 시작');
+
+          // Set modal opening flag
+          this.isModalOpening = true;
 
           // 카드 클릭 시 사용자 상호작용 감지
           this.onUserInteraction();
@@ -1184,8 +1211,12 @@ class UIManager {
           const userId = card.getAttribute('data-user-id');
           const userName = card.getAttribute('data-user-name');
           this.selectUserForQuiz(userId, userName);
-        } else {
-          console.log('❌ [Click] 클릭 무시됨 - 스와이프 모드 활성화 상태');
+
+          // Reset flag after modal opens (300ms should be enough)
+          setTimeout(() => {
+            this.isModalOpening = false;
+            console.log('🔓 [Click] Modal opening flag reset');
+          }, 300);
         }
       });
     });
@@ -1419,14 +1450,18 @@ class UIManager {
     // Render verification icons
     this.renderVerificationIcons(verificationGrid, userData);
 
-    // Show modal
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-
     // Store current user ID for matching button
     startMatchingBtn.dataset.userId = userId;
 
-    console.log('✅ [Profile Modal] 모달 표시 완료');
+    // ✅ FIX: Set timestamp BEFORE animation frame to prevent race condition
+    this.modalOpenTime = Date.now();
+
+    // Show modal using requestAnimationFrame for reliable timing
+    requestAnimationFrame(() => {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      console.log('✅ [Profile Modal] 모달 표시 완료');
+    });
   }
 
   // Render verification icons (원형 배지 스타일)

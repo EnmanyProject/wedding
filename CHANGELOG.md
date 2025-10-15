@@ -30,6 +30,35 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.40 (2025-10-15) - 파트너 카드 모달 인터랙션 개선 (6개 이슈 수정)
+
+**작업 내용**:
+- **🔧 Race Condition 수정**: modalOpenTime을 setTimeout 외부로 이동하여 빠른 클릭 시 타이밍 문제 해결
+- **🛡️ Rapid-Click 방어**: isModalOpening 플래그 추가로 다중 모달 열림 방지 (300ms 보호)
+- **⌨️ ESC 키 보호**: ESC 키도 마우스 클릭과 동일한 200ms 보호 적용
+- **⚡ 타이밍 API 개선**: setTimeout(10ms) → requestAnimationFrame() 변경 (브라우저 sync)
+- **🧹 코드 정리**: 중복된 lastSwipeTime 체크 제거 (isPartnerSwiping으로 통합)
+- **♿ 접근성 개선**: 포커스 타이밍 최적화 (setTimeout(100) → requestAnimationFrame)
+
+**파일 변경**:
+- `public/js/ui.js` (6개 위치):
+  - 생성자에 isModalOpening 플래그 추가
+  - 모달 배경 클릭 핸들러에 200ms 보호
+  - ESC 키 핸들러에 200ms 보호 추가
+  - openModal()에서 포커스 타이밍 개선
+  - 카드 클릭 핸들러에 rapid-click 방어 추가
+  - showUserProfileModal()에서 race condition 수정
+
+**기술적 개선**:
+- ✅ 이벤트 버블링 완전 차단
+- ✅ 타이밍 일관성 (200ms 보호 전역 적용)
+- ✅ 현대적 브라우저 API 사용 (requestAnimationFrame)
+- ✅ 코드 중복 제거 및 가독성 향상
+
+**Git**: `a0b7c8d` (frontend-architect 리뷰 기반 6개 이슈 수정)
+
+---
+
 ### v1.62.39 (2025-10-15) - 추천 및 랭킹 시스템 개선 (매치 카운트 통합)
 
 **작업 내용**:
