@@ -30,6 +30,49 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.41 (2025-10-15) - D-Bety 전당포 모달 개선 작업 (진행 중)
+
+**작업 내용**:
+- **🎨 텍스트 가시성 개선**: D-Bety 전당포 모든 텍스트 요소에 흰색/골드 색상 강제 적용
+- **⏱️ 모달 타이밍 보호 강화**: 200ms → 500ms로 증가 (실수 클릭 방지)
+- **🔧 시스템 충돌 해결**: Modal Manager가 Pawnshop 모달 간섭하지 않도록 수정
+- **🎯 이벤트 캡처 개선**: useCapture = true 추가 (이벤트 버블링 방지)
+- **📊 디버그 로그 강화**: 타이밍 정보 및 클릭 타겟 상세 출력
+
+**파일 변경**:
+- `public/styles/pawnshop.css`:
+  - `.action-label`, `.dbety-comment`, `.upload-text` 등 모든 텍스트 요소에 `color: #FFD700 !important` 추가
+  - `text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8)` 추가 (가독성 향상)
+  - `white-space: normal` 설정 (텍스트 줄바꿈 허용)
+- `public/styles/dbety-specials.css`:
+  - `.dbety-modal-content`, `.dbety-modal-body`에 `color: #ffffff` 추가
+  - 모든 텍스트 요소에 `color: inherit` 적용
+- `public/js/pawnshop.js`:
+  - Overlay 클릭 타이밍 보호: 200ms → 500ms
+  - ESC 키 타이밍 보호: 200ms → 500ms
+  - `addEventListener` 3번째 인자에 `useCapture: true` 추가
+  - 디버그 로그 추가: `🕐 Overlay clicked`, `⌨️ ESC pressed`, `🎯 Click target`
+- `public/js/modal-manager.js`:
+  - Pawnshop 모달 제외 처리 추가 (early return)
+  - `pawnshop-modal-overlay`, `.pawnshop-modal` 클릭 시 무시
+  - 디버그 로그: `🏦 [Modal Manager] Ignoring pawnshop modal`
+
+**문제 상태**: ⚠️ **미해결**
+- 모달이 여전히 즉시 닫히는 문제 발생
+- Modal Manager 충돌 해결했으나 다른 원인 존재 가능
+- 추가 디버깅 필요
+
+**Git 커밋**:
+- `bf5b8b3`: Pawnshop 모달 타이밍 보호 강화 (200ms → 500ms)
+- `0135944`: Modal Manager와 Pawnshop 모달 충돌 해결
+
+**다음 작업**:
+- [ ] 추가 디버그 로그로 정확한 원인 파악
+- [ ] 다른 전역 이벤트 핸들러 확인 (ui.js, app.js 등)
+- [ ] 이벤트 전파 경로 완전 차단 방법 검토
+
+---
+
 ### v1.62.40 (2025-10-15) - 파트너 카드 모달 인터랙션 개선 (6개 이슈 수정)
 
 **작업 내용**:
