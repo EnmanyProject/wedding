@@ -129,7 +129,7 @@ class PartnerCard extends CardComponent {
     const quizStat = this.createStatItem({
       icon: '🎯',
       value: data.quiz_count || 0,
-      label: '퀴즈 참여',
+      label: '퀴즈',
       ariaLabel: `Completed ${data.quiz_count || 0} quizzes`
     });
 
@@ -137,7 +137,7 @@ class PartnerCard extends CardComponent {
     const affinityStat = this.createStatItem({
       icon: '💕',
       value: data.affinity_score || 0,
-      label: '친밀도',
+      label: '궁합',
       ariaLabel: `Affinity score: ${data.affinity_score || 0}`
     });
 

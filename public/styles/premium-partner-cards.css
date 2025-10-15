@@ -7,7 +7,7 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 700px;
+  height: 520px;
   margin: 2rem auto;
   padding: 0;
   overflow-x: scroll;
@@ -49,8 +49,8 @@
   max-width: 100%;
   flex-shrink: 0;
   height: auto;
-  min-height: 500px;
-  max-height: 600px;
+  min-height: 420px;
+  max-height: 450px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,8 +71,8 @@
 .partner-card .card-content {
   width: calc(100% - 40px);
   height: auto;
-  min-height: 450px;
-  max-height: 580px;
+  min-height: 380px;
+  max-height: 420px;
   background: linear-gradient(135deg,
     #1a1a1a 0%,
     #0a0a0a 50%,
@@ -80,7 +80,7 @@
   );
   border-radius: 20px;
   pointer-events: auto;
-  padding: 25px 20px;
+  padding: 20px 18px;
   border: 3px solid #ff6b9d;
   box-shadow:
     0 10px 40px rgba(255, 107, 157, 0.4),
@@ -94,7 +94,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* 카드 호버 효과 */
@@ -145,11 +145,11 @@
    프로필 아바타 - 3D 효과
    ========================================== */
 .partner-avatar-large {
-  width: 130px !important;
-  height: 130px !important;
-  min-width: 130px !important;
-  min-height: 130px !important;
-  margin: 10px 0 25px 0;
+  width: 100px !important;
+  height: 100px !important;
+  min-width: 100px !important;
+  min-height: 100px !important;
+  margin: 5px 0 15px 0;
   position: relative;
   z-index: 1;
   border-radius: 50% !important;
@@ -162,17 +162,17 @@
 .partner-avatar-large::before {
   content: '';
   position: absolute;
-  top: -10px;
+  top: -8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 164px;
-  height: 164px;
+  width: 120px;
+  height: 120px;
   background: linear-gradient(135deg,
     rgba(255, 107, 157, 0.3) 0%,
     rgba(139, 92, 246, 0.3) 100%
   );
   border-radius: 50%;
-  filter: blur(20px);
+  filter: blur(15px);
   opacity: 0.6;
   z-index: -1;
   animation: pulse-glow 3s ease-in-out infinite;
@@ -190,19 +190,19 @@
 }
 
 .partner-avatar-large .profile-image {
-  width: 138px !important;
-  height: 138px !important;
-  min-width: 138px !important;
-  min-height: 138px !important;
-  max-width: 138px !important;
-  max-height: 138px !important;
+  width: 108px !important;
+  height: 108px !important;
+  min-width: 108px !important;
+  min-height: 108px !important;
+  max-width: 108px !important;
+  max-height: 108px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
   object-position: center !important;
   border: none !important;
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.15),
-    0 0 0 4px rgba(255, 255, 255, 0.9),
+    0 0 0 3px rgba(255, 255, 255, 0.9),
     inset 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: block !important;
@@ -223,12 +223,12 @@
    ========================================== */
 .partner-info {
   text-align: center;
-  margin: 0 0 5px;
+  margin: 0 0 3px;
   z-index: 1;
 }
 
 .partner-info h3 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   background: linear-gradient(135deg, #ffffff 0%, #ffb6d9 100%);
   -webkit-background-clip: text;
@@ -240,10 +240,10 @@
 }
 
 .partner-username {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   color: #ff6b9d;
-  margin: -10px 0 0 0;
+  margin: -5px 0 0 0;
   opacity: 0.9;
   letter-spacing: 0.5px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -257,10 +257,10 @@
    ========================================== */
 .partner-quiz-stats {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   width: 100%;
   justify-content: center;
-  margin: 5px 0;
+  margin: 3px 0;
   z-index: 1;
 }
 
@@ -268,19 +268,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 24px;
+  gap: 5px;
+  padding: 12px 18px;
   background: linear-gradient(135deg,
     rgba(255, 107, 157, 0.15) 0%,
     rgba(139, 92, 246, 0.15) 100%
   );
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 107, 157, 0.3);
   box-shadow:
     0 4px 12px rgba(255, 107, 157, 0.2),
     inset 0 1px 0 rgba(255, 107, 157, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .partner-stat-item:hover {
@@ -296,12 +296,12 @@
 }
 
 .partner-stat-icon {
-  font-size: 28px;
+  font-size: 22px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .partner-stat-value {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   background: linear-gradient(135deg, #ff8ab5 0%, #a78bfa 100%);
   -webkit-background-clip: text;
@@ -311,7 +311,7 @@
 }
 
 .partner-stat-label {
-  font-size: 12px;
+  font-size: 11px;
   color: #e0e0e0;
   font-weight: 500;
   letter-spacing: 0.2px;
@@ -470,12 +470,12 @@
    ========================================== */
 .partner-swiper-pagination {
   position: absolute;
-  bottom: 90px;
+  bottom: 70px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   z-index: 20;
   pointer-events: none;
 }
@@ -486,8 +486,8 @@
 
 .partner-pagination-dot,
 .pagination-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -500,8 +500,8 @@
 
 .partner-pagination-dot.active,
 .pagination-dot.active {
-  width: 24px;
-  border-radius: 4px;
+  width: 18px;
+  border-radius: 3px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
@@ -631,7 +631,7 @@
   .mobile-partner-swiper {
     max-width: 100%;
     width: 100%;
-    height: 650px;
+    height: 480px;
     margin: 1rem 10px;
     border-radius: 20px;
   }
@@ -643,52 +643,52 @@
   }
 
   .partner-card .card-content {
-    padding: 30px 20px;
+    padding: 18px 16px;
   }
 
   .partner-avatar-large {
-    width: 120px !important;
-    height: 120px !important;
-    min-width: 120px !important;
-    min-height: 120px !important;
-    margin: 10px 0 30px 0;
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+    margin: 5px 0 12px 0;
     border-radius: 50% !important;
     overflow: hidden !important;
   }
 
   .partner-avatar-large .profile-image {
-    width: 128px !important;
-    height: 128px !important;
-    min-width: 128px !important;
-    min-height: 128px !important;
-    max-width: 128px !important;
-    max-height: 128px !important;
+    width: 98px !important;
+    height: 98px !important;
+    min-width: 98px !important;
+    min-height: 98px !important;
+    max-width: 98px !important;
+    max-height: 98px !important;
     margin: -4px;
   }
 
   .partner-info h3 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .partner-quiz-stats {
-    gap: 12px;
+    gap: 8px;
   }
 
   .partner-stat-item {
-    padding: 12px 18px;
-    min-width: 85px;
+    padding: 10px 14px;
+    min-width: 75px;
   }
 
   .partner-stat-icon {
-    font-size: 24px;
-  }
-
-  .partner-stat-value {
     font-size: 20px;
   }
 
+  .partner-stat-value {
+    font-size: 18px;
+  }
+
   .partner-stat-label {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .partner-action-hint {
@@ -709,7 +709,7 @@
 
 @media (max-width: 480px) {
   .mobile-partner-swiper {
-    height: 600px;
+    height: 440px;
     margin: 0.5rem 5px;
   }
 
@@ -720,52 +720,52 @@
   }
 
   .partner-card .card-content {
-    padding: 25px 15px;
+    padding: 16px 14px;
   }
 
   .partner-avatar-large {
-    width: 104px !important;
-    height: 104px !important;
-    min-width: 104px !important;
-    min-height: 104px !important;
-    margin: 10px 0 25px 0;
+    width: 85px !important;
+    height: 85px !important;
+    min-width: 85px !important;
+    min-height: 85px !important;
+    margin: 5px 0 10px 0;
     border-radius: 50% !important;
     overflow: hidden !important;
   }
 
   .partner-avatar-large .profile-image {
-    width: 112px !important;
-    height: 112px !important;
-    min-width: 112px !important;
-    min-height: 112px !important;
-    max-width: 112px !important;
-    max-height: 112px !important;
+    width: 93px !important;
+    height: 93px !important;
+    min-width: 93px !important;
+    min-height: 93px !important;
+    max-width: 93px !important;
+    max-height: 93px !important;
     margin: -4px;
   }
 
   .partner-info h3 {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .partner-quiz-stats {
-    gap: 10px;
+    gap: 8px;
   }
 
   .partner-stat-item {
-    padding: 10px 14px;
-    min-width: 75px;
+    padding: 8px 12px;
+    min-width: 70px;
   }
 
   .partner-stat-icon {
-    font-size: 22px;
-  }
-
-  .partner-stat-value {
     font-size: 18px;
   }
 
+  .partner-stat-value {
+    font-size: 16px;
+  }
+
   .partner-stat-label {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 

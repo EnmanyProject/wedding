@@ -30,6 +30,68 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.23 (2025-10-15) - Compact Square Card Design & Text Updates
+
+**작업 내용**:
+
+#### 파트너 카드 정사각형화 및 크기 최적화
+사용자 요청에 따라 파트너 카드를 정사각형에 가깝게 디자인하고 전체 크기를 축소.
+
+**주요 변경사항**:
+
+1. **텍스트 변경**
+   - "퀴즈 참여" → "퀴즈" (`partner-card.js:132`)
+   - "친밀도" → "궁합" (`partner-card.js:140`)
+
+2. **페이지네이션 크기 축소**
+   - Dot 크기: 8px → 6px
+   - Active dot 크기: 24px → 18px
+   - Gap 간격: 8px → 6px
+   - 위치: bottom 90px → 70px
+
+3. **컨테이너 높이 축소**
+   - 데스크톱: 700px → 520px (약 26% 축소)
+   - 모바일 (768px): 650px → 480px
+   - 모바일 (480px): 600px → 440px
+
+4. **카드 크기 축소**
+   - min-height: 500px → 420px
+   - max-height: 600px → 450px
+   - card-content min-height: 450px → 380px
+   - card-content max-height: 580px → 420px
+   - padding: 25px 20px → 20px 18px
+   - gap: 10px → 8px
+
+5. **아바타 크기 축소**
+   - 데스크톱: 130px → 100px (23% 축소)
+   - 모바일 (768px): 120px → 90px
+   - 모바일 (480px): 104px → 85px
+   - Glow effect: 164px → 120px
+
+6. **타이포그래피 축소**
+   - 제목 (h3): 28px → 24px
+   - 유저네임: 15px → 13px
+   - 통계 아이콘: 28px → 22px
+   - 통계 값: 24px → 20px
+   - 통계 레이블: 12px → 11px
+
+7. **통계 섹션 축소**
+   - gap: 15px → 10px
+   - padding: 16px 24px → 12px 18px
+   - border-radius: 16px → 12px
+   - min-width: 100px → 80px
+   - stat-item gap: 8px → 5px
+
+**결과**:
+- ✅ 카드가 정사각형에 가까워짐 (520px 높이, 400px 너비 = 1.3:1 비율)
+- ✅ 페이지네이션 크기 적절하게 축소
+- ✅ 모든 요소가 카드 안에 잘 수용됨 (잘림 해결)
+- ✅ 텍스트 명확성 향상 ("퀴즈", "궁합")
+
+**Git**: git hash TBD
+
+---
+
 ### v1.62.22 (2025-10-15) - Revert Problematic Width Changes
 
 **작업 내용**:
