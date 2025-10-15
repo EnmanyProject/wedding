@@ -1228,13 +1228,14 @@ class UIManager {
     setTimeout(() => {
       this.partnersSwiper.updatePosition(false);
 
+      // 🔧 AUTO-PLAY DISABLED: Causing UI issues (pagination, arrows, card alignment)
       // Start auto-play after 3 seconds (3000ms interval)
-      console.log('🎬 [Partner Swiper] Auto-play starting in 3 seconds...');
-      setTimeout(() => {
-        if (this.currentPartners.length > 1) {
-          this.partnersSwiper.startAutoPlay(3000);
-        }
-      }, 3000);
+      // console.log('🎬 [Partner Swiper] Auto-play starting in 3 seconds...');
+      // setTimeout(() => {
+      //   if (this.currentPartners.length > 1) {
+      //     this.partnersSwiper.startAutoPlay(3000);
+      //   }
+      // }, 3000);
     }, 100);
 
     // Start hint timer
