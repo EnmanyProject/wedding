@@ -30,6 +30,37 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.35 (2025-10-15) - 파트너 카드 컨테이너 높이 600px로 증가
+
+**작업 내용**:
+- **🟢 사용자 피드백 반영**: 컨테이너 크기를 600px로 증가
+- **시각적 개선**: 카드 주변에 충분한 여유 공간 확보
+- **UX 개선**: 답답한 느낌 제거 및 깔끔한 레이아웃
+
+**변경 사항**:
+- Desktop: 550px → 600px (+50px)
+- Tablet landscape (1024-769px): 540px → 590px (+50px)
+- Tablet portrait (≤768px): 530px → 580px (+50px)
+- Small mobile intermediate (640-481px): 510px → 560px (+50px)
+- Small mobile (≤480px): 500px → 550px (+50px)
+
+**수정 파일**:
+- `public/styles/premium-partner-cards.css`:
+  - Line 10: Desktop 높이 600px
+  - Line 642: Tablet landscape 높이 590px
+  - Line 651: Tablet portrait 높이 580px
+  - Line 730: Small mobile intermediate 높이 560px
+  - Line 737: Small mobile 높이 550px
+
+**기술적 성과**:
+- ✅ 카드와 컨테이너 간 여유 공간 150px 확보
+- ✅ 모든 화면 크기에서 일관된 시각적 여유도
+- ✅ 사용자 경험 크게 개선
+
+**Git Commit**: `9a3c083`
+
+---
+
 ### v1.62.34 (2025-10-15) - 파트너 카드 컨테이너 높이 증가
 
 **작업 내용**:
