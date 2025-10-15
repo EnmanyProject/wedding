@@ -1202,7 +1202,7 @@ class UIManager {
       containerSelector: '#partner-cards-container',
       prevBtnSelector: '#prev-partner-btn',
       nextBtnSelector: '#next-partner-btn',
-      paginationSelector: '#partner-pagination',
+      paginationSelector: '#partner-swiper-pagination',
       counterSelector: '#partner-counter',
 
       onNavigate: (index, direction) => {

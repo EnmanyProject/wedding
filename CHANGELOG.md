@@ -30,6 +30,90 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.19 (2025-10-15) - Fix Partner Card Swiper: Pagination, Layout, and Interaction
+
+**작업 내용**:
+
+#### 파트너 카드 스와이퍼 3가지 버그 수정
+- **문제 1**: 페이지네이션 도트가 표시되지 않음
+- **문제 2**: 카드 콘텐츠가 하단에서 잘림 (통계 섹션 보이지 않음)
+- **문제 3**: 스와이프 제스처가 작동하지 않음
+
+**근본 원인 분석**:
+1. **Pagination Selector 불일치**: ui.js에서 잘못된 ID 사용
+   - 사용: `'#partner-pagination'` ❌
+   - 정답: `'#partner-swiper-pagination'` ✅
+
+2. **CSS/JS 아키텍처 충돌**: CSS scroll 속성과 JavaScript MobileSwiper 충돌
+   - CSS: `overflow-x: scroll` + `scroll-snap-type: x mandatory`
+   - JavaScript: `transform: translateX()` 기반 스와이퍼
+   - 결과: 두 시스템이 동시에 스크롤/스와이프 제어 시도
+
+3. **고정 높이 제한**: 카드 콘텐츠 크기보다 작은 컨테이너
+   - `height: 600px` (고정) → 콘텐츠가 600px 초과하면 잘림
+   - `max-height: 600px` (카드) → 추가 높이 제한
+
+**수정 파일**:
+- `public/js/ui.js` (Line 1205): Pagination selector 수정
+- `public/styles/premium-partner-cards.css` (Lines 6-25, 42-57): CSS 충돌 제거
+
+**코드 변경 1 - ui.js (Line 1205)**:
+```javascript
+// Before:
+paginationSelector: '#partner-pagination',
+
+// After:
+paginationSelector: '#partner-swiper-pagination',
+```
+
+**코드 변경 2 - premium-partner-cards.css (.mobile-partner-swiper)**:
+```css
+/* Before: */
+height: 600px;  /* 고정 높이 */
+overflow-x: scroll;  /* CSS scroll */
+overflow-y: hidden;
+scroll-snap-type: x mandatory;  /* CSS snap */
+scroll-behavior: smooth;
+-webkit-overflow-scrolling: touch;
+
+/* After: */
+height: auto;  /* 유연한 높이 */
+min-height: 600px;  /* 최소 높이만 지정 */
+overflow: hidden;  /* JS 스와이퍼가 제어 */
+/* 모든 scroll-snap 속성 제거 */
+```
+
+**코드 변경 3 - premium-partner-cards.css (.partner-card)**:
+```css
+/* Before: */
+max-height: 600px;  /* 최대 높이 제한 */
+scroll-snap-align: center;
+scroll-snap-stop: always;
+
+/* After: */
+/* max-height 제거 - 콘텐츠 전체 표시 */
+/* scroll-snap 속성 제거 */
+```
+
+**아키텍처 결정**:
+- **선택**: JavaScript transform 기반 MobileSwiper로 완전 전환
+- **제거**: CSS scroll-snap 방식 완전 제거
+- **이유**:
+  - 일관된 크로스 브라우저 동작
+  - 세밀한 애니메이션 제어
+  - 커스텀 velocity 추적
+  - 프로그래매틱 네비게이션 지원
+
+**해결된 이슈**:
+- ✅ 페이지네이션 도트 정상 표시
+- ✅ 스와이프/터치 제스처 정상 작동
+- ✅ 카드 전체 콘텐츠 표시 (통계 섹션 포함)
+- ✅ 좌우 네비게이션 버튼 정상 작동
+
+**Git Commit**: `v1.62.19: Fix partner card swiper - pagination, layout, and interaction`
+
+---
+
 ### v1.62.18 (2025-10-15) - Force Swiper Mode for All Screen Sizes
 
 **작업 내용**:

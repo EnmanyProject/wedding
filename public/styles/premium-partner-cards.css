@@ -7,11 +7,11 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 600px;
+  height: auto;
+  min-height: 600px;
   margin: 2rem auto;
   padding: 0;
-  overflow-x: scroll;
-  overflow-y: hidden;
+  overflow: hidden;
   border-radius: 24px;
   background: linear-gradient(135deg,
     rgba(255, 255, 255, 0.1) 0%,
@@ -22,13 +22,6 @@
     0 20px 60px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-
-  /* CSS Scroll Snap for perfect centering */
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
 }
 
 /* Hide scrollbar */
@@ -53,7 +46,6 @@
   flex-shrink: 0;
   height: auto;
   min-height: 500px;
-  max-height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,10 +54,6 @@
   cursor: pointer;
   user-select: none;
   transition: transform 0.2s ease;
-
-  /* CSS Scroll Snap alignment */
-  scroll-snap-align: center;
-  scroll-snap-stop: always;
 }
 
 .partner-card:active {
