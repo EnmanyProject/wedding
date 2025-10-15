@@ -7,7 +7,7 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 500px; /* 🔧 OPTIMIZED: 580px → 500px (빈 공간 제거) */
+  height: 550px; /* 🔧 ADJUSTED: 500px → 550px (카드 전체 표시 최적화) */
   margin: 2rem auto;
   padding: 0;
   overflow-x: scroll;
@@ -639,7 +639,7 @@
 /* Intermediate - Tablet landscape */
 @media (max-width: 1024px) and (min-width: 769px) {
   .mobile-partner-swiper {
-    height: 490px; /* 🔧 OPTIMIZED: 560px → 490px (빈 공간 제거) */
+    height: 540px; /* 🔧 ADJUSTED: 490px → 540px (카드 전체 표시 최적화) */
   }
 }
 
@@ -648,7 +648,7 @@
   .mobile-partner-swiper {
     max-width: 100%;
     width: 100%;
-    height: 480px; /* 🔧 OPTIMIZED: 540px → 480px (빈 공간 제거) */
+    height: 530px; /* 🔧 ADJUSTED: 480px → 530px (카드 전체 표시 최적화) */
     margin: 1rem 10px;
     border-radius: 20px;
   }
@@ -727,14 +727,14 @@
 /* Intermediate - Small mobile */
 @media (max-width: 640px) and (min-width: 481px) {
   .mobile-partner-swiper {
-    height: 470px; /* 🔧 OPTIMIZED: 520px → 470px (빈 공간 제거) */
+    height: 510px; /* 🔧 ADJUSTED: 470px → 510px (카드 전체 표시 최적화) */
   }
 }
 
 /* Small mobile */
 @media (max-width: 480px) {
   .mobile-partner-swiper {
-    height: 460px; /* 🔧 OPTIMIZED: 500px → 460px (빈 공간 제거) */
+    height: 500px; /* 🔧 ADJUSTED: 460px → 500px (카드 전체 표시 최적화) */
     margin: 0.5rem 5px;
   }
 
