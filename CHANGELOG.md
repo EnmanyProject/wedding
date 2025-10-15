@@ -48,7 +48,7 @@
   - Lines 528-535: destroy() cleanup 추가
   - Lines 80-81: init() 초기화 호출 추가
 
-**Git**: `[커밋 후 추가 예정]`
+**Git**: `fab9149`
 
 ---
 
