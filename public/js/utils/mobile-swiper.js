@@ -77,6 +77,8 @@ export class MobileSwiper {
     // Initial state
     this.updateNavigationButtons();
     this.updatePosition(false);
+    this.updatePagination(); // ✅ Initialize pagination dots
+    this.updateCounter(); // ✅ Initialize counter display
 
     this.isInitialized = true;
   }
@@ -160,6 +162,33 @@ export class MobileSwiper {
     this.container.addEventListener('touchstart', this.handleStart, { passive: false });
     this.container.addEventListener('touchmove', this.handleMove, { passive: false });
     this.container.addEventListener('touchend', this.handleEnd);
+
+    // ✅ Scroll event listener for native scroll snap
+    const scrollContainer = this.container.parentElement;
+    let scrollTimeout;
+
+    const handleScroll = () => {
+      // Debounce scroll events to detect scroll end
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const cardWidth = scrollContainer.clientWidth;
+        const scrollLeft = scrollContainer.scrollLeft;
+        const newIndex = Math.round(scrollLeft / cardWidth);
+
+        // Update only if index changed
+        if (newIndex !== this.currentIndex && newIndex >= 0 && newIndex < this.totalItems) {
+          console.log(`📍 [Scroll] Index changed: ${this.currentIndex} → ${newIndex}`);
+          this.currentIndex = newIndex;
+          this.updatePagination();
+          this.updateNavigationButtons();
+          this.updateCounter();
+          this.config.onNavigate(this.currentIndex, 'scroll');
+        }
+      }, 100); // 100ms debounce
+    };
+
+    this.handleScroll = handleScroll;
+    scrollContainer.addEventListener('scroll', this.handleScroll, { passive: true });
   }
 
   /**
@@ -496,6 +525,15 @@ export class MobileSwiper {
     if (this.handleEnd) {
       document.removeEventListener('mouseup', this.handleEnd);
       document.removeEventListener('touchend', this.handleEnd);
+    }
+
+    // ✅ Remove scroll event listener
+    if (this.handleScroll) {
+      const scrollContainer = this.container?.parentElement;
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', this.handleScroll);
+      }
+      this.handleScroll = null;
     }
 
     // Clear handler references

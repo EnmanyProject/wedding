@@ -30,6 +30,28 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.30 (2025-10-15) - 페이지네이션 스크롤 동기화 수정
+
+**작업 내용**:
+- **🔴 Critical 문제 해결**: 페이지네이션이 카드 스와이프 시 위치 표시(active dot)가 업데이트되지 않는 문제 수정
+- **근본 원인**: MobileSwiper가 native scroll snap을 사용하지만 스크롤 이벤트 리스너가 없어서 직접 스크롤 시 `currentIndex`와 페이지네이션이 업데이트되지 않음
+- **해결책**:
+  1. `setupSwipeEvents()` 메서드에 스크롤 이벤트 리스너 추가 (100ms debounce)
+  2. 스크롤 종료 시 `scrollLeft` 기반으로 현재 인덱스 자동 계산
+  3. 인덱스 변경 시 `updatePagination()`, `updateNavigationButtons()`, `updateCounter()` 자동 호출
+  4. `destroy()` 메서드에 스크롤 이벤트 리스너 cleanup 추가
+  5. `init()` 메서드에 초기 페이지네이션 및 카운터 호출 추가
+
+**수정 파일**:
+- `public/js/utils/mobile-swiper.js`:
+  - Lines 164-189: 스크롤 이벤트 리스너 추가
+  - Lines 528-535: destroy() cleanup 추가
+  - Lines 80-81: init() 초기화 호출 추가
+
+**Git**: `[커밋 후 추가 예정]`
+
+---
+
 ### v1.62.29 (2025-10-15) - 코드 검증 보고서 수정 사항 적용
 
 **작업 내용**:
