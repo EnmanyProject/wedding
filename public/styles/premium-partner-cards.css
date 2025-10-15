@@ -37,17 +37,16 @@
   flex-wrap: nowrap;
   height: 100%;
   align-items: center;
-  width: max-content;
-  /* Enable horizontal scrolling with scroll-snap */
+  /* Container follows parent width naturally for scrolling */
 }
 
 /* ==========================================
    파트너 카드 - 프리미엄 디자인
    ========================================== */
 .partner-card {
-  width: 400px;
-  min-width: 400px;
-  max-width: 400px;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
   flex-shrink: 0;
   height: auto;
   min-height: 500px;
@@ -638,9 +637,9 @@
   }
 
   .partner-card {
-    width: calc(100vw - 20px);
-    min-width: calc(100vw - 20px);
-    max-width: calc(100vw - 20px);
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
   }
 
   .partner-card .card-content {
@@ -715,9 +714,9 @@
   }
 
   .partner-card {
-    width: calc(100vw - 10px);
-    min-width: calc(100vw - 10px);
-    max-width: calc(100vw - 10px);
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
   }
 
   .partner-card .card-content {

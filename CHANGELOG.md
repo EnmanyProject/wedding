@@ -30,7 +30,57 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
-### v1.62.21 (2025-10-15) - Fix Flex Container Width and Pagination Display
+### v1.62.22 (2025-10-15) - Revert Problematic Width Changes
+
+**작업 내용**:
+
+#### v1.62.21 회귀 버그 긴급 수정
+v1.62.21 배포 후 **카드가 아예 표시되지 않는** 치명적인 회귀 버그 발견.
+
+**문제 원인**:
+1. `.partner-cards-container`에 `width: max-content` 추가
+   - Container가 모든 카드의 총 너비 (예: 400px × 5 = 2000px)로 설정됨
+   - 부모 `.mobile-partner-swiper`는 `max-width: 400px`
+   - Container가 부모를 초과하여 overflow, 카드들이 보이지 않음
+
+2. 카드 width를 고정값 (400px, calc(100vw - Xpx))으로 설정
+   - MobileSwiper의 scroll 계산과 불일치
+
+**수정 내용**:
+1. ✅ `width: max-content` 제거
+   ```css
+   .partner-cards-container {
+     display: flex;
+     flex-wrap: nowrap;
+     height: 100%;
+     align-items: center;
+     /* width: max-content; 제거 */
+   }
+   ```
+
+2. ✅ 카드 width를 100%로 복원
+   ```css
+   .partner-card {
+     width: 100%;  /* 400px → 100% */
+     min-width: 100%;
+     max-width: 100%;
+   }
+   ```
+
+3. ✅ 모든 미디어 쿼리에서 width 복원
+   - `@media (max-width: 768px)`: calc(100vw - 20px) → 100%
+   - `@media (max-width: 480px)`: calc(100vw - 10px) → 100%
+
+**유지된 개선사항**:
+- ✅ Pagination 클래스 추가 (`.pagination-dot`)
+- ✅ v1.62.20의 높이 최적화
+- ✅ CSS scroll-snap 속성
+
+**Git**: git hash TBD
+
+---
+
+### v1.62.21 (2025-10-15) - Fix Flex Container Width and Pagination Display (REVERTED)
 
 **작업 내용**:
 
