@@ -62,9 +62,9 @@ class CardGridManager {
   }
 
   shouldShowGrid() {
-    // 그리드는 768px 이상(tablet, hybrid, desktop, large)에서 표시
-    // 스와이프는 768px 미만(mobile)에서만 표시
-    return ['tablet', 'hybrid', 'desktop', 'large'].includes(this.currentMode);
+    // 🔧 FIX: 모든 화면 크기에서 스와이프 모드만 사용
+    // 항상 false를 반환하여 그리드 모드 비활성화
+    return false;
   }
 
   setCards(cards) {

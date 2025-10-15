@@ -30,7 +30,42 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
-### v1.62.17 (2025-10-15) - Partner Cards Display Fix
+### v1.62.18 (2025-10-15) - Force Swiper Mode for All Screen Sizes
+
+**작업 내용**:
+
+#### 모든 화면에서 스와이프 모드 강제 적용
+- **요구사항**: 데스크톱 포함 모든 화면에서 카드 1개씩만 표시 + 스와이프 기능
+- **변경**: CardGridManager의 `shouldShowGrid()` 메서드를 항상 `false` 반환하도록 수정
+- **효과**:
+  - 모바일: 카드 1개 + 스와이프 (기존과 동일)
+  - 데스크톱: 카드 1개 + 스와이프 (그리드 모드 비활성화)
+
+**수정 파일**:
+- `public/js/card-grid-manager.js` (Lines 64-68): `shouldShowGrid()` 메서드 수정
+
+**코드 변경**:
+```javascript
+// Before:
+shouldShowGrid() {
+  return ['tablet', 'hybrid', 'desktop', 'large'].includes(this.currentMode);
+}
+
+// After:
+shouldShowGrid() {
+  // 🔧 FIX: 모든 화면 크기에서 스와이프 모드만 사용
+  return false;
+}
+```
+
+**기술적 성과**:
+- ✅ 모든 디바이스에서 일관된 UX (카드 1개 + 스와이프)
+- ✅ 그리드 레이아웃 완전 비활성화
+- ✅ 반응형 전환 로직 제거로 단순화
+
+---
+
+### v1.62.17 (2025-10-15) - Partner Cards Display Fix (Reverted)
 
 **작업 내용**:
 
