@@ -2,21 +2,59 @@
 
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
-**최종 업데이트**: 2025-10-14
-**현재 Phase**: 관리자 패널 기능 완성 ✅
+**최종 업데이트**: 2025-10-15
+**현재 Phase**: 보안 및 안정성 강화 ✅
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: v1.62.14 파트너 카드 그리드 모드 완전 수정 완료
-**작업**: 그리드 모드 CSS 추가, 모바일/그리드 스타일 분리, 브라우저 호환성 강화
+**Phase**: v1.62.16 CSP 준수, 서버 에러, 인증 타이밍 수정 완료
+**작업**: CSP 정책 위반 수정, Recommendations API 500 에러 해결, 401 인증 에러 수정
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
 **다음**: 사용자 테스트 및 다음 작업 대기
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### v1.62.16: CSP Compliance, Server Errors, and Auth Race Condition Fixes ✅ (2025-10-15)
+
+**작업 내용**:
+
+#### 1. CSP (Content Security Policy) 인라인 핸들러 위반 수정
+- **문제**: `script-src-attr 'none'` 정책 위반으로 인라인 이벤트 핸들러 실행 차단
+- **해결**: 모든 `onclick` 인라인 핸들러를 `addEventListener` 패턴으로 전환
+
+**수정 파일**:
+- `public/js/ui.js`: 5개 함수 (updateHomeMeetings, renderUserPhotos, renderDetailedRankings, showToast, renderMobileCards)
+- `public/js/app.js`: 개발자 메뉴 버튼
+
+#### 2. Recommendations API 500 에러 수정
+- **문제 1**: RecommendationService 비동기 import로 인한 null 참조
+- **문제 2**: SQL 쿼리에서 존재하지 않는 컬럼 참조 (`u.region` → `u.location`)
+
+**수정 파일**:
+- `src/routes/recommendations.ts`: 비동기 import를 동기 require로 변경, null 체크 추가
+- `src/services/recommendationService.ts`: SQL 컬럼명 수정
+
+#### 3. 401 Unauthorized (Invalid Token) 에러 수정
+- **문제**: 인증 토큰 설정 전 API 호출로 인한 Race Condition
+- **해결**: index.html의 중복 `ui.loadUserData()` 호출 제거, app.js의 auto-login 완료 후 자동 실행으로 위임
+
+**수정 파일**:
+- `public/index.html`: 중복 호출 제거
+- `public/js/ui.js`: 토큰 체크 추가
+
+**기술적 성과**:
+- ✅ CSP 정책 완전 준수 (보안 강화)
+- ✅ 서버 500 에러 제거 (안정성 향상)
+- ✅ 인증 플로우 최적화 (사용자 경험 개선)
+- ✅ 방어적 프로그래밍 패턴 적용
+
+**Git**: c5e6a0c ✅
+
+---
 
 ### v1.62.14: Partner Cards Grid Mode Complete Fix ✅ (2025-10-14)
 
