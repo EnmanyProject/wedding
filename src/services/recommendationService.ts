@@ -295,7 +295,7 @@ export class RecommendationService {
         u.name AS user_name,
         u.display_name AS user_display_name,
         u.age AS user_age,
-        u.region AS user_region
+        u.location AS user_region
        FROM daily_recommendations dr
        JOIN users u ON dr.recommended_user_id = u.id
        WHERE dr.user_id = $1

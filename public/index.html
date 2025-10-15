@@ -851,15 +851,8 @@
                 console.warn('Could not update version:', error);
             }
 
-            // UI 초기화
-            if (window.ui) {
-                try {
-                    await window.ui.loadUserData();
-                    console.log('✅ User data loaded');
-                } catch (error) {
-                    console.error('❌ Failed to load user data:', error);
-                }
-            }
+            // UI 초기화는 app.js의 auto-login 완료 후 자동으로 실행됨
+            console.log('✅ App initialization delegated to app.js');
         }
     </script>
 

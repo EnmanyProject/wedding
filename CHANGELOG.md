@@ -30,6 +30,95 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.16 (2025-10-15) - CSP Compliance, Server Errors, and Auth Race Condition Fixes
+
+**작업 내용**:
+
+#### 1. CSP (Content Security Policy) 인라인 핸들러 위반 수정
+- **문제**: `script-src-attr 'none'` 정책 위반으로 인라인 이벤트 핸들러 실행 차단
+- **해결**: 모든 `onclick` 인라인 핸들러를 `addEventListener` 패턴으로 전환
+
+**수정 파일**:
+
+1. **public/js/ui.js** (5개 함수 수정):
+   - `updateHomeMeetings()` (Lines 454-476): 만나기 버튼
+   - `renderUserPhotos()` (Lines 493-516): 사진 삭제 버튼
+   - `renderDetailedRankings()` (Lines 534-577): 퀴즈 시작 버튼
+   - `showToast()` (Lines 826-851): Toast 닫기 버튼
+   - `renderMobileCards()` (Lines 643-684): 모바일 카드 버튼
+
+2. **public/js/app.js** (Lines 313-365): 개발자 메뉴 버튼
+
+**패턴 변경**:
+```javascript
+// Before (CSP 위반):
+<button onclick="ui.enterMeeting('123')">만나기</button>
+
+// After (CSP 준수):
+<button class="enter-meeting-btn" data-target-id="123">만나기</button>
+btn.addEventListener('click', (e) => {
+  const targetId = e.target.dataset.targetId ||
+                   e.target.closest('.enter-meeting-btn').dataset.targetId;
+  this.enterMeeting(targetId);
+});
+```
+
+#### 2. Recommendations API 500 에러 수정
+- **문제 1**: RecommendationService 비동기 import로 인한 null 참조
+- **문제 2**: SQL 쿼리에서 존재하지 않는 컬럼 참조 (`u.region` → `u.location`)
+
+**수정 파일**:
+
+1. **src/routes/recommendations.ts** (Lines 10-67):
+   - 비동기 `import()`를 동기 `require()`로 변경
+   - Null 체크 및 MockRecommendationService 폴백 추가
+
+2. **src/services/recommendationService.ts** (Line 298):
+   - SQL 쿼리 수정: `u.region` → `u.location`
+
+#### 3. 401 Unauthorized (Invalid Token) 에러 수정
+- **문제**: 인증 토큰 설정 전 API 호출로 인한 Race Condition
+- **원인**: `index.html`이 `app.js` auto-login 완료 전에 `ui.loadUserData()` 호출
+
+**수정 파일**:
+
+1. **public/index.html** (Lines 854-856):
+   - 중복 `ui.loadUserData()` 호출 제거
+   - app.js의 auto-login 완료 후 자동 실행으로 위임
+
+2. **public/js/ui.js** (Lines 944-949):
+   - 토큰 체크 추가 (방어적 프로그래밍)
+
+**실행 순서 수정**:
+```
+Before (에러 발생):
+1. index.html → ui.loadUserData() → API 호출 (토큰 없음 ❌)
+2. app.js → auto-login 시작
+3. API 401 에러
+4. app.js → auto-login 완료 (너무 늦음)
+
+After (정상 작동):
+1. app.js → auto-login 시작
+2. app.js → auto-login 완료, 토큰 설정 ✅
+3. app.js → ui.loadUserData() → API 호출 (토큰 있음 ✅)
+```
+
+**기술적 성과**:
+- ✅ CSP 정책 완전 준수 (보안 강화)
+- ✅ 서버 500 에러 제거 (안정성 향상)
+- ✅ 인증 플로우 최적화 (사용자 경험 개선)
+- ✅ 방어적 프로그래밍 패턴 적용 (견고성 향상)
+
+**코드 메트릭**:
+- 수정 파일: 5개 (ui.js, app.js, recommendations.ts, recommendationService.ts, index.html)
+- 변경 라인: ~100줄
+- 보안 개선: CSP 완전 준수
+- 안정성 개선: 2개 주요 버그 수정
+
+**Git Commit**: `git commit -m "v1.62.16: CSP 준수, 서버 에러, 인증 타이밍 수정"`
+
+---
+
 ### v1.62.15 (2025-10-15) - Partner Cards Grid Centering Fix (파트너 카드 그리드 중앙 정렬 수정)
 
 **작업 내용**:

@@ -312,10 +312,10 @@ class App {
 
     devMenu.innerHTML = `
       <div style="margin-bottom: 10px; font-weight: bold;">🛠️ Dev Tools</div>
-      <button onclick="app.runDevelopmentSeed()">Seed Data</button>
-      <button onclick="app.resetDevelopmentData()">Reset Data</button>
-      <button onclick="app.showDevelopmentInfo()">Show Info</button>
-      <button onclick="app.toggleDevMenu()">Hide</button>
+      <button class="dev-seed-btn">Seed Data</button>
+      <button class="dev-reset-btn">Reset Data</button>
+      <button class="dev-info-btn">Show Info</button>
+      <button class="dev-hide-btn">Hide</button>
     `;
 
     // Style buttons
@@ -331,6 +331,36 @@ class App {
         font-size: 11px;
       `;
     });
+
+    // Add event listeners to dev menu buttons
+    const seedBtn = devMenu.querySelector('.dev-seed-btn');
+    const resetBtn = devMenu.querySelector('.dev-reset-btn');
+    const infoBtn = devMenu.querySelector('.dev-info-btn');
+    const hideBtn = devMenu.querySelector('.dev-hide-btn');
+
+    if (seedBtn) {
+      seedBtn.addEventListener('click', () => {
+        this.runDevelopmentSeed();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        this.resetDevelopmentData();
+      });
+    }
+
+    if (infoBtn) {
+      infoBtn.addEventListener('click', () => {
+        this.showDevelopmentInfo();
+      });
+    }
+
+    if (hideBtn) {
+      hideBtn.addEventListener('click', () => {
+        this.toggleDevMenu();
+      });
+    }
 
     document.body.appendChild(devMenu);
   }

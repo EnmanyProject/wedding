@@ -10,12 +10,15 @@ import { authenticateToken } from '../middleware/auth';
 // Mock 모드 여부
 const useMock = process.env.USE_MOCK_RING_SERVICE === 'true';
 
-// Dynamic import for RecommendationService (only in non-mock mode)
+// Synchronous import for RecommendationService (fix 500 error)
 let RecommendationService: any = null;
 if (!useMock) {
-  import('../services/recommendationService').then(module => {
+  try {
+    const module = require('../services/recommendationService');
     RecommendationService = module.RecommendationService;
-  });
+  } catch (error) {
+    console.warn('Failed to load RecommendationService:', error);
+  }
 }
 
 const router = Router();
@@ -33,12 +36,18 @@ router.get('/today', authenticateToken, async (req: Request, res: Response) => {
     if (useMock) {
       recommendations = await MockRecommendationService.getTodayRecommendations(userId);
     } else {
-      recommendations = await RecommendationService.getTodayRecommendations(userId);
+      // Null check for RecommendationService
+      if (!RecommendationService) {
+        console.error('RecommendationService not loaded, falling back to mock');
+        recommendations = await MockRecommendationService.getTodayRecommendations(userId);
+      } else {
+        recommendations = await RecommendationService.getTodayRecommendations(userId);
 
-      // 조회했다는 기록 (첫 번째 로드 시)
-      if (recommendations.length > 0) {
-        for (const rec of recommendations) {
-          await RecommendationService.markAsViewed(rec.id);
+        // 조회했다는 기록 (첫 번째 로드 시)
+        if (recommendations.length > 0) {
+          for (const rec of recommendations) {
+            await RecommendationService.markAsViewed(rec.id);
+          }
         }
       }
     }

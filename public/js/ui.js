@@ -459,12 +459,20 @@ class UIManager {
           <div class="meeting-score">호감도: ${meeting.affinity_score}</div>
         </div>
         <div class="meeting-actions">
-          <button class="btn btn-primary btn-sm" onclick="ui.enterMeeting('${meeting.target_id}')">
+          <button class="btn btn-primary btn-sm enter-meeting-btn" data-target-id="${meeting.target_id}">
             만나기
           </button>
         </div>
       </div>
     `).join('');
+
+    // Add event listeners to meeting buttons
+    meetingsList.querySelectorAll('.enter-meeting-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.targetId || e.target.closest('.enter-meeting-btn').dataset.targetId;
+        this.enterMeeting(targetId);
+      });
+    });
   }
 
   // Render user photos
@@ -490,7 +498,7 @@ class UIManager {
         <div class="photo-item" data-photo-id="${photo.id}">
           <img src="${imageUrl}" alt="사진 ${photo.order_idx + 1}" loading="lazy">
           <div class="photo-overlay">
-            <button class="btn btn-danger btn-sm" onclick="ui.deletePhoto('${photo.id}')">
+            <button class="btn btn-danger btn-sm delete-photo-btn" data-photo-id="${photo.id}">
               삭제
             </button>
           </div>
@@ -498,6 +506,14 @@ class UIManager {
         </div>
       `;
     }).join('');
+
+    // Add event listeners to delete photo buttons
+    photosGrid.querySelectorAll('.delete-photo-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const photoId = e.target.dataset.photoId || e.target.closest('.delete-photo-btn').dataset.photoId;
+        this.deletePhoto(photoId);
+      });
+    });
   }
 
   // Render detailed rankings
@@ -531,17 +547,34 @@ class UIManager {
           </div>
         </div>
         <div class="ranking-actions">
-          <button class="btn btn-primary btn-sm" onclick="quiz.startQuizWithTarget('${ranking.targetId}')">
+          <button class="btn btn-primary btn-sm start-quiz-btn" data-target-id="${ranking.targetId}">
             퀴즈하기
           </button>
           ${ranking.canMeet ? `
-            <button class="btn btn-secondary btn-sm" onclick="ui.enterMeeting('${ranking.targetId}')">
+            <button class="btn btn-secondary btn-sm enter-meeting-btn" data-target-id="${ranking.targetId}">
               만나기
             </button>
           ` : ''}
         </div>
       </div>
     `).join('');
+
+    // Add event listeners to quiz and meeting buttons
+    rankingsContainer.querySelectorAll('.start-quiz-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.targetId || e.target.closest('.start-quiz-btn').dataset.targetId;
+        if (window.quiz && typeof window.quiz.startQuizWithTarget === 'function') {
+          window.quiz.startQuizWithTarget(targetId);
+        }
+      });
+    });
+
+    rankingsContainer.querySelectorAll('.enter-meeting-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.targetId || e.target.closest('.enter-meeting-btn').dataset.targetId;
+        this.enterMeeting(targetId);
+      });
+    });
   }
 
   // Render empty swiper (delegated to ui-components utility)
@@ -608,12 +641,12 @@ class UIManager {
               </div>
             </div>
             <div class="card-actions">
-              <button class="action-btn primary" onclick="quiz.startQuizWithTarget('${ranking.targetId}')">
+              <button class="action-btn primary start-quiz-btn" data-target-id="${ranking.targetId}">
                 <span class="btn-icon">🎯</span>
                 <span class="btn-text">퀴즈하기</span>
               </button>
               ${ranking.canMeet ? `
-                <button class="action-btn secondary" onclick="ui.enterMeeting('${ranking.targetId}')">
+                <button class="action-btn secondary enter-meeting-btn" data-target-id="${ranking.targetId}">
                   <span class="btn-icon">💬</span>
                   <span class="btn-text">만나기</span>
                 </button>
@@ -632,6 +665,23 @@ class UIManager {
     cardsContainer.innerHTML = cardsHTML;
     this.updatePagination(rankings.length);
     this.updateCounter(0, rankings.length);
+
+    // Add event listeners to quiz and meeting buttons
+    cardsContainer.querySelectorAll('.start-quiz-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.targetId || e.target.closest('.start-quiz-btn').dataset.targetId;
+        if (window.quiz && typeof window.quiz.startQuizWithTarget === 'function') {
+          window.quiz.startQuizWithTarget(targetId);
+        }
+      });
+    });
+
+    cardsContainer.querySelectorAll('.enter-meeting-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.targetId || e.target.closest('.enter-meeting-btn').dataset.targetId;
+        this.enterMeeting(targetId);
+      });
+    });
   }
 
   // Initialize mobile swiper functionality
@@ -796,9 +846,17 @@ class UIManager {
     toast.innerHTML = `
       <div class="toast-content">
         <span class="toast-message">${message}</span>
-        <button class="toast-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        <button class="toast-close">&times;</button>
       </div>
     `;
+
+    // Add event listener to close button
+    const closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        toast.remove();
+      });
+    }
 
     this.toastContainer.appendChild(toast);
 
@@ -882,6 +940,13 @@ class UIManager {
   async loadUserAvatars() {
     try {
       console.log('🎭 [UI] 오늘의 추천 파트너 로딩 중...');
+
+      // 🔐 토큰 체크 먼저
+      if (!api.token) {
+        console.warn('⚠️ [UI] 토큰 없음, 사용자 로딩 건너뜀');
+        this.renderEmptyPartnerSwiper();
+        return;
+      }
 
       // 1️⃣ 먼저 추천 시스템 시도
       try {
