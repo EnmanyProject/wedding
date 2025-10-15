@@ -42,7 +42,7 @@
 **수정 파일**:
 - `public/styles/premium-partner-cards.css` (Lines 471-483, 10, 636, 714)
 
-**Git**: `[커밋 후 추가 예정]`
+**Git**: `6a662fc`
 
 ---
 
