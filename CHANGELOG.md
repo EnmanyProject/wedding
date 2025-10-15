@@ -51,7 +51,7 @@
 - ✅ 스와이프와 클릭 동작 간 충돌 방지 (300ms 타이머)
 - ✅ 이벤트 전파 제어를 통한 UI 안정성 향상
 
-**Git Commit**: (commit hash will be added)
+**Git Commit**: `e07d310`
 
 ---
 
