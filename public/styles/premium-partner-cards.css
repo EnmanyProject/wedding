@@ -7,7 +7,7 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 600px; /* 🔧 ADJUSTED: 550px → 600px (여유 공간 확보) */
+  height: 550px; /* 🔧 OPTIMIZED: 600px → 550px (통계 박스 제거로 공간 절약) */
   margin: 2rem auto;
   padding: 0;
   overflow-x: scroll;
@@ -54,8 +54,8 @@
   max-width: 100%;
   flex-shrink: 0;
   height: auto;
-  min-height: 420px;
-  max-height: 450px;
+  min-height: 370px;
+  max-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,8 +77,8 @@
 .partner-card .card-content {
   width: calc(100% - 40px);
   height: auto;
-  min-height: 380px;
-  max-height: 420px;
+  min-height: 330px;
+  max-height: 370px;
   background: linear-gradient(135deg,
     #1a1a1a 0%,
     #0a0a0a 50%,
@@ -259,73 +259,45 @@
 }
 
 /* ==========================================
-   퀴즈 통계 - 모던 카드 스타일
+   퀴즈 통계 - 심플 인라인 스타일
    ========================================== */
 .partner-quiz-stats {
   display: flex;
-  gap: 10px;
-  width: 100%;
+  align-items: center;
   justify-content: center;
-  margin: 3px 0;
+  gap: 6px;
+  width: 100%;
+  margin: 8px 0;
   z-index: 1;
 }
 
-.partner-stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  padding: 12px 18px;
-  background: linear-gradient(135deg,
-    rgba(255, 107, 157, 0.15) 0%,
-    rgba(139, 92, 246, 0.15) 100%
-  );
-  border-radius: 12px;
-  border: 1px solid rgba(255, 107, 157, 0.3);
-  box-shadow:
-    0 4px 12px rgba(255, 107, 157, 0.2),
-    inset 0 1px 0 rgba(255, 107, 157, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 80px;
-}
-
-.partner-stat-item:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 107, 157, 0.5);
-  background: linear-gradient(135deg,
-    rgba(255, 107, 157, 0.25) 0%,
-    rgba(139, 92, 246, 0.25) 100%
-  );
-  box-shadow:
-    0 6px 20px rgba(255, 107, 157, 0.3),
-    inset 0 1px 0 rgba(255, 107, 157, 0.3);
-}
-
 .partner-stat-icon {
-  font-size: 22px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  font-size: 18px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .partner-stat-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   background: linear-gradient(135deg, #ff8ab5 0%, #a78bfa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(255, 107, 157, 0.3));
+  margin: 0 2px;
 }
 
 .partner-stat-label {
   font-size: 11px;
   color: #e0e0e0;
   font-weight: 500;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+}
+
+.partner-stat-divider {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 4px;
 }
 
 /* ==========================================
@@ -639,7 +611,7 @@
 /* Intermediate - Tablet landscape */
 @media (max-width: 1024px) and (min-width: 769px) {
   .mobile-partner-swiper {
-    height: 590px; /* 🔧 ADJUSTED: 540px → 590px (여유 공간 확보) */
+    height: 540px; /* 🔧 OPTIMIZED: 590px → 540px (통계 박스 제거로 공간 절약) */
   }
 }
 
@@ -648,7 +620,7 @@
   .mobile-partner-swiper {
     max-width: 100%;
     width: 100%;
-    height: 580px; /* 🔧 ADJUSTED: 530px → 580px (여유 공간 확보) */
+    height: 530px; /* 🔧 OPTIMIZED: 580px → 530px (통계 박스 제거로 공간 절약) */
     margin: 1rem 10px;
     border-radius: 20px;
   }
@@ -687,21 +659,12 @@
     font-size: 22px;
   }
 
-  .partner-quiz-stats {
-    gap: 8px;
-  }
-
-  .partner-stat-item {
-    padding: 10px 14px;
-    min-width: 75px;
-  }
-
   .partner-stat-icon {
-    font-size: 20px;
+    font-size: 17px;
   }
 
   .partner-stat-value {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .partner-stat-label {
@@ -727,14 +690,14 @@
 /* Intermediate - Small mobile */
 @media (max-width: 640px) and (min-width: 481px) {
   .mobile-partner-swiper {
-    height: 560px; /* 🔧 ADJUSTED: 510px → 560px (여유 공간 확보) */
+    height: 510px; /* 🔧 OPTIMIZED: 560px → 510px (통계 박스 제거로 공간 절약) */
   }
 }
 
 /* Small mobile */
 @media (max-width: 480px) {
   .mobile-partner-swiper {
-    height: 550px; /* 🔧 ADJUSTED: 500px → 550px (여유 공간 확보) */
+    height: 500px; /* 🔧 OPTIMIZED: 550px → 500px (통계 박스 제거로 공간 절약) */
     margin: 0.5rem 5px;
   }
 

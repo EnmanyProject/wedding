@@ -1138,16 +1138,13 @@ class UIManager {
               <h3>${displayName}</h3>
             </div>
             <div class="partner-quiz-stats">
-              <div class="partner-stat-item">
-                <span class="partner-stat-icon">🎯</span>
-                <span class="partner-stat-value">${target.quiz_count}</span>
-                <span class="partner-stat-label">퀴즈</span>
-              </div>
-              <div class="partner-stat-item">
-                <span class="partner-stat-icon">💕</span>
-                <span class="partner-stat-value">${target.affinity_score || 0}</span>
-                <span class="partner-stat-label">궁합</span>
-              </div>
+              <span class="partner-stat-icon">🎯</span>
+              <span class="partner-stat-value">${target.quiz_count}</span>
+              <span class="partner-stat-label">퀴즈</span>
+              <span class="partner-stat-divider">·</span>
+              <span class="partner-stat-icon">💕</span>
+              <span class="partner-stat-value">${target.affinity_score || 0}</span>
+              <span class="partner-stat-label">궁합</span>
             </div>
           </div>
         </div>
