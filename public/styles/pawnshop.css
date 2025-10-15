@@ -59,11 +59,26 @@
   padding-bottom: 80px;
   background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
   min-height: calc(100vh - 140px);
+  color: #ffffff; /* ✅ FIX: 기본 텍스트 색상 흰색 */
 }
 
 .pawnshop-content {
   max-width: 600px;
   margin: 0 auto;
+  color: #ffffff; /* ✅ FIX: 모든 텍스트 흰색 보장 */
+}
+
+/* ✅ FIX: 모든 텍스트 요소에 명시적 색상 지정 */
+.pawnshop-content p,
+.pawnshop-content h1,
+.pawnshop-content h2,
+.pawnshop-content h3,
+.pawnshop-content h4,
+.pawnshop-content h5,
+.pawnshop-content h6,
+.pawnshop-content span,
+.pawnshop-content div {
+  color: inherit;
 }
 
 /* D-Bety Welcome Section */
@@ -300,6 +315,21 @@
 
 .pawnshop-modal-body {
   padding: 1.5rem;
+  color: #ffffff; /* ✅ FIX: 모달 내부 모든 텍스트 흰색 */
+}
+
+/* ✅ FIX: 모달 내부 모든 텍스트 요소 색상 보장 */
+.pawnshop-modal-body p,
+.pawnshop-modal-body h1,
+.pawnshop-modal-body h2,
+.pawnshop-modal-body h3,
+.pawnshop-modal-body h4,
+.pawnshop-modal-body h5,
+.pawnshop-modal-body h6,
+.pawnshop-modal-body span,
+.pawnshop-modal-body div,
+.pawnshop-modal-body label {
+  color: inherit;
 }
 
 /* ===== 1. Photo Upload Modal ===== */
