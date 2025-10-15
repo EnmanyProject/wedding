@@ -65,21 +65,33 @@ class ModalManager {
 
     // Click outside handler (delegate to document)
     document.addEventListener('click', (e) => {
+      // ✅ FIX: Pawnshop 모달은 자체 시스템에서 관리하므로 제외
+      if (e.target.classList.contains('pawnshop-modal-overlay') ||
+          e.target.closest('.pawnshop-modal')) {
+        console.log('🏦 [Modal Manager] Ignoring pawnshop modal (managed by PawnshopSystem)');
+        return; // Pawnshop 모달은 건드리지 않음
+      }
+
       if (e.target.classList.contains('modal') ||
           e.target.classList.contains('modal-overlay') ||
-          e.target.classList.contains('pawnshop-modal-overlay') ||
           e.target.classList.contains('dbety-modal-overlay')) {
-        const modal = e.target.closest('.modal, .pawnshop-modal, .dbety-modal');
+        const modal = e.target.closest('.modal, .dbety-modal');
         if (modal && modal.id) {
           this.close(modal.id);
         }
       }
 
       // Close button handler
+      // ✅ FIX: Pawnshop 모달 닫기 버튼도 제외
+      if (e.target.classList.contains('pawnshop-modal-close') ||
+          e.target.closest('.pawnshop-modal')) {
+        console.log('🏦 [Modal Manager] Ignoring pawnshop modal close button');
+        return; // Pawnshop 모달 닫기는 자체 시스템에서 처리
+      }
+
       if (e.target.classList.contains('modal-close') ||
-          e.target.classList.contains('pawnshop-modal-close') ||
           e.target.classList.contains('dbety-modal-close')) {
-        const modal = e.target.closest('.modal, .pawnshop-modal, .dbety-modal');
+        const modal = e.target.closest('.modal, .dbety-modal');
         if (modal && modal.id) {
           this.close(modal.id);
         }
