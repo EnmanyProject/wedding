@@ -30,6 +30,42 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.39 (2025-10-15) - 추천 및 랭킹 시스템 개선 (매치 카운트 통합)
+
+**작업 내용**:
+- **🎯 추천 시스템**: 모든 활성 사용자 추천 가능하도록 기준 0으로 변경
+- **🏆 랭킹 시스템**: 점수 = 매치 카운트 + 정답 카운트 (합계)
+- **🔢 매치 카운트**: 자동 호환성 (같은 A&B 퀴즈에 같은 답을 한 개수)
+- **✅ 정답 카운트**: 직접 퀴즈 점수 (affinity.score)
+
+**변경 사항 (추천 시스템)**:
+- `recommendationService.ts`: similarity_score 조건 제거
+- 개발 중에는 매치 카운트 0이어도 추천됨
+- 추후 실제 유저 수에 따라 추천 기준 조정 가능
+
+**변경 사항 (랭킹 시스템)**:
+- `affinityService.ts`: getUserRanking SQL 쿼리 개선
+- 실시간 매치 카운트 계산 (quiz_responses 테이블 JOIN)
+- 랭킹 점수 = `a.score + match_count`
+- can_meet 조건도 총점 기준으로 변경
+
+**기술적 세부사항**:
+```sql
+-- 매치 카운트 계산
+SELECT COUNT(*)
+FROM quiz_responses qr1
+JOIN quiz_responses qr2 ON qr1.quiz_id = qr2.quiz_id
+  AND qr1.selected_option = qr2.selected_option
+WHERE qr1.user_id = $2 AND qr2.user_id = a.target_id
+```
+
+**로그 개선**:
+- totalScore (총점), directScore (직접 퀴즈), matchCount (자동 호환성) 분리 출력
+
+**Git Hash**: `00a5ca6`
+
+---
+
 ### v1.62.38 (2025-10-15) - 프로필 이미지 크기 추가 확대 (검은 여백 완전 제거)
 
 **작업 내용**:
