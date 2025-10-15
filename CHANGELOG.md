@@ -30,6 +30,22 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.28 (2025-10-15) - 파트너 카드 페이지네이션 고정 및 컨테이너 크기 조정
+
+**작업 내용**:
+- **페이지네이션 위치 고정**: `premium-partner-cards.css`에서 `.partner-swiper-pagination`과 `#partner-swiper-pagination`을 `position: fixed`로 변경하여 카드 스와이프 시 함께 이동하지 않도록 수정
+- **파트너 카드 컨테이너 높이 증가**: 카드 상하단 잘림 방지를 위해 `.mobile-partner-swiper` 높이 증가
+  - 기본: 520px → 580px (60px 증가)
+  - 모바일 (≤768px): 480px → 540px (60px 증가)
+  - 소형 모바일 (≤480px): 440px → 500px (60px 증가)
+
+**수정 파일**:
+- `public/styles/premium-partner-cards.css` (Lines 471-483, 10, 636, 714)
+
+**Git**: `[커밋 후 추가 예정]`
+
+---
+
 ### v1.62.27 (2025-10-15) - 개발 모드 UX 개선
 
 **작업 내용**:

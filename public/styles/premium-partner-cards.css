@@ -7,7 +7,7 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 520px;
+  height: 580px; /* 🔧 INCREASED: 520px → 580px (카드 잘림 방지) */
   margin: 2rem auto;
   padding: 0;
   overflow-x: scroll;
@@ -468,11 +468,13 @@
 /* ==========================================
    페이지네이션 - 모던 인디케이터
    ========================================== */
-.partner-swiper-pagination {
-  position: absolute;
+.partner-swiper-pagination,
+#partner-swiper-pagination {
+  position: fixed !important; /* 🔧 FIXED: 카드와 함께 이동하지 않도록 */
   bottom: 70px;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -631,7 +633,7 @@
   .mobile-partner-swiper {
     max-width: 100%;
     width: 100%;
-    height: 480px;
+    height: 540px; /* 🔧 INCREASED: 480px → 540px (카드 잘림 방지) */
     margin: 1rem 10px;
     border-radius: 20px;
   }
@@ -709,7 +711,7 @@
 
 @media (max-width: 480px) {
   .mobile-partner-swiper {
-    height: 440px;
+    height: 500px; /* 🔧 INCREASED: 440px → 500px (카드 잘림 방지) */
     margin: 0.5rem 5px;
   }
 
