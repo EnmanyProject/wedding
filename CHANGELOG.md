@@ -30,6 +30,140 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.20 (2025-10-15) - Fix MobileSwiper/CSS Architecture Mismatch and Optimize Layout
+
+**작업 내용**:
+
+#### MobileSwiper와 CSS 아키텍처 충돌 해결
+- **문제**: v1.62.19에서 CSS scroll 속성을 제거했으나, MobileSwiper는 CSS scroll-snap 기반으로 작동 (scrollLeft/scrollTo 사용)
+- **증상**:
+  - 스와이프할수록 카드가 오른쪽으로 치우침
+  - 페이지네이션 도트 표시 안 됨
+  - 좌우 화살표 버튼 잘림
+  - 카드가 수직으로 너무 길어짐
+
+**수정 파일**: `public/styles/premium-partner-cards.css`
+
+**코드 변경 1 - CSS scroll 속성 복원 (.mobile-partner-swiper)**:
+```css
+/* Before: v1.62.19 */
+height: auto;
+min-height: 600px;
+overflow: hidden;
+/* scroll-snap 속성 제거됨 */
+
+/* After: v1.62.20 */
+height: 700px;  /* 고정 높이 + 여유 공간 */
+overflow-x: scroll;
+overflow-y: hidden;
+scroll-snap-type: x mandatory;  /* MobileSwiper에 필요 */
+scroll-behavior: smooth;
+-webkit-overflow-scrolling: touch;
+```
+
+**코드 변경 2 - 카드 높이 제한 (.partner-card)**:
+```css
+/* Before: */
+height: auto;
+min-height: 500px;
+/* max-height 없음 */
+
+/* After: */
+height: auto;
+min-height: 500px;
+max-height: 600px;  /* 최대 높이 제한 */
+scroll-snap-align: center;  /* snap 정렬 */
+scroll-snap-stop: always;
+```
+
+**코드 변경 3 - 카드 콘텐츠 최적화 (.card-content)**:
+```css
+/* Before: */
+padding: 30px 25px;
+gap: 15px;
+/* max-height 없음 */
+
+/* After: */
+padding: 25px 20px;  /* 패딩 축소 */
+gap: 10px;  /* 간격 축소 */
+max-height: 580px;  /* 콘텐츠 최대 높이 */
+```
+
+**코드 변경 4 - 아바타 크기 축소**:
+```css
+/* Before: */
+.partner-avatar-large {
+  width: 144px;
+  height: 144px;
+  margin: 10px 0 35px 0;
+}
+.profile-image {
+  width: 152px;
+  height: 152px;
+}
+
+/* After: */
+.partner-avatar-large {
+  width: 130px;  /* 14px 축소 */
+  height: 130px;
+  margin: 10px 0 25px 0;  /* 하단 마진 축소 */
+}
+.profile-image {
+  width: 138px;  /* 14px 축소 */
+  height: 138px;
+}
+```
+
+**코드 변경 5 - 간격 최적화**:
+```css
+/* .partner-info */
+margin: 0 0 10px; → margin: 0 0 5px;
+
+/* .partner-quiz-stats */
+gap: 20px; → gap: 15px;
+margin: 10px 0; → margin: 5px 0;
+```
+
+**코드 변경 6 - 컨트롤 가시성 개선**:
+```css
+/* .partner-swiper-controls */
+bottom: 20px; → bottom: 24px;
+z-index: 10; → z-index: 20;
+pointer-events: none;  /* 컨테이너 클릭 방지 */
+
+/* .partner-swiper-pagination */
+bottom: 80px; → bottom: 90px;
+z-index: 10; → z-index: 20;
+pointer-events: none;
+```
+
+**코드 변경 7 - 모바일 높이 조정**:
+```css
+/* 768px 이하 */
+height: 550px; → height: 650px;
+
+/* 480px 이하 */
+height: 520px; → height: 600px;
+```
+
+**아키텍처 결정**:
+- **선택**: CSS scroll-snap과 MobileSwiper 통합 (v1.62.19 롤백)
+- **이유**:
+  - MobileSwiper가 scroll 기반으로 설계됨 (scrollLeft/scrollTo)
+  - Transform 기반으로 재작성하는 것보다 CSS 복원이 효율적
+  - 고정 높이 + 여유 공간으로 모든 컨트롤 가시성 확보
+
+**해결된 이슈**:
+- ✅ 스와이프 정렬 문제 해결 (카드가 오른쪽으로 치우치지 않음)
+- ✅ 페이지네이션 도트 정상 표시 (z-index 20, bottom 90px)
+- ✅ 좌우 화살표 버튼 정상 표시 (z-index 20, bottom 24px)
+- ✅ 카드 높이 최적화 (max-height 600px, 콘텐츠 580px)
+- ✅ 전체적으로 더 컴팩트한 디자인
+
+**Git Commit**: `v1.62.20: Fix MobileSwiper/CSS mismatch and optimize card layout`
+
+---
+
 ### v1.62.19 (2025-10-15) - Fix Partner Card Swiper: Pagination, Layout, and Interaction
 
 **작업 내용**:
