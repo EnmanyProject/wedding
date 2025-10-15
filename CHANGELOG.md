@@ -30,6 +30,118 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.21 (2025-10-15) - Fix Flex Container Width and Pagination Display
+
+**작업 내용**:
+
+#### v1.62.20의 추가 문제 해결
+v1.62.20에서 CSS scroll 속성을 복원했으나, 여전히 3가지 문제가 남아있었음:
+1. 스와이프가 아예 작동하지 않음
+2. 페이지네이션이 처음에만 나타나고 사라짐
+3. 카드 잘림 현상 지속
+
+**근본 원인 분석**:
+1. **Flex Container 너비 문제**: `.partner-cards-container`에 명시적 너비가 없어 스크롤 영역이 생성되지 않음
+   - Flex container가 부모(mobile-partner-swiper)의 100%만 차지
+   - 카드가 여러 개여도 overflow 발생하지 않음
+   - MobileSwiper의 `scrollLeft` 조작이 불가능
+
+2. **카드 너비 설정 문제**: 각 카드가 `width: 100%`로 설정되어 flex container의 100%를 차지
+   - MobileSwiper는 각 카드가 viewport 너비를 차지한다고 가정
+   - 실제로는 카드가 부모 container 기준으로 크기 조정됨
+
+3. **Pagination 클래스 불일치**: MobileSwiper는 `.pagination-dot` 생성, CSS는 `.partner-pagination-dot`만 스타일 정의
+   - Pagination dots가 생성되지만 스타일 없음
+   - 보이지 않거나 크기 0
+
+**수정 파일**: `public/styles/premium-partner-cards.css`
+
+**코드 변경 1 - Flex Container 스크롤 영역 생성**:
+```css
+/* Before: */
+.partner-cards-container {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+
+/* After: */
+.partner-cards-container {
+  display: flex;
+  flex-wrap: nowrap;  /* 줄바꿈 방지 */
+  height: 100%;
+  align-items: center;
+  width: max-content;  /* 모든 카드를 포함할 만큼 늘어남 */
+}
+```
+
+**코드 변경 2 - 카드 너비 고정 (데스크톱)**:
+```css
+/* Before: */
+.partner-card {
+  width: 100%;  /* Flex container 기준 */
+  min-width: 100%;
+  max-width: 100%;
+}
+
+/* After: */
+.partner-card {
+  width: 400px;  /* 고정 너비 */
+  min-width: 400px;
+  max-width: 400px;
+}
+```
+
+**코드 변경 3 - 카드 너비 고정 (모바일)**:
+```css
+/* 768px 이하 */
+.mobile-partner-swiper {
+  width: 100%;  /* 추가 */
+}
+
+.partner-card {
+  width: calc(100vw - 20px);  /* Viewport 기준 */
+  min-width: calc(100vw - 20px);
+  max-width: calc(100vw - 20px);
+}
+
+/* 480px 이하 */
+.partner-card {
+  width: calc(100vw - 10px);
+  min-width: calc(100vw - 10px);
+  max-width: calc(100vw - 10px);
+}
+```
+
+**코드 변경 4 - Pagination 클래스 추가**:
+```css
+/* Before: */
+.partner-pagination-dot {
+  /* 스타일 */
+}
+
+/* After: */
+.partner-pagination-dot,
+.pagination-dot {  /* MobileSwiper가 생성하는 클래스 */
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;  /* 버튼 기본 스타일 제거 */
+  padding: 0;
+  margin: 0;
+}
+```
+
+**해결된 이슈**:
+- ✅ 스와이프 정상 작동 (flex container가 스크롤 가능 영역 생성)
+- ✅ 페이지네이션 도트 정상 표시 (.pagination-dot 스타일 적용)
+- ✅ 카드 정렬 및 잘림 문제 해결 (고정 너비 적용)
+
+**Git Commit**: `v1.62.21: Fix flex container width and pagination display`
+
+---
+
 ### v1.62.20 (2025-10-15) - Fix MobileSwiper/CSS Architecture Mismatch and Optimize Layout
 
 **작업 내용**:
