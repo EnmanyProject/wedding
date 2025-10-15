@@ -145,7 +145,8 @@ export class RecommendationService {
     const currentUserGender = currentUserResult.rows[0].gender;
     const targetGender = currentUserGender === 'male' ? 'female' : 'male';
 
-    // 추천 후보 쿼리 (반대 성별만)
+    // 추천 후보 쿼리 (반대 성별만, similarity_score 조건 제거)
+    // 개발 중에는 모든 활성 사용자 추천 가능 (매치 카운트 0이어도 OK)
     const candidatesResult = await pool.query(
       `SELECT DISTINCT u.id
        FROM users u

@@ -145,17 +145,43 @@ export class AffinityService {
       `SELECT
         a.target_id,
         u.name as target_name,
-        a.score as affinity_score,
+        a.score as direct_score,
+        (
+          SELECT COUNT(*)
+          FROM quiz_responses qr1
+          JOIN quiz_responses qr2 ON qr1.quiz_id = qr2.quiz_id
+            AND qr1.selected_option = qr2.selected_option
+          WHERE qr1.user_id = $2 AND qr2.user_id = a.target_id
+        ) as match_count,
+        (a.score + COALESCE((
+          SELECT COUNT(*)
+          FROM quiz_responses qr1
+          JOIN quiz_responses qr2 ON qr1.quiz_id = qr2.quiz_id
+            AND qr1.selected_option = qr2.selected_option
+          WHERE qr1.user_id = $2 AND qr2.user_id = a.target_id
+        ), 0)) as affinity_score,
         a.stages_unlocked,
         CASE
-          WHEN a.score >= $1 THEN true
+          WHEN (a.score + COALESCE((
+            SELECT COUNT(*)
+            FROM quiz_responses qr1
+            JOIN quiz_responses qr2 ON qr1.quiz_id = qr2.quiz_id
+              AND qr1.selected_option = qr2.selected_option
+            WHERE qr1.user_id = $2 AND qr2.user_id = a.target_id
+          ), 0)) >= $1 THEN true
           ELSE false
         END as can_meet,
-        ROW_NUMBER() OVER (ORDER BY a.score DESC) as rank_position
+        ROW_NUMBER() OVER (ORDER BY (a.score + COALESCE((
+          SELECT COUNT(*)
+          FROM quiz_responses qr1
+          JOIN quiz_responses qr2 ON qr1.quiz_id = qr2.quiz_id
+            AND qr1.selected_option = qr2.selected_option
+          WHERE qr1.user_id = $2 AND qr2.user_id = a.target_id
+        ), 0)) DESC) as rank_position
        FROM affinity a
        JOIN users u ON a.target_id = u.id
        WHERE a.viewer_id = $2
-       ORDER BY a.score DESC
+       ORDER BY affinity_score DESC
        LIMIT $3`,
       [T3_THRESHOLD, userId, TOP_COUNT]
     );
@@ -182,7 +208,9 @@ export class AffinityService {
       console.log('🏆 [AffinityService] 상위 랭킹:', rankings.slice(0, 3).map(r => ({
         rank: r.rank_position,
         target: r.target_name,
-        score: r.affinity_score,
+        totalScore: r.affinity_score,
+        directScore: r.direct_score,
+        matchCount: r.match_count,
         canMeet: r.can_meet
       })));
     }
