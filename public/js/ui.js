@@ -1019,23 +1019,13 @@ class UIManager {
 
     console.log('👥 [UI] Rendering', targets.length, 'partner cards');
 
-    // Check if we should show grid (768px+: tablet, hybrid, desktop, large)
-    // Fallback to viewport width check if ResponsiveDetector unavailable
-    let currentMode = 'mobile';
-    let shouldShowGrid = false;
+    // 🔧 FIX: 모든 화면에서 스와이프 모드만 사용
+    const currentMode = window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function'
+      ? window.ResponsiveDetector.getCurrentMode()
+      : 'mobile';
+    const shouldShowGrid = false; // 항상 스와이프 모드
 
-    if (window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function') {
-      currentMode = window.ResponsiveDetector.getCurrentMode();
-      shouldShowGrid = ['tablet', 'hybrid', 'desktop', 'large'].includes(currentMode);
-    } else {
-      // Fallback: Direct viewport width check
-      const viewportWidth = window.innerWidth;
-      shouldShowGrid = viewportWidth >= 768;
-      currentMode = viewportWidth >= 768 ? 'desktop' : 'mobile';
-      console.warn('⚠️ [UI] ResponsiveDetector unavailable, using viewport width fallback:', viewportWidth, 'px');
-    }
-
-    console.log('📱 [UI] Current mode:', currentMode, '| Show grid:', shouldShowGrid);
+    console.log('📱 [UI] Current mode:', currentMode, '| Show grid:', shouldShowGrid, '(forced swiper mode)');
 
     if (shouldShowGrid) {
       this.renderPartnerGrid(targets);

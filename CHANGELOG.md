@@ -36,15 +36,16 @@
 
 #### 모든 화면에서 스와이프 모드 강제 적용
 - **요구사항**: 데스크톱 포함 모든 화면에서 카드 1개씩만 표시 + 스와이프 기능
-- **변경**: CardGridManager의 `shouldShowGrid()` 메서드를 항상 `false` 반환하도록 수정
+- **변경**: CardGridManager와 ui.js 모두에서 그리드 모드 비활성화
 - **효과**:
   - 모바일: 카드 1개 + 스와이프 (기존과 동일)
-  - 데스크톱: 카드 1개 + 스와이프 (그리드 모드 비활성화)
+  - 데스크톱: 카드 1개 + 스와이프 (그리드 모드 완전 비활성화)
 
 **수정 파일**:
 - `public/js/card-grid-manager.js` (Lines 64-68): `shouldShowGrid()` 메서드 수정
+- `public/js/ui.js` (Lines 1022-1028): 그리드 모드 감지 로직 제거 및 스와이프 강제
 
-**코드 변경**:
+**코드 변경 1 - card-grid-manager.js**:
 ```javascript
 // Before:
 shouldShowGrid() {
@@ -58,10 +59,37 @@ shouldShowGrid() {
 }
 ```
 
+**코드 변경 2 - ui.js**:
+```javascript
+// Before:
+let currentMode = 'mobile';
+let shouldShowGrid = false;
+
+if (window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function') {
+  currentMode = window.ResponsiveDetector.getCurrentMode();
+  shouldShowGrid = ['tablet', 'hybrid', 'desktop', 'large'].includes(currentMode);
+} else {
+  const viewportWidth = window.innerWidth;
+  shouldShowGrid = viewportWidth >= 768;
+  currentMode = viewportWidth >= 768 ? 'desktop' : 'mobile';
+  console.warn('⚠️ [UI] ResponsiveDetector unavailable...');
+}
+
+// After:
+// 🔧 FIX: 모든 화면에서 스와이프 모드만 사용
+const currentMode = window.ResponsiveDetector && typeof window.ResponsiveDetector.getCurrentMode === 'function'
+  ? window.ResponsiveDetector.getCurrentMode()
+  : 'mobile';
+const shouldShowGrid = false; // 항상 스와이프 모드
+
+console.log('📱 [UI] Current mode:', currentMode, '| Show grid:', shouldShowGrid, '(forced swiper mode)');
+```
+
 **기술적 성과**:
 - ✅ 모든 디바이스에서 일관된 UX (카드 1개 + 스와이프)
-- ✅ 그리드 레이아웃 완전 비활성화
+- ✅ 그리드 레이아웃 완전 비활성화 (CardGridManager + ui.js 모두)
 - ✅ 반응형 전환 로직 제거로 단순화
+- ✅ 브라우저 캐시 문제 해결 (두 파일 모두 수정하여 확실성 확보)
 
 ---
 
