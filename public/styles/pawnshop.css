@@ -147,12 +147,12 @@
 }
 
 .dbety-comment {
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
   line-height: 1.6;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 더 진한 그림자로 가독성 향상 */
 }
 
 /* Three Action Buttons */
@@ -207,14 +207,15 @@
 .action-label {
   flex: 1;
   margin-left: 1rem;
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 1rem;
   font-weight: 600;
   text-align: left;
   line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal; /* ✅ FIX: 텍스트 줄바꿈 허용 */
+  overflow: visible; /* ✅ FIX: 텍스트 보이도록 */
+  text-overflow: clip;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 /* ===== Modal Base Styles ===== */
@@ -352,10 +353,11 @@
 
 .dbety-comment-text {
   flex: 1;
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .photo-upload-area {
@@ -387,9 +389,10 @@
 }
 
 .upload-text {
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 1.1rem;
   font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .photo-preview-area {
@@ -507,19 +510,21 @@
 }
 
 .info-type-title {
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal; /* ✅ FIX: 텍스트 줄바꿈 허용 */
+  overflow: visible;
+  text-overflow: clip;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .info-type-reward {
-  color: #FFA500;
+  color: #FFA500 !important; /* ✅ FIX: 오렌지 색상 강제 적용 */
   font-size: 1.1rem;
   font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .info-input-area {
@@ -597,17 +602,19 @@
 
 .pawnshop-card-name {
   text-align: center;
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .pawnshop-card-info {
   text-align: center;
-  color: #ffffff;
+  color: #ffffff !important; /* ✅ FIX: 흰색 강제 적용 */
   font-size: 0.9rem;
   line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .loading-placeholder,
@@ -649,9 +656,10 @@
 }
 
 .summary-label {
-  color: #ffffff;
+  color: #ffffff !important; /* ✅ FIX: 흰색 강제 적용 */
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .summary-value {
@@ -698,18 +706,20 @@
 }
 
 .transaction-type {
-  color: #FFD700;
+  color: #FFD700 !important; /* ✅ FIX: 골드 색상 강제 적용 */
   font-weight: 600;
   margin-bottom: 0.25rem;
   font-size: 0.95rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal; /* ✅ FIX: 텍스트 줄바꿈 허용 */
+  overflow: visible;
+  text-overflow: clip;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .transaction-date {
-  color: #ffffff;
+  color: #ffffff !important; /* ✅ FIX: 흰색 강제 적용 */
   font-size: 0.85rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* ✅ FIX: 가독성 향상 */
 }
 
 .transaction-amount {
