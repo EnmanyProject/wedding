@@ -658,12 +658,14 @@ class RingSystemDemo extends RingSystem {
     }
 
     async checkDailyLogin() {
+        // 🔧 DEV MODE: Daily login modal disabled for development
         // Simulate daily login bonus in demo mode
-        setTimeout(() => {
-            this.showDailyLoginBonus(25, 3);
-            this.updateBalance(175, 225, 50);
-            console.log('💍 Demo: Daily login bonus awarded - 25 rings');
-        }, 3000);
+        // setTimeout(() => {
+        //     this.showDailyLoginBonus(25, 3);
+        //     this.updateBalance(175, 225, 50);
+        //     console.log('💍 Demo: Daily login bonus awarded - 25 rings');
+        // }, 3000);
+        console.log('💍 Dev Mode: Daily login bonus disabled');
     }
 
     async awardQuizRings(correct, metadata = {}) {

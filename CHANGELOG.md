@@ -30,6 +30,20 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.62.27 (2025-10-15) - 개발 모드 UX 개선
+
+**작업 내용**:
+- **일일 로그인 모달 비활성화 (개발 모드)**: `ring-system.js`의 `RingSystemDemo.checkDailyLogin()` 메서드에서 3초 후 모달을 띄우는 로직을 주석 처리하여 개발 중 방해 요소 제거
+- **화살표 네비게이션 완전 제거**: `index.html`에서 `.partner-swiper-controls` HTML 구조를 완전히 주석 처리 (v1.62.26에서 CSS로만 숨긴 것을 DOM에서 완전 제거)
+
+**수정 파일**:
+- `public/js/utils/ring-system.js` (Lines 660-669)
+- `public/index.html` (Lines 160-166)
+
+**Git**: `[커밋 후 추가 예정]`
+
+---
+
 ### v1.62.26 (2025-10-15) - Simplify Pagination & Remove Arrow Navigation
 
 **작업 내용**:
