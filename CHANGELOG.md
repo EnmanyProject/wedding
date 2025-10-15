@@ -30,7 +30,62 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
-### v1.62.41 (2025-10-15) - D-Bety 전당포 모달 개선 작업 (진행 중)
+### v1.62.42 (2025-10-16) - Phase 1: 모든 모달 일관성 개선 완료 ✅
+
+**작업 내용**:
+
+#### 1️⃣ Quiz/Result 모달 개선
+- **파일**: `public/js/quiz.js`
+- **적용 위치**: 라인 8, 93-99, 373-378, 391-396, 538-544, 667-673
+- ✅ `modalOpenTime` 타임스탬프 추가
+- ✅ `requestAnimationFrame` 사용 (4곳)
+- ✅ ESC/백드롭 클릭 200ms 보호
+- ✅ `stopPropagation()` 이벤트 전파 방지
+
+#### 2️⃣ D-Bety 모달 개선
+- **파일**: `public/js/dbety-specials.js`
+- **적용 위치**: 라인 14, 83-98, 112, 145-152, 47-60
+- ✅ `modalOpenTime` 타임스탬프 추가
+- ✅ `requestAnimationFrame` 사용
+- ✅ ESC 키 200ms 보호
+- ✅ 백드롭 클릭 200ms 보호
+- ✅ `aria-hidden` 속성 추가
+
+#### 3️⃣ Pawnshop 모달 타이밍 조정
+- **파일**: `public/js/pawnshop.js`
+- **적용 위치**: 라인 124, 143
+- ✅ 500ms → 200ms 변경 (User Profile Modal과 일관성)
+
+#### 4️⃣ 접근성 개선
+- **파일**: `public/index.html`
+- **적용 위치**: 라인 376-377, 504, 546, 588, 609, 465
+- ✅ `result-modal`: `aria-modal`, `aria-labelledby`, `aria-hidden`, overlay 추가
+- ✅ Pawnshop 모달 4개: `aria-hidden` 추가
+- ✅ `dbety-special-modal`: `aria-hidden` 추가
+
+#### 5️⃣ 불필요한 모달 제거
+- **파일**: `public/index.html`
+- **적용 위치**: 라인 309-323 (제거됨)
+- ✅ `character-selection-modal` 사용하지 않아 완전 제거
+
+**기술적 성과**:
+- ✅ 모든 모달이 v1.62.40 User Profile Modal과 동일한 패턴 사용
+- ✅ 200ms 타이밍 보호 통일 (일관성 확보)
+- ✅ requestAnimationFrame으로 렌더링 최적화
+- ✅ 접근성 표준 준수 (ARIA 속성)
+- ✅ 이벤트 전파 방지로 예측 가능한 동작
+
+**수정된 파일**:
+- `public/js/quiz.js` (Quiz/Result 모달 완전 개선)
+- `public/js/dbety-specials.js` (D-Bety 모달 완전 개선)
+- `public/js/pawnshop.js` (타이밍 200ms로 조정)
+- `public/index.html` (접근성 속성 추가, 불필요한 모달 제거)
+
+**Git**: (커밋 예정)
+
+---
+
+### v1.62.41 (2025-10-15) - D-Bety 전당포 모달 개선 작업 (완료)
 
 **작업 내용**:
 - **🎨 텍스트 가시성 개선**: D-Bety 전당포 모든 텍스트 요소에 흰색/골드 색상 강제 적용
