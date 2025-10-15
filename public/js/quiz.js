@@ -171,7 +171,7 @@ class QuizManager {
       const photosHTML = targetInfo.photos && Array.isArray(targetInfo.photos) && targetInfo.photos.length > 0
         ? `<div class="target-photos">
             ${targetInfo.photos.slice(0, 3).map(photo =>
-              `<img src="/api/assets/${photo.storage_key}" alt="타겟 사진" class="target-photo">`
+              `<img src="${photo.storage_key}" alt="타겟 사진" class="target-photo">`
             ).join('')}
           </div>`
         : '';

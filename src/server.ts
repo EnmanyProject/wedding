@@ -149,8 +149,9 @@ app.get('/api/assets/*', async (req, res) => {
     // Generate presigned download URL
     const downloadUrl = await storageService.generatePresignedDownloadUrl(storageKey);
 
-    // Fix SSL protocol error: Convert HTTPS to HTTP for localhost MinIO
-    const httpUrl = downloadUrl.replace('https://localhost:9000', 'http://localhost:9000');
+    // Fix SSL protocol error: Convert HTTPS to HTTP for all localhost ports
+    // (MinIO port 9000 and app server port 3002)
+    const httpUrl = downloadUrl.replace(/https:\/\/localhost:/g, 'http://localhost:');
 
     // Redirect to the presigned URL
     res.redirect(httpUrl);

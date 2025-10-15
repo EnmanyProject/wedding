@@ -56,6 +56,12 @@ class LocalStorageService implements IStorageService {
    * Get public URL path
    */
   private getPublicUrl(storageKey: string): string {
+    // ✅ FIX: Development environment needs absolute HTTP URL to avoid SSL protocol errors
+    // Browser interprets relative URLs using current page protocol (HTTPS), but server is HTTP-only
+    if (config.NODE_ENV === 'development') {
+      return `http://localhost:${config.PORT}/uploads/${storageKey}`;
+    }
+    // Production: Return relative path (HTTPS will be handled by reverse proxy)
     return `/uploads/${storageKey}`;
   }
 

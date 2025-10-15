@@ -480,11 +480,19 @@ export class QuizService {
         );
         console.log('📊 [QuizService] 타겟 유저 사진 수:', photos.length);
 
+        // ✅ FIX: Convert storage_key to full HTTP URL for development environment
+        const photosWithUrls = photos.map((photo: any) => ({
+          ...photo,
+          storage_key: config.NODE_ENV === 'development'
+            ? `http://localhost:${config.PORT}/api/assets/${photo.storage_key}`
+            : `/api/assets/${photo.storage_key}`
+        }));
+
         targetInfo = {
           user_id: target.id,
           name: target.name,
           display_name: target.display_name,
-          photos: photos
+          photos: photosWithUrls
         };
         console.log('✅ [QuizService] 타겟 정보 구성 완료:', {
           user_id: targetInfo.user_id,

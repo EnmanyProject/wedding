@@ -470,7 +470,8 @@ class APIService {
     if (targetId) params.append('target_id', targetId);
 
     const query = params.toString() ? `?${params}` : '';
-    return this.request(`/quiz/template${query}`);
+    // ✅ FIX: Bypass cache for quiz templates to get new random quiz each time
+    return this.request(`/quiz/template${query}`, { bypassCache: true });
   }
 
   async endQuizSession(sessionId) {
