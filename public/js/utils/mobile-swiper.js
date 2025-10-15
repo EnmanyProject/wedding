@@ -136,20 +136,30 @@ export class MobileSwiper {
 
       if (this.hasMovedEnough) {
         this.handleSwipeEnd(diffX, timeDiff);
+
+        // Record swipe timestamp for click conflict prevention
+        if (window.ui) {
+          window.ui.lastSwipeTime = Date.now();
+        }
       }
 
       this.hasMovedEnough = false;
     };
 
+    // Store handlers for cleanup
+    this.handleStart = handleStart;
+    this.handleMove = handleMove;
+    this.handleEnd = handleEnd;
+
     // Mouse events
-    this.container.addEventListener('mousedown', handleStart);
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', handleEnd);
+    this.container.addEventListener('mousedown', this.handleStart);
+    document.addEventListener('mousemove', this.handleMove);
+    document.addEventListener('mouseup', this.handleEnd);
 
     // Touch events
-    this.container.addEventListener('touchstart', handleStart, { passive: false });
-    this.container.addEventListener('touchmove', handleMove, { passive: false });
-    this.container.addEventListener('touchend', handleEnd);
+    this.container.addEventListener('touchstart', this.handleStart, { passive: false });
+    this.container.addEventListener('touchmove', this.handleMove, { passive: false });
+    this.container.addEventListener('touchend', this.handleEnd);
   }
 
   /**
@@ -250,6 +260,11 @@ export class MobileSwiper {
       return; // No change
     }
 
+    // Haptic feedback (iOS/Android)
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+
     this.updatePosition(true);
     this.updateNavigationButtons();
     this.updatePagination();
@@ -317,22 +332,34 @@ export class MobileSwiper {
     const pagination = document.querySelector(this.config.paginationSelector);
     if (!pagination) return;
 
-    // Clear existing dots
-    pagination.innerHTML = '';
+    const existingDots = pagination.querySelectorAll('.pagination-dot');
 
-    // Create new dots
-    for (let i = 0; i < this.totalItems; i++) {
-      const dot = document.createElement('button');
-      dot.className = 'pagination-dot';
-      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    // Reuse existing dots if count matches
+    if (existingDots.length === this.totalItems) {
+      existingDots.forEach((dot, i) => {
+        const isActive = i === this.currentIndex;
+        dot.classList.toggle('active', isActive);
+        dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+      });
+    } else {
+      // Recreate dots only if count changed
+      pagination.innerHTML = '';
 
-      if (i === this.currentIndex) {
-        dot.classList.add('active');
-        dot.setAttribute('aria-current', 'true');
+      for (let i = 0; i < this.totalItems; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'pagination-dot';
+        dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+
+        if (i === this.currentIndex) {
+          dot.classList.add('active');
+          dot.setAttribute('aria-current', 'true');
+        } else {
+          dot.setAttribute('aria-current', 'false');
+        }
+
+        dot.addEventListener('click', () => this.goTo(i));
+        pagination.appendChild(dot);
       }
-
-      dot.addEventListener('click', () => this.goTo(i));
-      pagination.appendChild(dot);
     }
   }
 
@@ -454,7 +481,28 @@ export class MobileSwiper {
   destroy() {
     this.stopAutoPlay();
     this.clearResumeTimer();
-    // Remove event listeners (would need to store handlers for proper cleanup)
+
+    // Remove event listeners
+    if (this.container && this.handleStart) {
+      this.container.removeEventListener('mousedown', this.handleStart);
+      this.container.removeEventListener('touchstart', this.handleStart);
+    }
+
+    if (this.handleMove) {
+      document.removeEventListener('mousemove', this.handleMove);
+      document.removeEventListener('touchmove', this.handleMove);
+    }
+
+    if (this.handleEnd) {
+      document.removeEventListener('mouseup', this.handleEnd);
+      document.removeEventListener('touchend', this.handleEnd);
+    }
+
+    // Clear handler references
+    this.handleStart = null;
+    this.handleMove = null;
+    this.handleEnd = null;
+
     this.isInitialized = false;
     this.container = null;
     this.prevBtn = null;

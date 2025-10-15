@@ -27,7 +27,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Hide scrollbar */
+/* Hide scrollbar - All browsers */
+.mobile-partner-swiper {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
 .mobile-partner-swiper::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
@@ -61,6 +66,7 @@
   transition: transform 0.2s ease;
   scroll-snap-align: center;
   scroll-snap-stop: always;
+  contain: layout style paint; /* Performance: Layout isolation */
 }
 
 .partner-card:active {
@@ -629,6 +635,15 @@
 /* ==========================================
    반응형 디자인 - 모바일 최적화
    ========================================== */
+
+/* Intermediate - Tablet landscape */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .mobile-partner-swiper {
+    height: 560px;
+  }
+}
+
+/* Tablet portrait */
 @media (max-width: 768px) {
   .mobile-partner-swiper {
     max-width: 100%;
@@ -709,6 +724,14 @@
   }
 }
 
+/* Intermediate - Small mobile */
+@media (max-width: 640px) and (min-width: 481px) {
+  .mobile-partner-swiper {
+    height: 520px;
+  }
+}
+
+/* Small mobile */
 @media (max-width: 480px) {
   .mobile-partner-swiper {
     height: 500px; /* 🔧 INCREASED: 440px → 500px (카드 잘림 방지) */

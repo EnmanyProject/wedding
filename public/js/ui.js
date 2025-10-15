@@ -1161,6 +1161,12 @@ class UIManager {
     const partnerCards = cardsContainer.querySelectorAll('.partner-card');
     partnerCards.forEach(card => {
       card.addEventListener('click', (e) => {
+        // Check if swipe just happened (within last 200ms)
+        if (this.lastSwipeTime && Date.now() - this.lastSwipeTime < 200) {
+          console.log('❌ [Click] 스와이프 직후 클릭 무시 (200ms 이내)');
+          return;
+        }
+
         console.log('🎯 [Click] 카드 클릭 감지:', {
           isPartnerSwiping: this.isPartnerSwiping,
           userId: card.getAttribute('data-user-id'),
