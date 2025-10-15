@@ -31,6 +31,7 @@
       this.selectedPhoto = null;
       this.mockTransactions = [];
       this.mockUsers = [];
+      this.modalOpenTime = 0; // ✅ FIX: 모달 타이밍 보호
 
       // Ring 화폐 시스템 참조
       this.ringSystem = window.RingSystem;
@@ -103,15 +104,23 @@
       const overlays = document.querySelectorAll('.pawnshop-modal-overlay');
       overlays.forEach(overlay => {
         overlay.addEventListener('click', (e) => {
-          const modal = e.target.closest('.pawnshop-modal');
-          this.closeModal(modal);
+          // ✅ FIX: 200ms 보호 - 모달 열린 직후 클릭 무시
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            const modal = e.target.closest('.pawnshop-modal');
+            this.closeModal(modal);
+          }
         });
       });
 
       // ESC 키로 닫기
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          this.closeAllModals();
+          // ✅ FIX: 200ms 보호 - 모달 열린 직후 ESC 무시
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            this.closeAllModals();
+          }
         }
       });
 
@@ -566,8 +575,15 @@
      */
     openModal(modal) {
       if (!modal) return;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
+
+      // ✅ FIX: 타임스탬프 먼저 기록
+      this.modalOpenTime = Date.now();
+
+      // ✅ FIX: requestAnimationFrame으로 타이밍 개선
+      requestAnimationFrame(() => {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      });
     }
 
     /**
