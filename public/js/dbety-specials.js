@@ -11,6 +11,7 @@
     let modalOverlay = null;
     let modalClose = null;
     let recButtons = [];
+    let modalOpenTime = 0; // ✅ FIX: 모달 타이밍 보호
 
     /**
      * Initialize D-Bety Special Modal
@@ -42,10 +43,20 @@
             console.log('✅ [D-Bety Special] Close button bound');
         }
 
-        // Bind overlay click
-        if (modalOverlay) {
-            modalOverlay.addEventListener('click', closeModal);
-            console.log('✅ [D-Bety Special] Overlay click bound');
+        // ✅ FIX: 백드롭 클릭 처리 (200ms 보호)
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+                    const timeSinceOpen = Date.now() - modalOpenTime;
+                    if (timeSinceOpen > 200) {
+                        closeModal();
+                    } else {
+                        console.log('⏱️ [D-Bety Special] Click ignored - too soon after open (' + timeSinceOpen + 'ms < 200ms)');
+                    }
+                }
+            });
+            console.log('✅ [D-Bety Special] Backdrop click bound');
         }
 
         // Bind recommendation buttons
@@ -78,17 +89,23 @@
             return;
         }
 
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Prevent body scroll
+        // ✅ FIX: 타임스탬프 먼저 기록
+        modalOpenTime = Date.now();
 
-        // Focus trap
-        setTimeout(() => {
-            if (modalClose) {
-                modalClose.focus();
-            }
-        }, 100);
+        // ✅ FIX: requestAnimationFrame 사용
+        requestAnimationFrame(() => {
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false'); // ✅ FIX: 접근성 개선
+            document.body.style.overflow = 'hidden'; // Prevent body scroll
+            console.log('✅ [D-Bety Special] Modal opened');
 
-        console.log('✅ [D-Bety Special] Modal opened');
+            // ✅ FIX: 포커스 관리 개선
+            requestAnimationFrame(() => {
+                if (modalClose) {
+                    modalClose.focus();
+                }
+            });
+        });
     }
 
     /**
@@ -102,6 +119,7 @@
         }
 
         modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true'); // ✅ FIX: 접근성 개선
         document.body.style.overflow = ''; // Restore body scroll
 
         // Return focus to nav button
@@ -133,9 +151,14 @@
      * Handle keyboard events
      */
     function handleKeyDown(event) {
-        // ESC key closes modal
+        // ✅ FIX: ESC 키 200ms 보호
         if (event.key === 'Escape' && modal && modal.style.display === 'flex') {
-            closeModal();
+            const timeSinceOpen = Date.now() - modalOpenTime;
+            if (timeSinceOpen > 200) {
+                closeModal();
+            } else {
+                console.log('⏱️ [D-Bety Special] ESC ignored - too soon after open (' + timeSinceOpen + 'ms < 200ms)');
+            }
         }
     }
 

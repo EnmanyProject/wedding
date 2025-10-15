@@ -306,22 +306,6 @@
             </div>
         </main>
 
-        <!-- Character Selection Modal -->
-        <div id="character-selection-modal" class="modal character-selection-modal" role="dialog" aria-labelledby="character-selection-title" aria-modal="true" aria-hidden="true">
-            <div class="modal-overlay" aria-hidden="true"></div>
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="character-selection-title">🎭 퀴즈 캐릭터 선택</h3>
-                    <button class="modal-close" aria-label="캐릭터 선택 닫기">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div id="character-selection-content">
-                        <!-- Character selection content will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Quiz Modal -->
         <div id="quiz-modal" class="modal quiz-modal" role="dialog" aria-labelledby="quiz-modal-title" aria-modal="true" aria-hidden="true">
             <div class="modal-overlay" aria-hidden="true"></div>
@@ -373,10 +357,12 @@
         </div>
 
         <!-- Result Modal -->
-        <div id="result-modal" class="modal result-modal">
+        <div id="result-modal" class="modal result-modal" role="dialog" aria-labelledby="result-title" aria-modal="true" aria-hidden="true">
+            <div class="modal-overlay" aria-hidden="true"></div>
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="result-title">퀴즈 결과</h3>
+                    <button class="modal-close" aria-label="결과 닫기">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div class="result-content">
@@ -460,7 +446,7 @@
     </div>
 
     <!-- D-Bety Special Recommendations Modal -->
-    <div id="dbety-special-modal" class="dbety-modal" role="dialog" aria-labelledby="dbety-modal-title" aria-modal="true" style="display: none;">
+    <div id="dbety-special-modal" class="dbety-modal" role="dialog" aria-labelledby="dbety-modal-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="dbety-modal-overlay"></div>
         <div class="dbety-modal-content">
             <div class="dbety-modal-header">
@@ -499,7 +485,7 @@
     </div>
 
     <!-- 1. 사진 업로드 모달 (Pawn Photo Modal) -->
-    <div id="pawn-photo-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-photo-title" aria-modal="true" style="display: none;">
+    <div id="pawn-photo-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-photo-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="pawnshop-modal-overlay"></div>
         <div class="pawnshop-modal-content">
             <div class="pawnshop-modal-header">
@@ -541,7 +527,7 @@
     </div>
 
     <!-- 2. 정보 맡기기 모달 (Pawn Info Modal) -->
-    <div id="pawn-info-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-info-title" aria-modal="true" style="display: none;">
+    <div id="pawn-info-modal" class="pawnshop-modal" role="dialog" aria-labelledby="pawn-info-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="pawnshop-modal-overlay"></div>
         <div class="pawnshop-modal-content">
             <div class="pawnshop-modal-header">
@@ -583,7 +569,7 @@
     </div>
 
     <!-- 3. 다른 사람 정보 보기 모달 (View Others Modal) -->
-    <div id="view-others-modal" class="pawnshop-modal" role="dialog" aria-labelledby="view-others-title" aria-modal="true" style="display: none;">
+    <div id="view-others-modal" class="pawnshop-modal" role="dialog" aria-labelledby="view-others-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="pawnshop-modal-overlay"></div>
         <div class="pawnshop-modal-content">
             <div class="pawnshop-modal-header">
@@ -604,7 +590,7 @@
     </div>
 
     <!-- 4. 거래 내역 모달 (Bankbook Modal) -->
-    <div id="bankbook-modal" class="pawnshop-modal bankbook-modal" role="dialog" aria-labelledby="bankbook-title" aria-modal="true" style="display: none;">
+    <div id="bankbook-modal" class="pawnshop-modal bankbook-modal" role="dialog" aria-labelledby="bankbook-title" aria-modal="true" aria-hidden="true" style="display: none;">
         <div class="pawnshop-modal-overlay"></div>
         <div class="pawnshop-modal-content">
             <div class="pawnshop-modal-header">

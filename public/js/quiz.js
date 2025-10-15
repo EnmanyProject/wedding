@@ -5,6 +5,7 @@ class QuizManager {
     this.currentTemplate = null;
     this.currentTargetId = null;
     this.selectedOption = null;
+    this.modalOpenTime = 0; // ✅ FIX: 모달 타이밍 보호
     this.init();
   }
 
@@ -48,7 +49,19 @@ class QuizManager {
   setupQuizEvents() {
     // Keyboard support for quiz options
     document.addEventListener('keydown', (e) => {
-      if (document.getElementById('quiz-modal').classList.contains('active')) {
+      const quizModal = document.getElementById('quiz-modal');
+      const resultModal = document.getElementById('result-modal');
+
+      if (quizModal && quizModal.classList.contains('active')) {
+        // ✅ FIX: ESC 키 200ms 보호
+        if (e.key === 'Escape') {
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            ui.closeModal('quiz-modal');
+          }
+          return;
+        }
+
         if (e.key === 'ArrowLeft' || e.key === '1') {
           this.selectOption('LEFT');
         } else if (e.key === 'ArrowRight' || e.key === '2') {
@@ -57,7 +70,45 @@ class QuizManager {
           this.submitAnswer();
         }
       }
+
+      // ✅ FIX: Result 모달 ESC 처리
+      if (resultModal && resultModal.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            ui.closeModal('result-modal');
+          }
+        }
+      }
     });
+
+    // ✅ FIX: 백드롭 클릭 처리 (quiz-modal)
+    const quizModal = document.getElementById('quiz-modal');
+    if (quizModal) {
+      quizModal.addEventListener('click', (e) => {
+        if (e.target === quizModal) {
+          e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            ui.closeModal('quiz-modal');
+          }
+        }
+      });
+    }
+
+    // ✅ FIX: 백드롭 클릭 처리 (result-modal)
+    const resultModal = document.getElementById('result-modal');
+    if (resultModal) {
+      resultModal.addEventListener('click', (e) => {
+        if (e.target === resultModal) {
+          e.stopPropagation(); // ✅ FIX: 이벤트 전파 방지
+          const timeSinceOpen = Date.now() - this.modalOpenTime;
+          if (timeSinceOpen > 200) {
+            ui.closeModal('result-modal');
+          }
+        }
+      });
+    }
   }
 
   // Note: startRandomQuiz is no longer used for main UI
@@ -88,8 +139,14 @@ class QuizManager {
       const modal = document.getElementById('quiz-modal');
       console.log('🎯 [Quiz] 모달 요소 확인:', modal);
 
-      ui.openModal('quiz-modal');
-      console.log('🎯 [Quiz] 모달 열기 완료');
+      // ✅ FIX: 타임스탬프 먼저 기록
+      this.modalOpenTime = Date.now();
+
+      // ✅ FIX: requestAnimationFrame 사용
+      requestAnimationFrame(() => {
+        ui.openModal('quiz-modal');
+        console.log('🎯 [Quiz] 모달 열기 완료');
+      });
     } catch (error) {
       console.error('🎯 [Quiz] Error starting quiz:', error);
       if (error.message.includes('Insufficient points') || error.message.includes('포인트가 부족')) {
@@ -312,7 +369,13 @@ class QuizManager {
     }
 
     // Show result modal
-    ui.openModal('result-modal');
+    // ✅ FIX: 타임스탬프 먼저 기록
+    this.modalOpenTime = Date.now();
+
+    // ✅ FIX: requestAnimationFrame 사용
+    requestAnimationFrame(() => {
+      ui.openModal('result-modal');
+    });
   }
 
   // Continue quiz with same target
@@ -324,7 +387,13 @@ class QuizManager {
       await this.loadQuizTemplate();
 
       // Show quiz modal again
-      ui.openModal('quiz-modal');
+      // ✅ FIX: 타임스탬프 먼저 기록
+      this.modalOpenTime = Date.now();
+
+      // ✅ FIX: requestAnimationFrame 사용
+      requestAnimationFrame(() => {
+        ui.openModal('quiz-modal');
+      });
     } catch (error) {
       console.error('Error continuing quiz:', error);
       ui.showToast('퀴즈 계속하기 실패', 'error');
@@ -465,8 +534,14 @@ class QuizManager {
       this.loadAdminQuizTemplate(quizData.data);
 
       // Show quiz modal
-      ui.openModal('quiz-modal');
-      console.log('🎯 [AdminQuiz] 어드민 퀴즈 모달 열기 완료');
+      // ✅ FIX: 타임스탬프 먼저 기록
+      this.modalOpenTime = Date.now();
+
+      // ✅ FIX: requestAnimationFrame 사용
+      requestAnimationFrame(() => {
+        ui.openModal('quiz-modal');
+        console.log('🎯 [AdminQuiz] 어드민 퀴즈 모달 열기 완료');
+      });
 
       ui.showToast('🎭 베티의 특별 퀴즈가 시작됩니다!', 'info');
     } catch (error) {
@@ -588,9 +663,14 @@ class QuizManager {
     if (unlockMessage) unlockMessage.style.display = 'none';
 
     // Show result modal
-    ui.openModal('result-modal');
+    // ✅ FIX: 타임스탬프 먼저 기록
+    this.modalOpenTime = Date.now();
 
-    console.log('🎯 [AdminQuiz] 결과 표시 완료');
+    // ✅ FIX: requestAnimationFrame 사용
+    requestAnimationFrame(() => {
+      ui.openModal('result-modal');
+      console.log('🎯 [AdminQuiz] 결과 표시 완료');
+    });
   }
 }
 

@@ -118,15 +118,15 @@
         overlay.addEventListener('click', (e) => {
           // ✅ FIX: 오버레이 자체를 클릭한 경우만 닫기
           if (e.target === overlay) {
-            // ✅ FIX: 500ms 보호 - 모달 열린 직후 클릭 무시 (200ms → 500ms)
+            // ✅ FIX: 200ms 보호 - 모달 열린 직후 클릭 무시
             const timeSinceOpen = Date.now() - this.modalOpenTime;
             console.log('🕐 [Pawnshop] Overlay clicked - time since open:', timeSinceOpen + 'ms');
-            if (timeSinceOpen > 500) {
+            if (timeSinceOpen > 200) {
               const modal = overlay.closest('.pawnshop-modal');
               console.log('🚪 [Pawnshop] Closing modal via overlay click');
               this.closeModal(modal);
             } else {
-              console.log('⏱️ [Pawnshop] Overlay click ignored - too soon after open (' + timeSinceOpen + 'ms < 500ms)');
+              console.log('⏱️ [Pawnshop] Overlay click ignored - too soon after open (' + timeSinceOpen + 'ms < 200ms)');
             }
           } else {
             console.log('🎯 [Pawnshop] Click target is not overlay, ignoring');
@@ -137,14 +137,14 @@
       // ESC 키로 닫기
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          // ✅ FIX: 500ms 보호 - 모달 열린 직후 ESC 무시 (200ms → 500ms)
+          // ✅ FIX: 200ms 보호 - 모달 열린 직후 ESC 무시
           const timeSinceOpen = Date.now() - this.modalOpenTime;
           console.log('⌨️ [Pawnshop] ESC pressed - time since open:', timeSinceOpen + 'ms');
-          if (timeSinceOpen > 500) {
+          if (timeSinceOpen > 200) {
             console.log('🚪 [Pawnshop] Closing modal via ESC key');
             this.closeAllModals();
           } else {
-            console.log('⏱️ [Pawnshop] ESC ignored - too soon after open (' + timeSinceOpen + 'ms < 500ms)');
+            console.log('⏱️ [Pawnshop] ESC ignored - too soon after open (' + timeSinceOpen + 'ms < 200ms)');
           }
         }
       });
