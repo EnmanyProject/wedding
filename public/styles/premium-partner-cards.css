@@ -7,7 +7,7 @@
   position: relative;
   width: 100%;
   max-width: 400px;
-  height: 580px; /* 🔧 INCREASED: 520px → 580px (카드 잘림 방지) */
+  height: 500px; /* 🔧 OPTIMIZED: 580px → 500px (빈 공간 제거) */
   margin: 2rem auto;
   padding: 0;
   overflow-x: scroll;
@@ -639,7 +639,7 @@
 /* Intermediate - Tablet landscape */
 @media (max-width: 1024px) and (min-width: 769px) {
   .mobile-partner-swiper {
-    height: 560px;
+    height: 490px; /* 🔧 OPTIMIZED: 560px → 490px (빈 공간 제거) */
   }
 }
 
@@ -648,7 +648,7 @@
   .mobile-partner-swiper {
     max-width: 100%;
     width: 100%;
-    height: 540px; /* 🔧 INCREASED: 480px → 540px (카드 잘림 방지) */
+    height: 480px; /* 🔧 OPTIMIZED: 540px → 480px (빈 공간 제거) */
     margin: 1rem 10px;
     border-radius: 20px;
   }
@@ -727,14 +727,14 @@
 /* Intermediate - Small mobile */
 @media (max-width: 640px) and (min-width: 481px) {
   .mobile-partner-swiper {
-    height: 520px;
+    height: 470px; /* 🔧 OPTIMIZED: 520px → 470px (빈 공간 제거) */
   }
 }
 
 /* Small mobile */
 @media (max-width: 480px) {
   .mobile-partner-swiper {
-    height: 500px; /* 🔧 INCREASED: 440px → 500px (카드 잘림 방지) */
+    height: 460px; /* 🔧 OPTIMIZED: 500px → 460px (빈 공간 제거) */
     margin: 0.5rem 5px;
   }
 
