@@ -763,7 +763,8 @@ class UIManager {
       }
 
       modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+        // ✅ FIX 2: Only close if modal is fully active (prevent immediate close during opening)
+        if (e.target === modal && modal.classList.contains('active')) {
           this.closeModal(modal.id);
         }
       });
@@ -1161,6 +1162,9 @@ class UIManager {
     const partnerCards = cardsContainer.querySelectorAll('.partner-card');
     partnerCards.forEach(card => {
       card.addEventListener('click', (e) => {
+        // ✅ FIX 1: Prevent event bubbling to modal overlay
+        e.stopPropagation();
+
         // Check if swipe just happened (within last 200ms)
         if (this.lastSwipeTime && Date.now() - this.lastSwipeTime < 200) {
           console.log('❌ [Click] 스와이프 직후 클릭 무시 (200ms 이내)');
@@ -1213,6 +1217,13 @@ class UIManager {
       onInteraction: () => {
         this.isPartnerSwiping = true;
         this.onUserInteraction();
+
+        // ✅ FIX 3: Reset swipe flag after timeout to prevent permanent click blocking
+        clearTimeout(this.partnerSwipeResetTimer);
+        this.partnerSwipeResetTimer = setTimeout(() => {
+          this.isPartnerSwiping = false;
+          console.log('🔓 [Partner] Swipe flag reset - clicks enabled');
+        }, 300);
       },
 
       enableKeyboard: false, // Partner swiper doesn't use keyboard
