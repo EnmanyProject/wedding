@@ -1148,12 +1148,6 @@ class UIManager {
                 <span class="partner-stat-label">친밀도</span>
               </div>
             </div>
-            <div class="partner-actions">
-              <div class="partner-action-hint" id="hint-${index}" style="display: none;">
-                <span class="hint-icon">👆</span>
-                <span class="hint-text">카드를 눌러 퀴즈 시작</span>
-              </div>
-            </div>
           </div>
         </div>
       `;
@@ -1189,8 +1183,8 @@ class UIManager {
       });
     });
 
-    // 5초 후 힌트 표시 시작
-    this.startHintTimer();
+    // 🔧 HINT SYSTEM DISABLED: Causing card size changes (dynamic hint was expanding card height)
+    // this.startHintTimer();
   }
 
   // Initialize partner swiper functionality
@@ -1238,8 +1232,8 @@ class UIManager {
       // }, 3000);
     }, 100);
 
-    // Start hint timer
-    this.startHintTimer();
+    // 🔧 HINT SYSTEM DISABLED: Causing card size changes (dynamic hint was expanding card height)
+    // this.startHintTimer();
 
     // Setup resize handler
     this.setupPartnerResizeHandler();
