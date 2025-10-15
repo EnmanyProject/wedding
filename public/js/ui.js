@@ -1141,12 +1141,12 @@ class UIManager {
               <div class="partner-stat-item">
                 <span class="partner-stat-icon">🎯</span>
                 <span class="partner-stat-value">${target.quiz_count}</span>
-                <span class="partner-stat-label">퀴즈 참여</span>
+                <span class="partner-stat-label">퀴즈</span>
               </div>
               <div class="partner-stat-item">
                 <span class="partner-stat-icon">💕</span>
                 <span class="partner-stat-value">${target.affinity_score || 0}</span>
-                <span class="partner-stat-label">친밀도</span>
+                <span class="partner-stat-label">궁합</span>
               </div>
             </div>
           </div>
