@@ -148,6 +148,10 @@ class BattleRoyaleManager {
 
     this.modalOpenTime = Date.now();
 
+    // 배경 스크롤 방지 (모바일 터치 이벤트 경고 해결)
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
     requestAnimationFrame(() => {
       this.gameModal.style.display = 'flex';
       requestAnimationFrame(() => {
@@ -164,6 +168,10 @@ class BattleRoyaleManager {
    */
   closeGameModal() {
     console.log('🎮 [BattleRoyale] Closing game modal...');
+
+    // 배경 스크롤 복원 (모바일 터치 이벤트 경고 해결)
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
 
     // 접근성: 포커스를 body로 이동 (aria-hidden 에러 방지)
     if (document.activeElement && this.gameModal.contains(document.activeElement)) {
