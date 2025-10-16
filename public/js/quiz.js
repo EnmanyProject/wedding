@@ -399,8 +399,8 @@ class QuizManager {
         this.animateAffinityChange(oldAffinity, affinity_score);
       }
     } else {
-      // 오답 시: D-Bety 이미지 표시
-      resultIcon.innerHTML = '<img src="/images/d-bety.png" class="bety-sad" style="width: 100px; height: 100px;" alt="슬픈 D-Bety">';
+      // 오답 시: D-Bety 이미지 표시 (크기 증가)
+      resultIcon.innerHTML = '<img src="/images/d-bety.png" class="bety-sad" style="width: 150px; height: 150px;" alt="슬픈 D-Bety">';
 
       const quiz = this.currentTemplate.quiz;
       const correctAnswer = target_choice === 'LEFT'
