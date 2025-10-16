@@ -540,14 +540,23 @@ class BattleRoyaleManager {
       emotionalMessage = '모두 같은 선택을 했습니다! 🎉';
     }
 
-    // 결과 오버레이 추가 (100명 그리드 위에 표시)
+    // 결과 오버레이 추가 (퀴즈 창과 동일한 구조 사용)
     const resultsOverlay = document.createElement('div');
-    resultsOverlay.className = 'round-results-info-overlay';
+    resultsOverlay.className = 'quiz-overlay';
     resultsOverlay.innerHTML = `
-      <div class="round-results-info">
-        <h2>Round ${roundNumber} 결과</h2>
-        <p class="round-question">"${question.question}"</p>
-        <p class="user-choice">당신의 선택: <strong>${result.user_answer === 'LEFT' ? question.option_left : question.option_right}</strong></p>
+      <div class="battle-quiz-container">
+        <div class="quiz-header">
+          <h2>Round ${roundNumber} 결과</h2>
+          <p class="quiz-category">${question.category}</p>
+        </div>
+
+        <div class="quiz-question">
+          <p>"${question.question}"</p>
+        </div>
+
+        <div class="quiz-result-choice">
+          <p>당신의 선택: <strong>${result.user_answer === 'LEFT' ? question.option_left : question.option_right}</strong></p>
+        </div>
 
         <div class="elimination-summary">
           <div class="elimination-count">
@@ -557,7 +566,7 @@ class BattleRoyaleManager {
           <p class="emotional-message">${emotionalMessage}</p>
         </div>
 
-        <div class="continue-hint">
+        <div class="quiz-survivors-count">
           <p>탈락자들이 사라지는 것을 지켜보세요...</p>
         </div>
       </div>

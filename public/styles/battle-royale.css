@@ -459,6 +459,70 @@
   text-shadow: 0 0 10px rgba(255, 20, 147, 0.8);
 }
 
+/* Quiz Result Choice (사용자 선택 표시) */
+.quiz-result-choice {
+  text-align: center;
+  padding: 0.75rem;
+  background: rgba(255, 20, 147, 0.1);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.3);
+  margin-bottom: 1rem;
+}
+
+.quiz-result-choice p {
+  color: #FFF;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.quiz-result-choice strong {
+  color: #FFD700;
+  font-size: 1.2rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* Elimination Summary (탈락 정보) */
+.elimination-summary {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 0, 0, 0.15);
+  border: 2px solid rgba(255, 0, 0, 0.4);
+  border-radius: 15px;
+}
+
+.elimination-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.eliminated-icon {
+  font-size: 2rem;
+  animation: heartBeat 1s infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.eliminated-number {
+  color: #FF0000;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+}
+
+.elimination-summary .emotional-message {
+  color: #FFF;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+}
+
 /* =====================================================
    Round Results Info Overlay (라운드 결과 간단 메시지)
    ===================================================== */
