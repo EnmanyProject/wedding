@@ -59,6 +59,8 @@
     <link rel="stylesheet" href="/styles/dbety-specials.css?v=20251008">
     <!-- 🏦 전당포 시스템 스타일 -->
     <link rel="stylesheet" href="/styles/pawnshop.css?v=20251009">
+    <!-- 🎮 배틀 로얄 선호도 맞추기 스타일 -->
+    <link rel="stylesheet" href="/styles/battle-royale.css?v=20251016">
 
     <!-- 🎨 NEW: Unified Card System (Phase 1) -->
     <link rel="stylesheet" href="/styles/design-tokens.css?v=20251011">
@@ -169,7 +171,7 @@
 
                 <!-- D-Bety 100명 선보기 Section -->
                 <section class="dbety-showcase-section" aria-labelledby="dbety-showcase-title">
-                    <div class="dbety-showcase-card">
+                    <div class="dbety-showcase-card" id="battle-royale-trigger" style="cursor: pointer;">
                         <img src="/images/d-bety.png" alt="D-Bety" class="dbety-showcase-img">
                         <h3 id="dbety-showcase-title" class="dbety-showcase-text">100명과 동시에 선보기</h3>
                     </div>
@@ -642,6 +644,47 @@
         </div>
     </div>
 
+    <!-- 🎮 Battle Royale Entry Modal -->
+    <div id="battle-royale-entry-modal" class="battle-modal" role="dialog" aria-labelledby="battle-entry-title" aria-modal="true" style="display: none;">
+        <div class="battle-modal-overlay"></div>
+        <div class="battle-modal-content">
+            <button class="battle-modal-close" aria-label="닫기">&times;</button>
+
+            <!-- Bety Character -->
+            <div class="battle-entry-bety">
+                <img src="/images/Bety1.png" alt="Bety" class="bety-character">
+            </div>
+
+            <!-- Message -->
+            <div class="battle-entry-message">
+                <h2 id="battle-entry-title">이건 100명이 동시에 선을 보는거야</h2>
+                <p>5라운드 선호도 맞추기로 최고의 매칭을 찾아보세요!</p>
+            </div>
+
+            <!-- Cost -->
+            <div class="battle-entry-cost">
+                <span class="ring-icon">💍</span>
+                <span class="ring-amount">-100</span>
+            </div>
+
+            <!-- Entry Button -->
+            <button id="battle-entry-btn" class="battle-entry-button">
+                입장하기
+            </button>
+        </div>
+    </div>
+
+    <!-- 🎮 Battle Royale Game Modal (Waiting Room + Game + Result) -->
+    <div id="battle-royale-game-modal" class="battle-modal" role="dialog" aria-labelledby="battle-game-title" aria-modal="true" style="display: none;">
+        <div class="battle-modal-overlay"></div>
+        <div class="battle-modal-content">
+            <!-- Content will be dynamically replaced by JavaScript -->
+            <div id="battle-game-content">
+                <!-- Waiting Room, Game, or Result will be rendered here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container" role="region" aria-live="polite" aria-label="알림 메시지"></div>
 
@@ -702,6 +745,8 @@
     <script src="/js/dbety-specials.js"></script>
     <!-- 🏦 전당포 시스템 JavaScript -->
     <script src="/js/pawnshop.js"></script>
+    <!-- 🎮 배틀 로얄 선호도 맞추기 JavaScript -->
+    <script src="/js/battle-royale-quiz.js"></script>
     <!-- 🏗️ PHASE 2-6: Hybrid Design Managers -->
     <script src="/js/navigation-manager.js"></script>
     <script src="/js/card-grid-manager.js"></script>
