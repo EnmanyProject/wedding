@@ -93,13 +93,13 @@ export class BattleRoyaleService {
 
       console.log('✅ [BattleRoyale] Balance check passed:', balance.balance);
 
-      // 2. Deduct 100 Rings
+      // 2. Deduct Rings
       await client.query(
         'UPDATE user_ring_balances SET balance = balance - $1, updated_at = NOW() WHERE user_id = $2',
         [this.ENTRY_COST, userId]
       );
 
-      // Record transaction
+      // 3. Record transaction
       await client.query(
         `INSERT INTO user_ring_ledger (id, user_id, delta, reason, ref_id, created_at)
          VALUES ($1, $2, $3, $4, $5, NOW())`,

@@ -35,13 +35,13 @@ CREATE INDEX idx_user_pref_answers_pref ON user_preference_answers(preference_id
 CREATE TABLE IF NOT EXISTS battle_royale_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  status VARCHAR(20) NOT NULL DEFAULT 'active', -- 'active', 'completed', 'abandoned'
-  participants_count INT DEFAULT 100,
-  survivors_count INT,
-  current_round INT DEFAULT 1,
-  ring_cost INT DEFAULT 100,
-  created_at TIMESTAMP DEFAULT NOW(),
-  completed_at TIMESTAMP
+  cost INTEGER DEFAULT 100,
+  status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS', -- 'IN_PROGRESS', 'COMPLETED', 'ABANDONED'
+  current_round INTEGER DEFAULT 0,
+  total_rounds INTEGER DEFAULT 5,
+  final_survivor_count INTEGER,
+  started_at TIMESTAMP DEFAULT NOW(),
+  ended_at TIMESTAMP
 );
 
 -- 인덱스 추가
@@ -65,20 +65,19 @@ CREATE TABLE IF NOT EXISTS battle_royale_rounds (
 -- 인덱스 추가
 CREATE INDEX idx_br_rounds_session ON battle_royale_rounds(session_id);
 
--- 5. 배틀 로얄 생존자 테이블 (최종 생존자 추적)
+-- 5. 배틀 로얄 생존자 테이블 (라운드별 생존자 추적)
 CREATE TABLE IF NOT EXISTS battle_royale_survivors (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES battle_royale_sessions(id) ON DELETE CASCADE,
-  survivor_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  matching_score INT, -- 선택적: 매칭 점수
-  badge_awarded BOOLEAN DEFAULT TRUE, -- 배지 부여 여부
+  round_number INTEGER NOT NULL,
+  participant_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT NOW(),
-  UNIQUE(session_id, survivor_user_id)
+  UNIQUE(session_id, round_number, participant_id)
 );
 
 -- 인덱스 추가
 CREATE INDEX idx_br_survivors_session ON battle_royale_survivors(session_id);
-CREATE INDEX idx_br_survivors_user ON battle_royale_survivors(survivor_user_id);
+CREATE INDEX idx_br_survivors_participant ON battle_royale_survivors(participant_id);
 
 -- =====================================================
 -- 시드 데이터: 5개 선호 질문
