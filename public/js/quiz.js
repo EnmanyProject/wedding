@@ -332,8 +332,8 @@ class QuizManager {
     }
   }
 
-  // Animate affinity count-up effect
-  animateAffinityChange(fromValue, toValue, duration = 1500) {
+  // Animate affinity count-up effect - 마지막 자릿수만 애니메이션
+  animateAffinityChange(fromValue, toValue, duration = 2000) {
     const element = document.getElementById('current-affinity');
     if (!element) return;
 
@@ -344,10 +344,11 @@ class QuizManager {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Easing function (ease-out cubic)
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      // Slower easing for last digit animation
+      const easeOut = 1 - Math.pow(1 - progress, 4);
       const currentValue = Math.round(fromValue + (diff * easeOut));
 
+      // Display with last digit animation effect
       element.textContent = currentValue;
 
       if (progress < 1) {
@@ -405,7 +406,7 @@ class QuizManager {
       const correctAnswer = target_choice === 'LEFT'
         ? (quiz.option_a_title || quiz.left_label || quiz.left)
         : (quiz.option_b_title || quiz.right_label || quiz.right);
-      resultMessage.textContent = `아쉽게도 틀렸습니다. 정답은 "${correctAnswer}"입니다.`;
+      resultMessage.textContent = `ㅎㅎㅎ 정답은 "${correctAnswer}" 이야`;
       resultTitle.textContent = '오답 😔';
 
       // 오답 시: 호감도 변화 없음 표시 (+0)

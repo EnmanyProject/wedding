@@ -375,9 +375,12 @@
   50% { transform: translateY(-20px); }
 }
 
-/* D-Bety 슬픈 애니메이션 */
+/* D-Bety 슬픈 애니메이션 - 프레임 제거 */
 .bety-sad {
   animation: bety-sad-shake 0.5s ease-in-out 1 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 @keyframes bety-sad-shake {
@@ -451,34 +454,39 @@
   margin-left: 8px !important;
 }
 
-/* 결과 모달 버튼 스타일 */
+/* 결과 모달 버튼 스타일 - 검은색 배경 */
 .result-modal .btn {
-  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%) !important;
-  color: #000 !important;
+  background: #000 !important;
+  color: #FF69B4 !important;
   border: 2px solid #FF69B4 !important;
   font-weight: 700 !important;
   transition: all 0.3s ease !important;
 }
 
 .result-modal .btn:hover {
-  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%) !important;
+  background: #FF69B4 !important;
+  color: #000 !important;
   box-shadow: 0 0 20px rgba(255, 105, 180, 0.8) !important;
   transform: translateY(-2px) !important;
 }
 
 .result-modal .btn-secondary {
-  background: transparent !important;
+  background: #000 !important;
   color: #FF69B4 !important;
   border: 2px solid #FF69B4 !important;
 }
 
 .result-modal .btn-secondary:hover {
-  background: rgba(255, 105, 180, 0.2) !important;
-  color: #FF1493 !important;
-  border-color: #FF1493 !important;
+  background: #FF69B4 !important;
+  color: #000 !important;
+  border-color: #FF69B4 !important;
 }
 
-/* 언락 메시지 */
+/* 언락 메시지 - 완전 제거 */
+#unlock-message {
+  display: none !important;
+}
+
 .unlock-text {
   color: #FFD700 !important;
   font-weight: 700 !important;
