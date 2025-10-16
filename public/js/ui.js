@@ -1132,12 +1132,13 @@ class UIManager {
         console.warn('⚠️ [UI] 추천 시스템 오류, fallback 사용:', recError);
       }
 
-      // 2️⃣ Fallback: 추천이 없거나 실패 시 전체 사용자 표시
+      // 2️⃣ Fallback: 추천이 없거나 실패 시 전체 사용자 표시 (최대 5명으로 제한)
       console.log('🔄 [UI] 전체 퀴즈 대상 로딩 중...');
       const targetsData = await api.getAvailableQuizTargets();
-      const targets = targetsData.data.targets;
+      const targets = targetsData.data.targets.slice(0, 5);
 
-      console.log('👥 [UI] 로드된 사용자 수:', targets.length);
+      console.log('👥 [UI] 로드된 사용자 수:', targetsData.data.targets.length, '명');
+      console.log('✅ [UI] Fallback 파트너 5명으로 제한:', targets.length, '명');
       this.renderUserAvatars(targets);
 
     } catch (error) {
