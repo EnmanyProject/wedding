@@ -93,21 +93,24 @@
     align-items: center;
     justify-content: center;
     position: relative;
-}
-
-.blurred-profile-image {
     width: 180px;
     height: 180px;
-    min-width: 180px;
-    min-height: 180px;
-    object-fit: cover;
-    object-position: center;
+    overflow: hidden;
     border-radius: 50%;
-    filter: none;
-    opacity: 1;
     border: 4px solid rgba(255, 20, 147, 0.4);
     box-shadow: 0 15px 40px rgba(255, 20, 147, 0.5);
     animation: profilePulse 3s ease-in-out infinite;
+}
+
+.blurred-profile-image {
+    width: 220px;
+    height: 220px;
+    min-width: 220px;
+    min-height: 220px;
+    object-fit: cover;
+    object-position: center;
+    filter: none;
+    opacity: 1;
     display: block;
 }
 
@@ -301,11 +304,16 @@
         gap: 20px;
     }
 
-    .blurred-profile-image {
+    .profile-image-section {
         width: 170px;
         height: 170px;
-        min-width: 170px;
-        min-height: 170px;
+    }
+
+    .blurred-profile-image {
+        width: 210px;
+        height: 210px;
+        min-width: 210px;
+        min-height: 210px;
     }
 
     .profile-verification-section {
@@ -355,11 +363,16 @@
         gap: 18px;
     }
 
-    .blurred-profile-image {
+    .profile-image-section {
         width: 160px;
         height: 160px;
-        min-width: 160px;
-        min-height: 160px;
+    }
+
+    .blurred-profile-image {
+        width: 200px;
+        height: 200px;
+        min-width: 200px;
+        min-height: 200px;
     }
 
     .profile-verification-section {
