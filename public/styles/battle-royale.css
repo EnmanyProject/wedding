@@ -38,8 +38,8 @@
   background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
   border: 3px solid #FF1493;
   border-radius: 25px;
-  padding: 2rem;
-  max-width: 500px;
+  padding: 1.5rem;
+  max-width: 380px;
   width: 90%;
   max-height: 85vh;
   overflow-y: auto;
@@ -75,11 +75,11 @@
 
 /* Entry Modal - Bety Character */
 .battle-entry-bety {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .battle-entry-bety img {
-  width: 120px;
+  width: 100px;
   height: auto;
   animation: betyBounce 1.5s infinite ease-in-out;
 }
@@ -95,12 +95,12 @@
 
 /* Entry Modal - Message */
 .battle-entry-message {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .battle-entry-message h2 {
   color: #FFD700;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
@@ -108,7 +108,7 @@
 
 .battle-entry-message p {
   color: #FFF;
-  font-size: 1rem;
+  font-size: 0.95rem;
   opacity: 0.9;
 }
 
@@ -118,15 +118,15 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 2rem;
-  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #FFD700;
   animation: ringPulse 2s infinite;
 }
 
 .battle-entry-cost .ring-icon {
-  font-size: 2.5rem;
+  font-size: 2rem;
   filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
 }
 
@@ -146,12 +146,12 @@
 
 /* Entry Button */
 .battle-entry-button {
-  padding: 1rem 3rem;
+  padding: 0.875rem 2.5rem;
   background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
   color: white;
   border: 2px solid #FF1493;
   border-radius: 50px;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
