@@ -319,7 +319,7 @@ export class BattleRoyaleService {
 
       // Update session current_round
       await client.query(
-        'UPDATE battle_royale_sessions SET current_round = $1, updated_at = NOW() WHERE id = $2',
+        'UPDATE battle_royale_sessions SET current_round = $1 WHERE id = $2',
         [roundNumber, sessionId]
       );
 
