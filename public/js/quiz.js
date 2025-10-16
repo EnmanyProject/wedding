@@ -383,7 +383,7 @@ class QuizManager {
         window.betyManager.showExpression('excited', 3000);
       }
 
-      resultIcon.innerHTML = '<img src="/images/Bety2.png" class="bety-jump" style="width: 100px; height: 100px;" alt="신난 베티">';
+      resultIcon.innerHTML = '<img src="/images/Bety1.png" class="bety-jump" style="width: 100px; height: 100px;" alt="웃는 베티">';
       resultMessage.textContent = '정답입니다!';
       resultTitle.textContent = '정답! 🎉';
 

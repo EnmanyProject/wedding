@@ -334,10 +334,21 @@
    🏆 퀴즈 결과 모달
    ================================= */
 
+/* 모달 자체 배경색 */
+.result-modal {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 모달 오버레이 배경색 */
+.result-modal .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.85) !important;
+}
+
 .result-modal .modal-content {
   max-width: 350px !important;
   border-radius: 20px !important;
   background: #000 !important;
+  background-color: #000 !important;
   border: 2px solid #FF69B4 !important;
   text-align: center !important;
   overflow: hidden !important;
@@ -345,6 +356,7 @@
 
 .result-modal .modal-header {
   background: #000 !important;
+  background-color: #000 !important;
   color: #FF69B4 !important;
   padding: var(--space-xl) var(--space-md) !important;
   border-bottom: 1px solid #FF69B4 !important;
@@ -356,6 +368,7 @@
 
 .result-modal .modal-body {
   background: #000 !important;
+  background-color: #000 !important;
   color: #FF69B4 !important;
 }
 
@@ -375,18 +388,17 @@
   50% { transform: translateY(-20px); }
 }
 
-/* D-Bety 슬픈 애니메이션 - 프레임 제거 */
+/* D-Bety 슬픈 애니메이션 - 프레임 제거, 무한 반복 점프 */
 .bety-sad {
-  animation: bety-sad-shake 0.5s ease-in-out 1 !important;
+  animation: bety-sad-jump 0.8s ease-in-out infinite !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-@keyframes bety-sad-shake {
-  0%, 100% { transform: translateX(0px); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+@keyframes bety-sad-jump {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
 }
 
 @keyframes result-bounce {
