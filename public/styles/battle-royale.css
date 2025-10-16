@@ -179,6 +179,10 @@
   padding: 2rem;
   border-radius: 25px;
   border: 3px solid #FF1493;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Countdown Overlay */
@@ -252,10 +256,26 @@
   object-fit: cover;
 }
 
-/* Elimination Animation */
+/* Elimination Animation - Phase 1: 빨갛게 변함 */
+.partner-circle.eliminating {
+  animation: turnRed 0.3s forwards;
+}
+
+@keyframes turnRed {
+  0% {
+    border-color: #FF1493;
+    filter: grayscale(0%) brightness(1);
+  }
+  100% {
+    border-color: #FF0000;
+    filter: grayscale(0%) brightness(1.2) hue-rotate(-15deg);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+  }
+}
+
+/* Elimination Animation - Phase 2: 사라짐 */
 .partner-circle.eliminated {
-  animation: shrinkOut 0.8s forwards;
-  opacity: 0;
+  animation: shrinkOut 1.2s forwards;
 }
 
 @keyframes shrinkOut {
@@ -263,7 +283,11 @@
     transform: scale(1);
     opacity: 1;
   }
-  50% {
+  30% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  60% {
     transform: scale(0.5);
     opacity: 0.5;
     border-color: #666;
@@ -275,8 +299,17 @@
 }
 
 /* =====================================================
-   Quiz UI (퀴즈 진행 화면)
+   Quiz UI (퀴즈 진행 화면) - 100명 그리드 위 오버레이
    ===================================================== */
+
+.quiz-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  animation: fadeIn 0.5s ease-out;
+}
 
 .battle-quiz-container {
   background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
@@ -285,6 +318,7 @@
   border: 3px solid #FF1493;
   max-width: 600px;
   margin: 0 auto;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
 }
 
 .quiz-header {
@@ -398,7 +432,127 @@
 }
 
 /* =====================================================
-   Round Results Screen (라운드 결과 화면)
+   Round Results Info Overlay (라운드 결과 간단 메시지)
+   ===================================================== */
+
+.round-results-info-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 150;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.round-results-info {
+  background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+  border: 3px solid #FF1493;
+  border-radius: 25px;
+  padding: 2.5rem;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(255, 20, 147, 0.8);
+  animation: roundResultPopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes roundResultPopIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.round-results-info h2 {
+  font-size: 2rem;
+  color: #FFD700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.round-results-info .round-question {
+  color: #FFF;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.round-results-info .user-choice {
+  color: #FF1493;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.round-results-info .user-choice strong {
+  color: #FFD700;
+  font-size: 1.2rem;
+}
+
+.elimination-summary {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(255, 0, 0, 0.2);
+  border: 2px solid #FF0000;
+  border-radius: 15px;
+}
+
+.elimination-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.eliminated-icon {
+  font-size: 3rem;
+  animation: heartBeat 1s infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.eliminated-number {
+  color: #FF0000;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+}
+
+.elimination-summary .emotional-message {
+  color: #FFF;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.continue-hint {
+  padding: 1rem;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.continue-hint p {
+  color: #FFD700;
+  font-size: 1rem;
+  font-weight: 600;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* =====================================================
+   Round Results Screen (라운드 결과 화면) - DEPRECATED
    ===================================================== */
 
 .round-results-overlay {

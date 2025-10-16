@@ -407,7 +407,7 @@ class BattleRoyaleManager {
   }
 
   /**
-   * 퀴즈 UI 렌더링
+   * 퀴즈 UI 렌더링 (100명 그리드 위에 오버레이)
    */
   renderQuizUI(roundNumber, question) {
     console.log(`🎨 [BattleRoyale] Rendering quiz UI for round ${roundNumber}...`);
@@ -415,7 +415,23 @@ class BattleRoyaleManager {
     const content = document.getElementById('battle-game-content');
     if (!content) return;
 
-    content.innerHTML = `
+    // 100명 그리드는 유지하고, 퀴즈는 오버레이로 표시
+    const existingGrid = content.querySelector('.partners-grid');
+
+    if (!existingGrid) {
+      // 그리드가 없으면 생성
+      this.renderWaitingRoom();
+    }
+
+    // 퀴즈 오버레이 추가
+    const existingOverlay = content.querySelector('.quiz-overlay');
+    if (existingOverlay) {
+      existingOverlay.remove();
+    }
+
+    const quizOverlay = document.createElement('div');
+    quizOverlay.className = 'quiz-overlay';
+    quizOverlay.innerHTML = `
       <div class="battle-quiz-container">
         <div class="quiz-header">
           <h2>Round ${roundNumber} / ${this.state.totalRounds}</h2>
@@ -442,6 +458,8 @@ class BattleRoyaleManager {
         </div>
       </div>
     `;
+
+    content.appendChild(quizOverlay);
 
     console.log(`✅ [BattleRoyale] Quiz UI rendered`);
   }
@@ -478,7 +496,7 @@ class BattleRoyaleManager {
   }
 
   /**
-   * 라운드 결과 화면 표시 (감정적 임팩트)
+   * 라운드 결과 화면 표시 (100명 그리드 + 탈락 시각화)
    */
   async showRoundResults(result, roundNumber, question) {
     console.log(`📊 [BattleRoyale] Showing round ${roundNumber} results...`);
@@ -486,109 +504,66 @@ class BattleRoyaleManager {
     const content = document.getElementById('battle-game-content');
     if (!content) return;
 
+    // 퀴즈 오버레이 제거
+    const quizOverlay = content.querySelector('.quiz-overlay');
+    if (quizOverlay) {
+      quizOverlay.remove();
+    }
+
     // 감정적 메시지 생성
     const eliminationPercentage = Math.round((result.eliminated_count / result.survivors_before) * 100);
     let emotionalMessage = '';
-    let emotionalEmoji = '';
 
     if (eliminationPercentage >= 80) {
       emotionalMessage = '대부분이 탈락했습니다... 😱';
-      emotionalEmoji = '💔';
     } else if (eliminationPercentage >= 50) {
       emotionalMessage = '절반 이상이 사라졌습니다... 😢';
-      emotionalEmoji = '😢';
     } else if (eliminationPercentage >= 30) {
-      emotionalMessage = '많은 사람들이 떠났습니다...';
-      emotionalEmoji = '😔';
+      emotionalMessage = '많은 사람들이 떠났습니다... 😔';
     } else if (eliminationPercentage > 0) {
       emotionalMessage = '일부가 탈락했습니다';
-      emotionalEmoji = '😐';
     } else {
-      emotionalMessage = '모두 같은 선택을 했습니다!';
-      emotionalEmoji = '🎉';
+      emotionalMessage = '모두 같은 선택을 했습니다! 🎉';
     }
 
-    // 라운드 결과 HTML 렌더링
-    content.innerHTML = `
-      <div class="round-results-overlay">
-        <div class="round-results-container">
-          <!-- 라운드 헤더 -->
-          <div class="round-results-header">
-            <h2>Round ${roundNumber} 결과</h2>
-            <p class="round-question">"${question.question}"</p>
-            <p class="user-choice">당신의 선택: <strong>${result.user_answer === 'LEFT' ? question.option_left : question.option_right}</strong></p>
+    // 결과 오버레이 추가 (100명 그리드 위에 표시)
+    const resultsOverlay = document.createElement('div');
+    resultsOverlay.className = 'round-results-info-overlay';
+    resultsOverlay.innerHTML = `
+      <div class="round-results-info">
+        <h2>Round ${roundNumber} 결과</h2>
+        <p class="round-question">"${question.question}"</p>
+        <p class="user-choice">당신의 선택: <strong>${result.user_answer === 'LEFT' ? question.option_left : question.option_right}</strong></p>
+
+        <div class="elimination-summary">
+          <div class="elimination-count">
+            <span class="eliminated-icon">💔</span>
+            <span class="eliminated-number">${result.eliminated_count}명 탈락</span>
           </div>
+          <p class="emotional-message">${emotionalMessage}</p>
+        </div>
 
-          <!-- 통계 -->
-          <div class="round-results-stats">
-            <div class="stat-box">
-              <div class="stat-label">이전 생존자</div>
-              <div class="stat-value">${result.survivors_before}명</div>
-            </div>
-
-            <div class="stat-arrow-down">
-              <div class="arrow-icon">↓</div>
-              <div class="eliminated-badge">
-                <span class="eliminated-emoji">💔</span>
-                <span class="eliminated-text">${result.eliminated_count}명 탈락</span>
-              </div>
-            </div>
-
-            <div class="stat-box highlight">
-              <div class="stat-label">현재 생존자</div>
-              <div class="stat-value survive">${result.survivors_after}명</div>
-            </div>
-          </div>
-
-          <!-- 감정적 메시지 -->
-          <div class="emotional-message">
-            <span class="emotional-emoji">${emotionalEmoji}</span>
-            <p>${emotionalMessage}</p>
-            <p class="elimination-percentage">${eliminationPercentage}%가 탈락했습니다</p>
-          </div>
-
-          <!-- 진행률 바 -->
-          <div class="survival-progress-bar">
-            <div class="progress-fill" style="width: ${(result.survivors_after / 100) * 100}%"></div>
-            <span class="progress-text">${result.survivors_after}명 / 100명</span>
-          </div>
-
-          <!-- 계속 버튼 -->
-          <div class="round-results-actions">
-            ${roundNumber < this.state.totalRounds
-              ? '<button class="btn-continue" id="continue-round-btn">다음 라운드로 →</button>'
-              : '<button class="btn-continue" id="continue-round-btn">최종 결과 보기 🎉</button>'
-            }
-          </div>
+        <div class="continue-hint">
+          <p>탈락자들이 사라지는 것을 지켜보세요...</p>
         </div>
       </div>
     `;
 
-    console.log(`✅ [BattleRoyale] Round results rendered`);
+    content.appendChild(resultsOverlay);
 
-    // "계속" 버튼 이벤트 리스너
-    return new Promise((resolve) => {
-      const continueBtn = document.getElementById('continue-round-btn');
-      if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-          console.log(`👉 [BattleRoyale] Continue to next phase`);
-          resolve();
-        });
-      }
+    console.log(`✅ [BattleRoyale] Round results overlay shown`);
 
-      // 3초 후 자동 진행 (선택적)
-      setTimeout(() => {
-        if (continueBtn) {
-          continueBtn.click();
-        } else {
-          resolve();
-        }
-      }, 5000);
-    });
+    // 1.5초 대기 (사용자가 메시지 읽을 시간)
+    await this.sleep(1500);
+
+    // 결과 오버레이 제거
+    resultsOverlay.remove();
+
+    console.log(`👉 [BattleRoyale] Proceeding to elimination animation`);
   }
 
   /**
-   * 탈락 애니메이션
+   * 탈락 애니메이션 (빨갛게 변하면서 사라짐)
    */
   async playEliminationAnimation(eliminatedIds) {
     console.log(`💥 [BattleRoyale] Playing elimination animation for ${eliminatedIds.length} participants...`);
@@ -596,7 +571,24 @@ class BattleRoyaleManager {
     const grid = document.getElementById('partners-grid');
     if (!grid) return;
 
-    // 탈락자 원에 애니메이션 클래스 추가
+    // Phase 1: 탈락자들을 빨간색으로 변경 (0.5초에 걸쳐 하나씩)
+    for (let i = 0; i < eliminatedIds.length; i++) {
+      const id = eliminatedIds[i];
+      const circle = grid.querySelector(`[data-partner-id="${id}"]`);
+      if (circle) {
+        circle.classList.add('eliminating');
+      }
+
+      // 빠르게 연속으로 빨갛게 변함
+      if (i % 10 === 0) {
+        await this.sleep(50);
+      }
+    }
+
+    // Phase 2: 모든 탈락자가 빨갛게 변한 후 1초 대기
+    await this.sleep(1000);
+
+    // Phase 3: 탈락자들이 사라짐 (동시에)
     eliminatedIds.forEach(id => {
       const circle = grid.querySelector(`[data-partner-id="${id}"]`);
       if (circle) {
@@ -605,7 +597,7 @@ class BattleRoyaleManager {
     });
 
     // 애니메이션 완료 대기
-    await this.sleep(1000);
+    await this.sleep(1500);
 
     // 탈락자 원 제거
     eliminatedIds.forEach(id => {
