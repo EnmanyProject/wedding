@@ -1,0 +1,547 @@
+/**
+ * Battle Royale 선호도 맞추기 시스템 스타일
+ * 100명과 동시에 선보기 기능
+ */
+
+/* =====================================================
+   Entry Modal (진입 모달)
+   ===================================================== */
+
+.battle-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10002; /* User Profile Modal보다 높게 */
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.battle-modal.active {
+  display: flex;
+}
+
+.battle-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.battle-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+  border: 3px solid #FF1493;
+  border-radius: 25px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(255, 20, 147, 0.6);
+  animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+
+/* Close Button */
+.battle-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #FF1493;
+  font-size: 32px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.battle-modal-close:hover {
+  background: rgba(255, 20, 147, 0.2);
+  transform: rotate(90deg);
+}
+
+/* Entry Modal - Bety Character */
+.battle-entry-bety {
+  margin-bottom: 1.5rem;
+}
+
+.battle-entry-bety img {
+  width: 120px;
+  height: auto;
+  animation: betyBounce 1.5s infinite ease-in-out;
+}
+
+@keyframes betyBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Entry Modal - Message */
+.battle-entry-message {
+  margin-bottom: 2rem;
+}
+
+.battle-entry-message h2 {
+  color: #FFD700;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.battle-entry-message p {
+  color: #FFF;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Entry Modal - Cost */
+.battle-entry-cost {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFD700;
+  animation: ringPulse 2s infinite;
+}
+
+.battle-entry-cost .ring-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
+}
+
+.battle-entry-cost .ring-amount {
+  color: #FF1493;
+  text-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+}
+
+@keyframes ringPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Entry Button */
+.battle-entry-button {
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
+  color: white;
+  border: 2px solid #FF1493;
+  border-radius: 50px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(255, 20, 147, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.battle-entry-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+  box-shadow: 0 15px 40px rgba(255, 20, 147, 0.7);
+}
+
+.battle-entry-button:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* =====================================================
+   Waiting Room (대기실 - 100명 Grid)
+   ===================================================== */
+
+.battle-waiting-room {
+  position: relative;
+  background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+  padding: 2rem;
+  border-radius: 25px;
+  border: 3px solid #FF1493;
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: 25px;
+}
+
+.countdown-overlay.hidden {
+  display: none;
+}
+
+.countdown-number {
+  font-size: 10rem;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 0 50px rgba(255, 215, 0, 1);
+  animation: countdownBounce 0.5s ease-out;
+}
+
+@keyframes countdownBounce {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Partners Grid (100개) */
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 0.5rem;
+  padding: 1rem;
+  max-width: 90vw;
+  max-height: 70vh;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+.partner-circle {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #FF1493;
+  box-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
+  transition: all 0.3s ease-out;
+  background: #000;
+}
+
+.partner-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Elimination Animation */
+.partner-circle.eliminated {
+  animation: shrinkOut 0.8s forwards;
+  opacity: 0;
+}
+
+@keyframes shrinkOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.5);
+    opacity: 0.5;
+    border-color: #666;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* =====================================================
+   Final Result Modal (최종 결과)
+   ===================================================== */
+
+.battle-result-modal {
+  /* battle-modal 스타일 상속 */
+}
+
+.battle-result-header {
+  margin-bottom: 2rem;
+}
+
+.battle-result-header h2 {
+  font-size: 2rem;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.battle-result-header .survivors-count {
+  font-size: 1.25rem;
+  color: #FFF;
+  opacity: 0.9;
+}
+
+/* Survivors Grid */
+.survivors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.survivor-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #FF1493;
+  border-radius: 15px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.survivor-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(255, 20, 147, 0.5);
+}
+
+/* 🏆 귀여운 배지 */
+.survivor-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.6);
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.9);
+  }
+}
+
+.survivor-card img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.75rem;
+  border: 2px solid #FF1493;
+}
+
+.survivor-card h3 {
+  font-size: 0.9rem;
+  color: #FFF;
+  margin-bottom: 0.5rem;
+}
+
+.survivor-card .matching-score {
+  font-size: 0.85rem;
+  color: #FFD700;
+  margin-bottom: 0.75rem;
+}
+
+.survivor-card .view-profile-btn {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #FF1493, #FF69B4);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.survivor-card .view-profile-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 20, 147, 0.5);
+}
+
+/* Result Actions */
+.result-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.result-actions .btn-primary {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #FF1493, #FF69B4);
+  color: white;
+  border: 2px solid #FF1493;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.result-actions .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 20, 147, 0.6);
+}
+
+.result-actions .btn-secondary {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: #FFF;
+  border: 2px solid #FFF;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.result-actions .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================================
+   Responsive Design
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .battle-modal-content {
+    max-width: 95%;
+    padding: 1.5rem;
+  }
+
+  .battle-entry-bety img {
+    width: 100px;
+  }
+
+  .battle-entry-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .battle-entry-cost {
+    font-size: 1.75rem;
+  }
+
+  .battle-entry-button {
+    padding: 0.875rem 2.5rem;
+    font-size: 1.1rem;
+  }
+
+  /* Partners Grid - 모바일 동적 조정 */
+  .partners-grid {
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: auto;
+    gap: 0.4rem;
+    padding: 0.75rem;
+  }
+
+  .countdown-number {
+    font-size: 6rem;
+  }
+
+  /* Survivors Grid */
+  .survivors-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .survivor-badge {
+    width: 35px;
+    height: 35px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .battle-entry-bety img {
+    width: 80px;
+  }
+
+  .battle-entry-message h2 {
+    font-size: 1.25rem;
+  }
+
+  .battle-entry-cost {
+    font-size: 1.5rem;
+  }
+
+  .partners-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.3rem;
+    padding: 0.5rem;
+  }
+
+  .countdown-number {
+    font-size: 4rem;
+  }
+
+  .survivors-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =====================================================
+   Animations
+   ===================================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.8) translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* =====================================================
+   Accessibility
+   ===================================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
