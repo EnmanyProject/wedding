@@ -9,14 +9,40 @@
 
 ## 🎯 현재 상태
 
-**Phase**: v1.62.47 Battle Royale 생존자 정렬 수정
-**작업**: 탈락 후 생존자 그리드 재정렬 완벽하게 수정
+**Phase**: v1.62.48 모바일 터치 이벤트 경고 수정
+**작업**: Battle Royale 모달에서 배경 스크롤 방지
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
 **다음**: Battle Royale 추가 UI/UX 개선 및 테스트
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### v1.62.48: Battle Royale 모바일 터치 이벤트 경고 수정 ✅ (2025-10-16)
+
+**작업 내용**:
+- **문제**: Battle Royale 모달에서 브라우저 경고 발생
+  - `[Intervention] Ignored attempt to cancel a touchmove event with cancelable=false...`
+  - 배경 스크롤이 모달 열렸을 때 차단되지 않아 발생
+- **해결**:
+  1. **showGameModal() 수정** (public/js/battle-royale-quiz.js:151-153)
+     - `document.body.style.overflow = 'hidden'` 추가
+     - `document.body.style.touchAction = 'none'` 추가
+     - 모달 열릴 때 배경 스크롤 완전 차단
+  2. **closeGameModal() 수정** (public/js/battle-royale-quiz.js:172-174)
+     - `document.body.style.overflow = ''` 추가
+     - `document.body.style.touchAction = ''` 추가
+     - 모달 닫힐 때 배경 스크롤 복원
+
+**효과**:
+- ✅ 모바일에서 터치 이벤트 경고 제거
+- ✅ 모달 열렸을 때 배경 스크롤 완전 차단
+- ✅ 모달 닫히면 정상 스크롤 복원
+- ✅ UX 개선: 모달 뒤의 콘텐츠가 스크롤되지 않음
+
+**Git**: 67d2469 ✅
+
+---
 
 ### v1.62.47: Battle Royale 생존자 그리드 재정렬 수정 ✅ (2025-10-16)
 
