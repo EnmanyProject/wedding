@@ -110,10 +110,14 @@ export class BattleRoyaleService {
 
       // 3. Load 100 random active users with their preference answers
       const participantsResult = await client.query(
-        `SELECT DISTINCT u.id, u.display_name, u.profile_image_url
+        `SELECT u.id, u.display_name, u.profile_image_url
          FROM users u
-         INNER JOIN user_preference_answers upa ON u.id = upa.user_id
-         WHERE u.is_active = true AND u.id != $1
+         WHERE u.is_active = true
+           AND u.id != $1
+           AND EXISTS (
+             SELECT 1 FROM user_preference_answers upa
+             WHERE upa.user_id = u.id
+           )
          ORDER BY RANDOM()
          LIMIT $2`,
         [userId, this.INITIAL_PARTICIPANTS]
@@ -189,16 +193,17 @@ export class BattleRoyaleService {
       let survivors: BattleRoyaleParticipant[] = [];
 
       if (roundNumber === 1) {
-        // First round: get initial 100 participants
+        // First round: get initial 100 participants with their answers
         const participantsResult = await client.query(
-          `SELECT DISTINCT u.id, u.display_name, u.profile_image_url, upa.answer
+          `SELECT u.id, u.display_name, u.profile_image_url, upa.answer
            FROM users u
            INNER JOIN user_preference_answers upa ON u.id = upa.user_id
-           INNER JOIN battle_royale_preferences brp ON upa.preference_id = brp.id
-           WHERE brp.round_number = $1 AND u.is_active = true AND u.id != $2
+           WHERE upa.preference_id = $1
+             AND u.is_active = true
+             AND u.id != $2
            ORDER BY RANDOM()
            LIMIT $3`,
-          [roundNumber, session.user_id, this.INITIAL_PARTICIPANTS]
+          [question.id, session.user_id, this.INITIAL_PARTICIPANTS]
         );
 
         survivors = participantsResult.rows.map((row: any) => ({
@@ -280,8 +285,8 @@ export class BattleRoyaleService {
       const roundId = uuidv4();
       await client.query(
         `INSERT INTO battle_royale_rounds
-         (id, session_id, round_number, preference_id, user_answer, survivors_before, survivors_after, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+         (id, session_id, round_number, preference_id, user_answer, survivors_before, survivors_after, eliminated_count, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
         [
           roundId,
           sessionId,
@@ -289,17 +294,26 @@ export class BattleRoyaleService {
           question.id,
           userAnswer,
           survivorsBefore,
-          newSurvivors.length
+          newSurvivors.length,
+          eliminated.length
         ]
       );
 
-      // Record survivors for this round
-      for (const survivor of newSurvivors) {
+      // Record survivors for this round (Batch INSERT)
+      if (newSurvivors.length > 0) {
+        const values = newSurvivors.map((_, idx) =>
+          `($${idx * 3 + 1}, $${idx * 3 + 2}, $${idx * 3 + 3})`
+        ).join(', ');
+
+        const params = newSurvivors.flatMap(s =>
+          [sessionId, roundNumber, s.user_id]
+        );
+
         await client.query(
           `INSERT INTO battle_royale_survivors (session_id, round_number, participant_id)
-           VALUES ($1, $2, $3)
+           VALUES ${values}
            ON CONFLICT (session_id, round_number, participant_id) DO NOTHING`,
-          [sessionId, roundNumber, survivor.user_id]
+          params
         );
       }
 
