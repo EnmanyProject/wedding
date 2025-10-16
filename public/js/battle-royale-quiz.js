@@ -264,7 +264,11 @@ class BattleRoyaleManager {
         <div class="partners-grid" id="partners-grid">
           ${this.state.participants.map((partner, index) => `
             <div class="partner-circle" data-partner-id="${partner.id}">
-              <img src="${partner.profileImage}" alt="${partner.displayName}">
+              <img
+                src="${partner.profileImage}"
+                alt="${partner.displayName}"
+                onerror="this.src='/images/Bety1.png'"
+                loading="eager">
             </div>
           `).join('')}
         </div>

@@ -328,7 +328,7 @@
   padding: 2rem;
   border-radius: 25px;
   border: 3px solid #FF1493;
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
 }
@@ -371,8 +371,8 @@
 }
 
 .quiz-options {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-bottom: 2rem;
 }
@@ -1242,6 +1242,11 @@
   /* Quiz UI - 모바일 */
   .battle-quiz-container {
     padding: 1.5rem;
+    max-width: 95%;
+  }
+
+  .quiz-options {
+    grid-template-columns: 1fr;
   }
 
   .quiz-header h2 {
