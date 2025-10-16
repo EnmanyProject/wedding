@@ -185,14 +185,14 @@
   justify-content: center;
 }
 
-/* Countdown Overlay */
+/* Countdown Overlay - 투명 배경으로 100명 사진 보이게 */
 .countdown-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,11 +205,19 @@
 }
 
 .countdown-number {
-  font-size: 10rem;
+  font-size: 12rem;
   font-weight: 900;
   color: #FFD700;
-  text-shadow: 0 0 50px rgba(255, 215, 0, 1);
+  text-shadow:
+    0 0 30px rgba(0, 0, 0, 1),
+    0 0 60px rgba(255, 215, 0, 1),
+    0 0 90px rgba(255, 215, 0, 0.8);
   animation: countdownBounce 0.5s ease-out;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2rem 4rem;
+  border-radius: 30px;
+  border: 5px solid #FFD700;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
 }
 
 @keyframes countdownBounce {
@@ -1222,7 +1230,9 @@
   }
 
   .countdown-number {
-    font-size: 6rem;
+    font-size: 8rem;
+    padding: 1.5rem 3rem;
+    border-width: 4px;
   }
 
   /* Quiz UI - 모바일 */
@@ -1379,7 +1389,9 @@
   }
 
   .countdown-number {
-    font-size: 4rem;
+    font-size: 5rem;
+    padding: 1rem 2rem;
+    border-width: 3px;
   }
 
   /* Quiz UI - 작은 모바일 */
