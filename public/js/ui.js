@@ -447,7 +447,11 @@ class UIManager {
       return;
     }
 
-    rankingsList.innerHTML = rankings.map((ranking, index) => `
+    rankingsList.innerHTML = rankings.map((ranking, index) => {
+      // 퀴즈 존재 여부 확인 (임시로 quiz_count가 있으면 퀴즈 가능으로 판단)
+      const hasQuiz = true; // TODO: 실제 API에서 퀴즈 존재 여부 확인
+
+      return `
       <div class="ranking-item" data-target-id="${ranking.targetId}">
         <div class="ranking-position">${index + 1}</div>
         <div class="ranking-info">
@@ -455,10 +459,33 @@ class UIManager {
           <div class="ranking-score">호감도: ${ranking.affinityScore}</div>
         </div>
         <div class="ranking-actions">
+          <button class="ranking-quiz-btn ${hasQuiz ? 'active' : 'disabled'}"
+                  data-target-id="${ranking.targetId}"
+                  ${!hasQuiz ? 'disabled' : ''}
+                  title="${hasQuiz ? '퀴즈 풀기' : '퀴즈 없음'}">
+            💝
+          </button>
           ${ranking.canMeet ? '💕' : '🔒'}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    // 퀴즈 버튼 클릭 이벤트 리스너 추가
+    rankingsList.querySelectorAll('.ranking-quiz-btn.active').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetId = btn.dataset.targetId;
+        console.log('🎯 [Rankings] 퀴즈 버튼 클릭:', targetId);
+
+        if (window.quiz && typeof window.quiz.startQuizWithTarget === 'function') {
+          window.quiz.startQuizWithTarget(targetId);
+        } else {
+          console.error('Quiz system not available');
+          this.showToast('퀴즈 시스템을 사용할 수 없습니다', 'error');
+        }
+      });
+    });
   }
 
   // Update home meetings
