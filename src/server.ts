@@ -21,6 +21,7 @@ import ringsRouter from './routes/rings';
 import ringTestRouter from './routes/ringTest';
 import recommendationsRouter from './routes/recommendations';
 import adminRecommendationsRouter from './routes/adminRecommendations';
+import battleRoyaleRouter from './routes/battleRoyale';
 
 const app = express();
 // Socket.IO 임시 비활성화
@@ -137,6 +138,7 @@ app.use('/api/recommendations', recommendationsRouter);
 app.use('/api/affinity', affinityRouter);
 app.use('/api/meeting', meetingRouter);
 app.use('/api/profile', profileRouter);
+app.use('/api/battle-royale', battleRoyaleRouter);
 
 // Assets route for photo serving
 app.get('/api/assets/*', async (req, res) => {
