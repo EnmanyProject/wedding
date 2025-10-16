@@ -484,8 +484,8 @@ export class QuizService {
         const photosWithUrls = photos.map((photo: any) => ({
           ...photo,
           storage_key: config.NODE_ENV === 'development'
-            ? `http://localhost:${config.PORT}/api/assets/${photo.storage_key}`
-            : `/api/assets/${photo.storage_key}`
+            ? `http://localhost:${config.PORT}/uploads/${photo.storage_key}`
+            : `/uploads/${photo.storage_key}`
         }));
 
         targetInfo = {
