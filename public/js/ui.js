@@ -463,7 +463,7 @@ class UIManager {
                   data-target-id="${ranking.targetId}"
                   ${!hasQuiz ? 'disabled' : ''}
                   title="${hasQuiz ? '퀴즈 풀기' : '퀴즈 없음'}">
-            💝
+            🎯
           </button>
           ${ranking.canMeet ? '💕' : '🔒'}
         </div>

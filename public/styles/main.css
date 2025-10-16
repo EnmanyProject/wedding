@@ -512,6 +512,24 @@ body {
   transition: var(--transition);
 }
 
+.ranking-position {
+  flex-shrink: 0;
+  min-width: 30px;
+}
+
+.ranking-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranking-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .ranking-item:hover, .meeting-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
