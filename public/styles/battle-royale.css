@@ -398,6 +398,351 @@
 }
 
 /* =====================================================
+   Round Results Screen (라운드 결과 화면)
+   ===================================================== */
+
+.round-results-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.round-results-container {
+  background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+  border: 3px solid #FF1493;
+  border-radius: 25px;
+  padding: 2.5rem;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 30px 80px rgba(255, 20, 147, 0.6);
+  animation: roundResultSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes roundResultSlideUp {
+  from {
+    transform: translateY(100px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* 라운드 헤더 */
+.round-results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(255, 20, 147, 0.3);
+}
+
+.round-results-header h2 {
+  font-size: 2rem;
+  color: #FFD700;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  animation: titlePulse 2s infinite;
+}
+
+@keyframes titlePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.round-results-header .round-question {
+  color: #FFF;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.round-results-header .user-choice {
+  color: #FF1493;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.round-results-header .user-choice strong {
+  color: #FFD700;
+  font-size: 1.2rem;
+}
+
+/* 통계 영역 */
+.round-results-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.2);
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.3);
+  min-width: 120px;
+}
+
+.stat-box.highlight {
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.1);
+  animation: highlightPulse 2s infinite;
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.stat-label {
+  color: #FFF;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.stat-value {
+  color: #FFD700;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.stat-value.survive {
+  color: #00FF00;
+  text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  animation: surviveGlow 1.5s infinite;
+}
+
+@keyframes surviveGlow {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 25px rgba(0, 255, 0, 0.9);
+  }
+}
+
+/* 화살표와 탈락 배지 */
+.stat-arrow-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.arrow-icon {
+  font-size: 2.5rem;
+  color: #FF1493;
+  animation: arrowBounce 1s infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+.eliminated-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.3), rgba(139, 0, 0, 0.3));
+  border: 2px solid #FF0000;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  animation: eliminatedShake 0.5s ease-in-out;
+}
+
+@keyframes eliminatedShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.eliminated-emoji {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.eliminated-text {
+  color: #FF0000;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+}
+
+/* 감정적 메시지 */
+.emotional-message {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 20, 147, 0.1);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.3);
+  animation: messageFadeIn 1s ease-out;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.emotional-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: emojiFloat 2s infinite ease-in-out;
+}
+
+@keyframes emojiFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.emotional-message p {
+  color: #FFF;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.elimination-percentage {
+  color: #FF1493;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 10px rgba(255, 20, 147, 0.6);
+}
+
+/* 생존률 진행 바 */
+.survival-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 20, 147, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF1493, #00FF00);
+  border-radius: 20px;
+  transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+  animation: progressGlow 2s infinite;
+}
+
+@keyframes progressGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.9);
+  }
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFF;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}
+
+/* 계속 버튼 */
+.round-results-actions {
+  text-align: center;
+}
+
+.btn-continue {
+  padding: 1.25rem 3rem;
+  background: linear-gradient(135deg, #FF1493, #FF69B4);
+  color: white;
+  border: 2px solid #FFD700;
+  border-radius: 50px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(255, 20, 147, 0.5);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  animation: buttonPulse 2s infinite;
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 10px 30px rgba(255, 20, 147, 0.5);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 20, 147, 0.7);
+  }
+}
+
+.btn-continue:hover {
+  transform: translateY(-3px) scale(1.08);
+  background: linear-gradient(135deg, #FF69B4, #FF1493);
+  box-shadow: 0 20px 50px rgba(255, 20, 147, 0.8);
+}
+
+.btn-continue:active {
+  transform: translateY(-1px) scale(1.03);
+}
+
+/* =====================================================
    Final Result Modal (최종 결과)
    ===================================================== */
 
@@ -785,6 +1130,79 @@
     height: 35px;
     font-size: 1.25rem;
   }
+
+  /* Round Results - 모바일 */
+  .round-results-container {
+    padding: 2rem;
+    max-width: 95%;
+  }
+
+  .round-results-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .round-results-header .round-question {
+    font-size: 1rem;
+  }
+
+  .round-results-stats {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .stat-box {
+    min-width: 100px;
+    padding: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .arrow-icon {
+    font-size: 2rem;
+  }
+
+  .eliminated-badge {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .eliminated-emoji {
+    font-size: 1.5rem;
+  }
+
+  .eliminated-text {
+    font-size: 1rem;
+  }
+
+  .emotional-message {
+    padding: 1.25rem;
+  }
+
+  .emotional-emoji {
+    font-size: 2.5rem;
+  }
+
+  .emotional-message p {
+    font-size: 1.2rem;
+  }
+
+  .elimination-percentage {
+    font-size: 1rem !important;
+  }
+
+  .survival-progress-bar {
+    height: 35px;
+  }
+
+  .progress-text {
+    font-size: 1rem;
+  }
+
+  .btn-continue {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -876,6 +1294,79 @@
 
   .results-actions .btn-primary,
   .results-actions .btn-secondary {
+    width: 100%;
+  }
+
+  /* Round Results - 작은 모바일 */
+  .round-results-container {
+    padding: 1.5rem;
+  }
+
+  .round-results-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .round-results-header .round-question {
+    font-size: 0.95rem;
+  }
+
+  .round-results-header .user-choice {
+    font-size: 0.9rem;
+  }
+
+  .round-results-header .user-choice strong {
+    font-size: 1rem;
+  }
+
+  .round-results-stats {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .stat-box {
+    width: 100%;
+  }
+
+  .stat-arrow-down {
+    transform: rotate(0deg);
+  }
+
+  .arrow-icon {
+    font-size: 1.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .emotional-message {
+    padding: 1rem;
+  }
+
+  .emotional-emoji {
+    font-size: 2rem;
+  }
+
+  .emotional-message p {
+    font-size: 1.1rem;
+  }
+
+  .elimination-percentage {
+    font-size: 0.95rem !important;
+  }
+
+  .survival-progress-bar {
+    height: 30px;
+  }
+
+  .progress-text {
+    font-size: 0.9rem;
+  }
+
+  .btn-continue {
+    padding: 0.875rem 2rem;
+    font-size: 1.1rem;
     width: 100%;
   }
 }

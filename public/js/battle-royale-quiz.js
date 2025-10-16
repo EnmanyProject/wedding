@@ -358,10 +358,13 @@ class BattleRoyaleManager {
         answer: userAnswer
       });
 
-      // 6. 탈락 애니메이션
+      // 6. 라운드 결과 화면 표시 (NEW! - 감정적 임팩트)
+      await this.showRoundResults(result, roundNumber, question);
+
+      // 7. 탈락 애니메이션
       await this.playEliminationAnimation(result.eliminated_ids);
 
-      // 7. 다음 라운드 또는 결과 표시
+      // 8. 다음 라운드 또는 결과 표시
       if (roundNumber < this.state.totalRounds) {
         // 다음 라운드로
         await this.sleep(1000);
@@ -471,6 +474,116 @@ class BattleRoyaleManager {
       buttons.forEach(btn => {
         btn.addEventListener('click', handleClick);
       });
+    });
+  }
+
+  /**
+   * 라운드 결과 화면 표시 (감정적 임팩트)
+   */
+  async showRoundResults(result, roundNumber, question) {
+    console.log(`📊 [BattleRoyale] Showing round ${roundNumber} results...`);
+
+    const content = document.getElementById('battle-game-content');
+    if (!content) return;
+
+    // 감정적 메시지 생성
+    const eliminationPercentage = Math.round((result.eliminated_count / result.survivors_before) * 100);
+    let emotionalMessage = '';
+    let emotionalEmoji = '';
+
+    if (eliminationPercentage >= 80) {
+      emotionalMessage = '대부분이 탈락했습니다... 😱';
+      emotionalEmoji = '💔';
+    } else if (eliminationPercentage >= 50) {
+      emotionalMessage = '절반 이상이 사라졌습니다... 😢';
+      emotionalEmoji = '😢';
+    } else if (eliminationPercentage >= 30) {
+      emotionalMessage = '많은 사람들이 떠났습니다...';
+      emotionalEmoji = '😔';
+    } else if (eliminationPercentage > 0) {
+      emotionalMessage = '일부가 탈락했습니다';
+      emotionalEmoji = '😐';
+    } else {
+      emotionalMessage = '모두 같은 선택을 했습니다!';
+      emotionalEmoji = '🎉';
+    }
+
+    // 라운드 결과 HTML 렌더링
+    content.innerHTML = `
+      <div class="round-results-overlay">
+        <div class="round-results-container">
+          <!-- 라운드 헤더 -->
+          <div class="round-results-header">
+            <h2>Round ${roundNumber} 결과</h2>
+            <p class="round-question">"${question.question}"</p>
+            <p class="user-choice">당신의 선택: <strong>${result.user_answer === 'LEFT' ? question.option_left : question.option_right}</strong></p>
+          </div>
+
+          <!-- 통계 -->
+          <div class="round-results-stats">
+            <div class="stat-box">
+              <div class="stat-label">이전 생존자</div>
+              <div class="stat-value">${result.survivors_before}명</div>
+            </div>
+
+            <div class="stat-arrow-down">
+              <div class="arrow-icon">↓</div>
+              <div class="eliminated-badge">
+                <span class="eliminated-emoji">💔</span>
+                <span class="eliminated-text">${result.eliminated_count}명 탈락</span>
+              </div>
+            </div>
+
+            <div class="stat-box highlight">
+              <div class="stat-label">현재 생존자</div>
+              <div class="stat-value survive">${result.survivors_after}명</div>
+            </div>
+          </div>
+
+          <!-- 감정적 메시지 -->
+          <div class="emotional-message">
+            <span class="emotional-emoji">${emotionalEmoji}</span>
+            <p>${emotionalMessage}</p>
+            <p class="elimination-percentage">${eliminationPercentage}%가 탈락했습니다</p>
+          </div>
+
+          <!-- 진행률 바 -->
+          <div class="survival-progress-bar">
+            <div class="progress-fill" style="width: ${(result.survivors_after / 100) * 100}%"></div>
+            <span class="progress-text">${result.survivors_after}명 / 100명</span>
+          </div>
+
+          <!-- 계속 버튼 -->
+          <div class="round-results-actions">
+            ${roundNumber < this.state.totalRounds
+              ? '<button class="btn-continue" id="continue-round-btn">다음 라운드로 →</button>'
+              : '<button class="btn-continue" id="continue-round-btn">최종 결과 보기 🎉</button>'
+            }
+          </div>
+        </div>
+      </div>
+    `;
+
+    console.log(`✅ [BattleRoyale] Round results rendered`);
+
+    // "계속" 버튼 이벤트 리스너
+    return new Promise((resolve) => {
+      const continueBtn = document.getElementById('continue-round-btn');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+          console.log(`👉 [BattleRoyale] Continue to next phase`);
+          resolve();
+        });
+      }
+
+      // 3초 후 자동 진행 (선택적)
+      setTimeout(() => {
+        if (continueBtn) {
+          continueBtn.click();
+        } else {
+          resolve();
+        }
+      }, 5000);
     });
   }
 
