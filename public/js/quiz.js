@@ -332,6 +332,32 @@ class QuizManager {
     }
   }
 
+  // Animate affinity count-up effect
+  animateAffinityChange(fromValue, toValue, duration = 1500) {
+    const element = document.getElementById('current-affinity');
+    if (!element) return;
+
+    const startTime = Date.now();
+    const diff = toValue - fromValue;
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function (ease-out cubic)
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.round(fromValue + (diff * easeOut));
+
+      element.textContent = currentValue;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    animate();
+  }
+
   // Show quiz result
   showQuizResult(result) {
     const {
@@ -347,6 +373,8 @@ class QuizManager {
     const resultIcon = document.getElementById('result-icon');
     const resultMessage = document.getElementById('result-message');
     const resultTitle = document.getElementById('result-title');
+    const affinityChange = document.getElementById('affinity-change');
+    const currentAffinity = document.getElementById('current-affinity');
 
     if (correct) {
       // 베티 신난 표정으로 점프 애니메이션
@@ -357,27 +385,39 @@ class QuizManager {
       resultIcon.innerHTML = '<img src="/images/Bety2.png" class="bety-jump" style="width: 100px; height: 100px;" alt="신난 베티">';
       resultMessage.textContent = '정답입니다!';
       resultTitle.textContent = '정답! 🎉';
+
+      // 정답 시: 호감도 변화량만 표시
+      if (affinityChange) {
+        affinityChange.textContent = `+${delta_affinity}`;
+        affinityChange.style.color = '#FF69B4'; // Hot pink
+      }
+
+      // 호감도 카운트업 애니메이션
+      if (currentAffinity) {
+        const oldAffinity = affinity_score - delta_affinity;
+        this.animateAffinityChange(oldAffinity, affinity_score);
+      }
     } else {
-      resultIcon.textContent = '😔';
+      // 오답 시: D-Bety 이미지 표시
+      resultIcon.innerHTML = '<img src="/images/d-bety.png" class="bety-sad" style="width: 100px; height: 100px;" alt="슬픈 D-Bety">';
+
       const quiz = this.currentTemplate.quiz;
       const correctAnswer = target_choice === 'LEFT'
         ? (quiz.option_a_title || quiz.left_label || quiz.left)
         : (quiz.option_b_title || quiz.right_label || quiz.right);
       resultMessage.textContent = `아쉽게도 틀렸습니다. 정답은 "${correctAnswer}"입니다.`;
       resultTitle.textContent = '오답 😔';
-    }
 
-    // Update stats
-    const affinityChange = document.getElementById('affinity-change');
-    const currentAffinity = document.getElementById('current-affinity');
+      // 오답 시: 호감도 변화 없음 표시 (+0)
+      if (affinityChange) {
+        affinityChange.textContent = '+0';
+        affinityChange.style.color = '#FFB6C1'; // Light pink
+      }
 
-    if (affinityChange) {
-      affinityChange.textContent = delta_affinity >= 0 ? `+${delta_affinity}` : `${delta_affinity}`;
-      affinityChange.style.color = delta_affinity >= 0 ? 'var(--success-color)' : 'var(--error-color)';
-    }
-
-    if (currentAffinity) {
-      currentAffinity.textContent = affinity_score;
+      // 호감도 그대로 표시 (애니메이션 없음)
+      if (currentAffinity) {
+        currentAffinity.textContent = affinity_score;
+      }
     }
 
     // Show unlock message if any stages were unlocked

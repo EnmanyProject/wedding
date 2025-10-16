@@ -337,23 +337,53 @@
 .result-modal .modal-content {
   max-width: 350px !important;
   border-radius: 20px !important;
-  background: var(--bg-dark) !important;
-  border: 1px solid var(--border-dark) !important;
+  background: #000 !important;
+  border: 2px solid #FF69B4 !important;
   text-align: center !important;
   overflow: hidden !important;
 }
 
 .result-modal .modal-header {
-  background: linear-gradient(135deg, var(--success-green) 0%, var(--accent-yellow) 100%) !important;
-  color: white !important;
+  background: #000 !important;
+  color: #FF69B4 !important;
   padding: var(--space-xl) var(--space-md) !important;
-  border-bottom: none !important;
+  border-bottom: 1px solid #FF69B4 !important;
+}
+
+.result-modal .modal-header h3 {
+  color: #FF69B4 !important;
+}
+
+.result-modal .modal-body {
+  background: #000 !important;
+  color: #FF69B4 !important;
 }
 
 .result-icon {
   font-size: 3rem !important;
   margin-bottom: var(--space-md) !important;
   animation: result-bounce 1s ease-out !important;
+}
+
+/* 베티 점프 애니메이션 */
+.bety-jump {
+  animation: bety-jump-animation 0.6s ease-out infinite !important;
+}
+
+@keyframes bety-jump-animation {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* D-Bety 슬픈 애니메이션 */
+.bety-sad {
+  animation: bety-sad-shake 0.5s ease-in-out 1 !important;
+}
+
+@keyframes bety-sad-shake {
+  0%, 100% { transform: translateX(0px); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 @keyframes result-bounce {
@@ -366,15 +396,16 @@
   font-size: 18px !important;
   font-weight: 700 !important;
   margin: 0 !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  color: #FF69B4 !important;
+  text-shadow: 0 2px 8px rgba(255, 105, 180, 0.5) !important;
 }
 
 .result-stats {
-  background: var(--surface-dark) !important;
+  background: rgba(255, 105, 180, 0.1) !important;
   padding: var(--space-lg) !important;
   margin: var(--space-md) !important;
   border-radius: var(--border-radius) !important;
-  border: 1px solid var(--border-dark) !important;
+  border: 1px solid #FF69B4 !important;
 }
 
 .stat-item {
@@ -383,7 +414,7 @@
   align-items: center !important;
   margin-bottom: var(--space-sm) !important;
   padding: var(--space-sm) 0 !important;
-  border-bottom: 1px solid var(--border-dark) !important;
+  border-bottom: 1px solid rgba(255, 105, 180, 0.3) !important;
 }
 
 .stat-item:last-child {
@@ -393,14 +424,78 @@
 
 .stat-label {
   font-size: 14px !important;
-  color: var(--text-secondary) !important;
+  color: #FFB6C1 !important;
   font-weight: 500 !important;
 }
 
 .stat-value {
-  font-size: 16px !important;
+  font-size: 20px !important;
   font-weight: 700 !important;
-  color: var(--primary-pink) !important;
+  color: #FF69B4 !important;
+  text-shadow: 0 2px 8px rgba(255, 105, 180, 0.6) !important;
+}
+
+/* 호감도 카운트업 애니메이션 강조 */
+#current-affinity {
+  font-size: 28px !important;
+  color: #FF1493 !important;
+  font-weight: 800 !important;
+  text-shadow: 0 0 10px rgba(255, 20, 147, 0.8) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* 호감도 변화량 표시 */
+#affinity-change {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  margin-left: 8px !important;
+}
+
+/* 결과 모달 버튼 스타일 */
+.result-modal .btn {
+  background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%) !important;
+  color: #000 !important;
+  border: 2px solid #FF69B4 !important;
+  font-weight: 700 !important;
+  transition: all 0.3s ease !important;
+}
+
+.result-modal .btn:hover {
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%) !important;
+  box-shadow: 0 0 20px rgba(255, 105, 180, 0.8) !important;
+  transform: translateY(-2px) !important;
+}
+
+.result-modal .btn-secondary {
+  background: transparent !important;
+  color: #FF69B4 !important;
+  border: 2px solid #FF69B4 !important;
+}
+
+.result-modal .btn-secondary:hover {
+  background: rgba(255, 105, 180, 0.2) !important;
+  color: #FF1493 !important;
+  border-color: #FF1493 !important;
+}
+
+/* 언락 메시지 */
+.unlock-text {
+  color: #FFD700 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 8px rgba(255, 215, 0, 0.6) !important;
+}
+
+/* 모달 닫기 버튼 */
+.result-modal .modal-close {
+  color: #FF69B4 !important;
+  opacity: 0.8 !important;
+  transition: all 0.3s ease !important;
+}
+
+.result-modal .modal-close:hover {
+  opacity: 1 !important;
+  color: #FF1493 !important;
+  transform: rotate(90deg) !important;
 }
 
 /* =================================
