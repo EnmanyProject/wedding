@@ -577,7 +577,7 @@ class BattleRoyaleManager {
   }
 
   /**
-   * 탈락 애니메이션 (빨갛게 변하면서 사라짐)
+   * 탈락 애니메이션 (빨갛게 변하면서 사라짐 → 생존자 중앙으로 모이기)
    */
   async playEliminationAnimation(eliminatedIds) {
     console.log(`💥 [BattleRoyale] Playing elimination animation for ${eliminatedIds.length} participants...`);
@@ -622,6 +622,61 @@ class BattleRoyaleManager {
     });
 
     console.log(`✅ [BattleRoyale] Elimination animation complete`);
+
+    // Phase 4: 생존자들 중앙으로 모이기
+    await this.gatherSurvivorsToCenter();
+  }
+
+  /**
+   * 생존자들을 중앙으로 천천히 모이기 (옹기종기)
+   */
+  async gatherSurvivorsToCenter() {
+    console.log(`🌟 [BattleRoyale] Gathering survivors to center...`);
+
+    const grid = document.getElementById('partners-grid');
+    if (!grid) return;
+
+    // 생존한 원들 가져오기
+    const survivorCircles = Array.from(grid.querySelectorAll('.partner-circle'))
+      .filter(circle => !circle.classList.contains('eliminated') && !circle.classList.contains('eliminating'));
+
+    if (survivorCircles.length === 0) return;
+
+    // 그리드 컨테이너의 중심점 계산
+    const gridRect = grid.getBoundingClientRect();
+    const centerX = gridRect.width / 2;
+    const centerY = gridRect.height / 2;
+
+    // 각 생존자를 중앙으로 이동
+    survivorCircles.forEach((circle, index) => {
+      // 현재 원의 위치
+      const rect = circle.getBoundingClientRect();
+      const circleX = rect.left - gridRect.left + rect.width / 2;
+      const circleY = rect.top - gridRect.top + rect.height / 2;
+
+      // 중앙까지의 거리 계산
+      const deltaX = centerX - circleX;
+      const deltaY = centerY - circleY;
+
+      // 중앙으로 70% 정도만 이동 (완전히 중앙이면 너무 뭉침)
+      const moveRatio = 0.7;
+      const targetDeltaX = deltaX * moveRatio;
+      const targetDeltaY = deltaY * moveRatio;
+
+      // Transform으로 이동 애니메이션 적용
+      circle.style.transform = `translate(${targetDeltaX}px, ${targetDeltaY}px)`;
+      circle.style.transition = 'transform 2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+      // 약간의 지연을 두고 애니메이션 시작 (물결 효과)
+      setTimeout(() => {
+        circle.classList.add('gathering');
+      }, index * 10); // 10ms씩 순차적으로
+    });
+
+    // 애니메이션 완료 대기
+    await this.sleep(2200);
+
+    console.log(`✅ [BattleRoyale] Survivors gathered to center (${survivorCircles.length} survivors)`);
   }
 
   /**

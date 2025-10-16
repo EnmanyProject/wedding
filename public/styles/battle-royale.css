@@ -310,6 +310,22 @@
   }
 }
 
+/* Gathering Animation - Phase 3: 중앙으로 모이기 */
+.partner-circle.gathering {
+  animation: gatherToCenter 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes gatherToCenter {
+  0% {
+    /* JavaScript에서 current position 설정 */
+  }
+  100% {
+    /* JavaScript에서 target position 설정 */
+    border-color: #00FF00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  }
+}
+
 /* =====================================================
    Quiz UI (퀴즈 진행 화면) - 100명 그리드 위 오버레이
    ===================================================== */
