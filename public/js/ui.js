@@ -1111,8 +1111,8 @@ class UIManager {
 
           console.log('✨ [UI] 오늘의 추천 파트너:', recommendationsResponse.recommendations.length, '명');
 
-          // 추천 데이터를 파트너 카드 형식으로 변환
-          const targets = recommendationsResponse.recommendations.map(rec => ({
+          // 추천 데이터를 파트너 카드 형식으로 변환 (최대 5명으로 제한)
+          const targets = recommendationsResponse.recommendations.slice(0, 5).map(rec => ({
             id: rec.recommendedUserId,
             name: rec.userName,
             display_name: rec.userDisplayName,
@@ -1124,6 +1124,7 @@ class UIManager {
             recommendation_rank: rec.rank
           }));
 
+          console.log('✅ [UI] 추천 파트너 5명으로 제한:', targets.length, '명');
           this.renderUserAvatars(targets);
           return;
         }
@@ -1380,7 +1381,12 @@ class UIManager {
 
   // Initialize partner swiper functionality
   initializePartnerSwiper() {
-    if (this.partnerSwiperInitialized) return;
+    // ✅ FIX: swiper가 이미 초기화되어 있으면 totalItems만 업데이트
+    if (this.partnerSwiperInitialized && this.partnersSwiper) {
+      console.log('🔄 [Partner Swiper] 이미 초기화됨 - totalItems 업데이트:', this.currentPartners.length);
+      this.partnersSwiper.updateTotalItems(this.currentPartners.length);
+      return;
+    }
 
     // Create MobileSwiper instance for Partners
     this.partnersSwiper = new MobileSwiper({
