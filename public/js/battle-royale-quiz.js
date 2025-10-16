@@ -628,10 +628,10 @@ class BattleRoyaleManager {
   }
 
   /**
-   * 생존자들을 중앙으로 천천히 모이기 (옹기종기)
+   * 생존자들을 왼쪽 상단부터 줄 맞춰서 재정렬 (겹치지 않게)
    */
   async gatherSurvivorsToCenter() {
-    console.log(`🌟 [BattleRoyale] Gathering survivors to center...`);
+    console.log(`🌟 [BattleRoyale] Rearranging survivors to top-left grid...`);
 
     const grid = document.getElementById('partners-grid');
     if (!grid) return;
@@ -642,41 +642,51 @@ class BattleRoyaleManager {
 
     if (survivorCircles.length === 0) return;
 
-    // 그리드 컨테이너의 중심점 계산
+    const count = survivorCircles.length;
+
+    // 생존자 수에 맞는 최적 그리드 크기 계산
+    const gridSize = Math.ceil(Math.sqrt(count));
+    console.log(`📐 [BattleRoyale] Arranging ${count} survivors in ${gridSize}x${gridSize} grid`);
+
+    // 그리드 컨테이너의 크기와 각 셀 크기 계산
     const gridRect = grid.getBoundingClientRect();
-    const centerX = gridRect.width / 2;
-    const centerY = gridRect.height / 2;
+    const originalColumns = 10; // 원래 10x10 그리드
+    const cellWidth = gridRect.width / originalColumns;
+    const cellHeight = gridRect.height / originalColumns;
 
-    // 각 생존자를 중앙으로 이동
+    // 각 생존자를 새 위치로 이동
     survivorCircles.forEach((circle, index) => {
-      // 현재 원의 위치
-      const rect = circle.getBoundingClientRect();
-      const circleX = rect.left - gridRect.left + rect.width / 2;
-      const circleY = rect.top - gridRect.top + rect.height / 2;
+      // 현재 위치
+      const currentRect = circle.getBoundingClientRect();
+      const currentX = currentRect.left - gridRect.left;
+      const currentY = currentRect.top - gridRect.top;
 
-      // 중앙까지의 거리 계산
-      const deltaX = centerX - circleX;
-      const deltaY = centerY - circleY;
+      // 새 그리드 위치 계산 (왼쪽 상단부터)
+      const newRow = Math.floor(index / gridSize);
+      const newCol = index % gridSize;
 
-      // 중앙으로 70% 정도만 이동 (완전히 중앙이면 너무 뭉침)
-      const moveRatio = 0.7;
-      const targetDeltaX = deltaX * moveRatio;
-      const targetDeltaY = deltaY * moveRatio;
+      // 목표 위치 (왼쪽 상단 정렬)
+      const targetX = newCol * cellWidth;
+      const targetY = newRow * cellHeight;
+
+      // 이동 거리 계산
+      const deltaX = targetX - currentX;
+      const deltaY = targetY - currentY;
 
       // Transform으로 이동 애니메이션 적용
-      circle.style.transform = `translate(${targetDeltaX}px, ${targetDeltaY}px)`;
-      circle.style.transition = 'transform 2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      circle.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+      circle.style.transition = 'transform 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
 
-      // 약간의 지연을 두고 애니메이션 시작 (물결 효과)
+      // 약간의 지연을 두고 애니메이션 시작 (행별로 순차적)
       setTimeout(() => {
         circle.classList.add('gathering');
-      }, index * 10); // 10ms씩 순차적으로
+      }, newRow * 50 + newCol * 20); // 행: 50ms, 열: 20ms씩 지연
     });
 
     // 애니메이션 완료 대기
-    await this.sleep(2200);
+    await this.sleep(2700);
 
-    console.log(`✅ [BattleRoyale] Survivors gathered to center (${survivorCircles.length} survivors)`);
+    console.log(`✅ [BattleRoyale] Survivors rearranged to grid (${count} survivors in ${gridSize}x${gridSize})`);
   }
 
   /**
