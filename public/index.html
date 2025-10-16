@@ -156,13 +156,12 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- 🔧 REMOVED: Arrow navigation for swipe-only UX
-                        <div class="swiper-controls" id="partner-swiper-controls">
-                            <button class="swiper-nav-btn" id="prev-partner-btn" disabled>‹</button>
+                        <!-- ✅ RESTORED: Swiper controls (hidden via CSS for swipe-only UX) -->
+                        <div class="swiper-controls" id="partner-swiper-controls" style="display: none;">
+                            <button class="swiper-nav-btn" id="prev-partner-btn" disabled aria-label="이전 파트너">‹</button>
                             <span class="swiper-counter" id="partner-counter">1 / 1</span>
-                            <button class="swiper-nav-btn" id="next-partner-btn" disabled>›</button>
+                            <button class="swiper-nav-btn" id="next-partner-btn" disabled aria-label="다음 파트너">›</button>
                         </div>
-                        -->
                     </div>
                     <!-- Pagination moved outside for proper positioning -->
                     <div class="swiper-pagination" id="partner-swiper-pagination"></div>
