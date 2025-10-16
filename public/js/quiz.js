@@ -111,6 +111,28 @@ class QuizManager {
     }
   }
 
+  // ✅ FIX: Helper function to ensure HTTP URL in development
+  // Resolves ERR_SSL_PROTOCOL_ERROR when browser uses HTTPS but server is HTTP-only
+  normalizeImageUrl(url) {
+    if (!url) return url;
+
+    // If already a full URL, return as-is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    // If relative path, convert to absolute HTTP URL in development
+    // This prevents browser from using HTTPS (page protocol) for HTTP-only server
+    if (window.location.protocol === 'http:') {
+      // Development: Force HTTP protocol
+      const port = window.location.port || '3002';
+      return `http://localhost:${port}${url.startsWith('/') ? url : '/' + url}`;
+    }
+
+    // Production: Return relative URL (HTTPS handled by reverse proxy)
+    return url;
+  }
+
   // Note: startRandomQuiz is no longer used for main UI
   // User avatars in home view now handle quiz starting directly
   async startRandomQuiz() {
@@ -224,12 +246,14 @@ class QuizManager {
       const displayName = targetInfo.display_name || targetInfo.name;
       const avatarIcon = this.getAnimalIcon ? this.getAnimalIcon(displayName) : '👤';
 
-      // 사진이 있는 경우에만 표시
+      // ✅ FIX: Normalize photo URLs to prevent ERR_SSL_PROTOCOL_ERROR
+      // Browser interprets relative URLs using page protocol (HTTPS), but server is HTTP-only
       const photosHTML = targetInfo.photos && Array.isArray(targetInfo.photos) && targetInfo.photos.length > 0
         ? `<div class="target-photos">
-            ${targetInfo.photos.slice(0, 3).map(photo =>
-              `<img src="${photo.storage_key}" alt="타겟 사진" class="target-photo">`
-            ).join('')}
+            ${targetInfo.photos.slice(0, 3).map(photo => {
+              const normalizedUrl = this.normalizeImageUrl(photo.storage_key);
+              return `<img src="${normalizedUrl}" alt="타겟 사진" class="target-photo">`;
+            }).join('')}
           </div>`
         : '';
 
