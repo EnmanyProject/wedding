@@ -125,6 +125,11 @@ class BattleRoyaleManager {
   closeEntryModal() {
     console.log('🎮 [BattleRoyale] Closing entry modal...');
 
+    // 접근성: 포커스를 body로 이동 (aria-hidden 에러 방지)
+    if (document.activeElement && this.entryModal.contains(document.activeElement)) {
+      document.body.focus();
+    }
+
     this.entryModal.classList.remove('active');
     this.entryModal.setAttribute('aria-hidden', 'true');
 
@@ -159,6 +164,11 @@ class BattleRoyaleManager {
    */
   closeGameModal() {
     console.log('🎮 [BattleRoyale] Closing game modal...');
+
+    // 접근성: 포커스를 body로 이동 (aria-hidden 에러 방지)
+    if (document.activeElement && this.gameModal.contains(document.activeElement)) {
+      document.body.focus();
+    }
 
     this.gameModal.classList.remove('active');
     this.gameModal.setAttribute('aria-hidden', 'true');
