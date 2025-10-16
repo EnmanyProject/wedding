@@ -632,70 +632,53 @@ class BattleRoyaleManager {
 
     console.log(`✅ [BattleRoyale] Elimination animation complete`);
 
-    // Phase 4: 생존자들 중앙으로 모이기
-    await this.gatherSurvivorsToCenter();
+    // Phase 4: 생존자들로 그리드 재렌더링 (정렬)
+    await this.rearrangeSurvivors();
   }
 
   /**
-   * 생존자들을 왼쪽 상단부터 줄 맞춰서 재정렬 (겹치지 않게)
+   * 생존자들만으로 그리드 재렌더링
    */
-  async gatherSurvivorsToCenter() {
-    console.log(`🌟 [BattleRoyale] Rearranging survivors to top-left grid...`);
+  async rearrangeSurvivors() {
+    console.log(`🌟 [BattleRoyale] Rearranging survivors grid...`);
 
     const grid = document.getElementById('partners-grid');
     if (!grid) return;
 
-    // 생존한 원들 가져오기
-    const survivorCircles = Array.from(grid.querySelectorAll('.partner-circle'))
+    // 현재 그리드에 남아있는 생존자들의 데이터 추출
+    const survivorElements = Array.from(grid.querySelectorAll('.partner-circle'))
       .filter(circle => !circle.classList.contains('eliminated') && !circle.classList.contains('eliminating'));
 
-    if (survivorCircles.length === 0) return;
+    if (survivorElements.length === 0) return;
 
-    const count = survivorCircles.length;
-
-    // 생존자 수에 맞는 최적 그리드 크기 계산
-    const gridSize = Math.ceil(Math.sqrt(count));
-    console.log(`📐 [BattleRoyale] Arranging ${count} survivors in ${gridSize}x${gridSize} grid`);
-
-    // 그리드 컨테이너의 크기와 각 셀 크기 계산
-    const gridRect = grid.getBoundingClientRect();
-    const originalColumns = 10; // 원래 10x10 그리드
-    const cellWidth = gridRect.width / originalColumns;
-    const cellHeight = gridRect.height / originalColumns;
-
-    // 각 생존자를 새 위치로 이동
-    survivorCircles.forEach((circle, index) => {
-      // 현재 위치
-      const currentRect = circle.getBoundingClientRect();
-      const currentX = currentRect.left - gridRect.left;
-      const currentY = currentRect.top - gridRect.top;
-
-      // 새 그리드 위치 계산 (왼쪽 상단부터)
-      const newRow = Math.floor(index / gridSize);
-      const newCol = index % gridSize;
-
-      // 목표 위치 (왼쪽 상단 정렬)
-      const targetX = newCol * cellWidth;
-      const targetY = newRow * cellHeight;
-
-      // 이동 거리 계산
-      const deltaX = targetX - currentX;
-      const deltaY = targetY - currentY;
-
-      // Transform으로 이동 애니메이션 적용
-      circle.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-      circle.style.transition = 'transform 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-
-      // 약간의 지연을 두고 애니메이션 시작 (행별로 순차적)
-      setTimeout(() => {
-        circle.classList.add('gathering');
-      }, newRow * 50 + newCol * 20); // 행: 50ms, 열: 20ms씩 지연
+    // 생존자 데이터 추출
+    const survivors = survivorElements.map(el => {
+      const id = el.dataset.partnerId;
+      const img = el.querySelector('img');
+      return {
+        id: id,
+        image: img ? img.src : '/images/Bety1.png',
+        alt: img ? img.alt : ''
+      };
     });
 
-    // 애니메이션 완료 대기
-    await this.sleep(2700);
+    console.log(`📐 [BattleRoyale] Rearranging ${survivors.length} survivors...`);
 
-    console.log(`✅ [BattleRoyale] Survivors rearranged to grid (${count} survivors in ${gridSize}x${gridSize})`);
+    // 그리드를 완전히 다시 렌더링
+    grid.innerHTML = survivors.map(survivor => `
+      <div class="partner-circle" data-partner-id="${survivor.id}">
+        <img
+          src="${survivor.image}"
+          alt="${survivor.alt}"
+          onerror="this.src='/images/Bety1.png'"
+          loading="eager">
+      </div>
+    `).join('');
+
+    console.log(`✅ [BattleRoyale] Grid rearranged with ${survivors.length} survivors`);
+
+    // 짧은 대기 (사용자가 재정렬을 인식할 수 있도록)
+    await this.sleep(500);
   }
 
   /**
