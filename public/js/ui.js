@@ -1307,65 +1307,72 @@ class UIManager {
     this.updatePartnerPagination(targets.length);
     this.updatePartnerCounter(0, targets.length);
 
-    // 카드 클릭 이벤트 추가
-    const partnerCards = cardsContainer.querySelectorAll('.partner-card');
-    partnerCards.forEach(card => {
-      card.addEventListener('click', (e) => {
-        // 🔍 [DEBUG] Card click event details
-        console.log('🔍 [Card Click Debug]:', {
-          timestamp: Date.now(),
-          eventType: e.type,
-          eventTarget: e.target.tagName,
-          eventPhase: e.eventPhase,
-          bubbles: e.bubbles,
-          cardId: card.getAttribute('data-user-id')
-        });
+    // ✅ FIX: 이벤트 위임으로 변경하여 중복 리스너 방지
+    // 기존 이벤트 리스너 제거 (있다면)
+    if (this.partnerCardClickHandler) {
+      cardsContainer.removeEventListener('click', this.partnerCardClickHandler);
+    }
 
-        // ✅ FIX 1: Prevent event bubbling to modal overlay
-        e.stopPropagation();
-        console.log('🛑 [Click] stopPropagation() 호출됨');
+    // 새 이벤트 핸들러 생성 및 저장
+    this.partnerCardClickHandler = (e) => {
+      // 클릭된 요소가 파트너 카드 또는 그 자식인지 확인
+      const card = e.target.closest('.partner-card');
+      if (!card) return;
 
-        // ✅ FIX 2: Prevent rapid-click multiple modal opens
-        if (this.isModalOpening) {
-          console.log('⏳ [Click] 모달 열기 진행 중 - 중복 클릭 무시');
-          return;
-        }
-
-        // ✅ FIX 3: Check swipe state (removed redundant lastSwipeTime check)
-        // isPartnerSwiping already handles swipe protection (300ms timeout)
-        if (this.isPartnerSwiping) {
-          console.log('❌ [Click] 클릭 무시 - 스와이프 진행 중');
-          return;
-        }
-
-        console.log('🎯 [Click] 카드 클릭 감지:', {
-          userId: card.getAttribute('data-user-id'),
-          userName: card.getAttribute('data-user-name')
-        });
-
-        // Process click event
-        if (true) {
-          console.log('✅ [Click] 클릭 이벤트 처리 시작');
-
-          // Set modal opening flag
-          this.isModalOpening = true;
-          console.log('🔒 [Click] isModalOpening = true');
-
-          // 카드 클릭 시 사용자 상호작용 감지
-          this.onUserInteraction();
-
-          const userId = card.getAttribute('data-user-id');
-          const userName = card.getAttribute('data-user-name');
-          this.selectUserForQuiz(userId, userName);
-
-          // Reset flag after modal opens (300ms should be enough)
-          setTimeout(() => {
-            this.isModalOpening = false;
-            console.log('🔓 [Click] Modal opening flag reset');
-          }, 300);
-        }
+      // 🔍 [DEBUG] Card click event details
+      console.log('🔍 [Card Click Debug]:', {
+        timestamp: Date.now(),
+        eventType: e.type,
+        eventTarget: e.target.tagName,
+        eventPhase: e.eventPhase,
+        bubbles: e.bubbles,
+        cardId: card.getAttribute('data-user-id')
       });
-    });
+
+      // ✅ FIX 1: Prevent event bubbling to modal overlay
+      e.stopPropagation();
+      console.log('🛑 [Click] stopPropagation() 호출됨');
+
+      // ✅ FIX 2: Prevent rapid-click multiple modal opens
+      if (this.isModalOpening) {
+        console.log('⏳ [Click] 모달 열기 진행 중 - 중복 클릭 무시');
+        return;
+      }
+
+      // ✅ FIX 3: Check swipe state
+      if (this.isPartnerSwiping) {
+        console.log('❌ [Click] 클릭 무시 - 스와이프 진행 중');
+        return;
+      }
+
+      console.log('🎯 [Click] 카드 클릭 감지:', {
+        userId: card.getAttribute('data-user-id'),
+        userName: card.getAttribute('data-user-name')
+      });
+
+      // Process click event
+      console.log('✅ [Click] 클릭 이벤트 처리 시작');
+
+      // Set modal opening flag
+      this.isModalOpening = true;
+      console.log('🔒 [Click] isModalOpening = true');
+
+      // 카드 클릭 시 사용자 상호작용 감지
+      this.onUserInteraction();
+
+      const userId = card.getAttribute('data-user-id');
+      const userName = card.getAttribute('data-user-name');
+      this.selectUserForQuiz(userId, userName);
+
+      // Reset flag after modal opens (300ms should be enough)
+      setTimeout(() => {
+        this.isModalOpening = false;
+        console.log('🔓 [Click] Modal opening flag reset');
+      }, 300);
+    };
+
+    // 이벤트 위임: 부모 컨테이너에 한 번만 등록
+    cardsContainer.addEventListener('click', this.partnerCardClickHandler);
 
     // 🔧 HINT SYSTEM DISABLED: Causing card size changes (dynamic hint was expanding card height)
     // this.startHintTimer();
