@@ -275,7 +275,264 @@
 }
 
 /* =====================================================
+   Quiz UI (퀴즈 진행 화면)
+   ===================================================== */
+
+.battle-quiz-container {
+  background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+  padding: 2rem;
+  border-radius: 25px;
+  border: 3px solid #FF1493;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quiz-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 20, 147, 0.3);
+}
+
+.quiz-header h2 {
+  font-size: 1.75rem;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.quiz-category {
+  color: #FF1493;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.quiz-question {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.2);
+}
+
+.quiz-question p {
+  color: #FFF;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.quiz-option-btn {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 20, 147, 0.2) 0%, rgba(255, 105, 180, 0.2) 100%);
+  border: 2px solid #FF1493;
+  border-radius: 15px;
+  color: #FFF;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quiz-option-btn:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(135deg, rgba(255, 20, 147, 0.4) 0%, rgba(255, 105, 180, 0.4) 100%);
+  box-shadow: 0 10px 30px rgba(255, 20, 147, 0.5);
+}
+
+.quiz-option-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quiz-option-btn.selected {
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
+  border-color: #FFD700;
+  box-shadow: 0 10px 30px rgba(255, 20, 147, 0.7);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.quiz-option-btn .option-label {
+  font-size: 0.85rem;
+  color: #FFD700;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.quiz-option-btn .option-text {
+  font-size: 1.1rem;
+  color: #FFF;
+  font-weight: 600;
+}
+
+.quiz-survivors-count {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.quiz-survivors-count p {
+  color: #FFD700;
+  font-size: 1.1rem;
+}
+
+.quiz-survivors-count strong {
+  color: #FF1493;
+  font-size: 1.5rem;
+  text-shadow: 0 0 10px rgba(255, 20, 147, 0.8);
+}
+
+/* =====================================================
    Final Result Modal (최종 결과)
+   ===================================================== */
+
+.battle-results-container {
+  background: linear-gradient(135deg, #0a0015 0%, #1a0033 100%);
+  padding: 2rem;
+  border-radius: 25px;
+  border: 3px solid #FF1493;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.results-header h2 {
+  font-size: 2rem;
+  color: #FFD700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.results-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 20, 147, 0.3);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  color: #FFF;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stat-value {
+  color: #FFD700;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.stat-value.highlight {
+  color: #FF1493;
+  font-size: 2.5rem;
+  text-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+  animation: resultPulse 2s infinite;
+}
+
+@keyframes resultPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.stat-arrow {
+  color: #FFD700;
+  font-size: 2rem;
+  opacity: 0.6;
+}
+
+.results-survivors {
+  margin-bottom: 2rem;
+}
+
+.results-survivors h3 {
+  color: #FFD700;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.results-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 2px solid rgba(255, 20, 147, 0.3);
+}
+
+.results-actions .btn-primary {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #FF1493, #FF69B4);
+  color: white;
+  border: 2px solid #FF1493;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(255, 20, 147, 0.4);
+}
+
+.results-actions .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(255, 20, 147, 0.6);
+}
+
+.results-actions .btn-secondary {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: #FFF;
+  border: 2px solid #FFF;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.results-actions .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+/* =====================================================
+   Final Result Modal (최종 결과) - Legacy
    ===================================================== */
 
 .battle-result-modal {
@@ -469,6 +726,54 @@
     font-size: 6rem;
   }
 
+  /* Quiz UI - 모바일 */
+  .battle-quiz-container {
+    padding: 1.5rem;
+  }
+
+  .quiz-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .quiz-question p {
+    font-size: 1.1rem;
+  }
+
+  .quiz-option-btn {
+    padding: 1.25rem;
+    font-size: 1rem;
+  }
+
+  .quiz-option-btn .option-text {
+    font-size: 1rem;
+  }
+
+  /* Results - 모바일 */
+  .battle-results-container {
+    padding: 1.5rem;
+  }
+
+  .results-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .results-stats {
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .stat-value.highlight {
+    font-size: 2rem;
+  }
+
+  .stat-arrow {
+    font-size: 1.5rem;
+  }
+
   /* Survivors Grid */
   .survivors-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -505,8 +810,73 @@
     font-size: 4rem;
   }
 
+  /* Quiz UI - 작은 모바일 */
+  .battle-quiz-container {
+    padding: 1rem;
+  }
+
+  .quiz-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .quiz-question {
+    padding: 1rem;
+  }
+
+  .quiz-question p {
+    font-size: 1rem;
+  }
+
+  .quiz-option-btn {
+    padding: 1rem;
+  }
+
+  .quiz-survivors-count strong {
+    font-size: 1.25rem;
+  }
+
+  /* Results - 작은 모바일 */
+  .battle-results-container {
+    padding: 1rem;
+  }
+
+  .results-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .results-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stat-arrow {
+    transform: rotate(90deg);
+    font-size: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-value.highlight {
+    font-size: 1.75rem;
+  }
+
+  .results-survivors h3 {
+    font-size: 1.25rem;
+  }
+
   .survivors-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .results-actions {
+    flex-direction: column;
+  }
+
+  .results-actions .btn-primary,
+  .results-actions .btn-secondary {
+    width: 100%;
   }
 }
 

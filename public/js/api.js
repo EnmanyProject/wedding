@@ -492,6 +492,61 @@ class APIService {
     return this.request(`/quiz/targets/${targetId}/quizzes`);
   }
 
+  // Battle Royale API
+  async startBattleRoyale() {
+    const result = await this.request('/battle-royale/start', {
+      method: 'POST',
+      bypassCache: true // Always bypass cache for new session
+    });
+
+    // Invalidate related caches
+    this.invalidateCache('recommendations');
+    console.log('🎮 [BattleRoyale] Started new session, invalidated recommendations cache');
+
+    return result;
+  }
+
+  async getBattleRoyaleRound(sessionId, roundNumber) {
+    return this.request(`/battle-royale/round/${sessionId}/${roundNumber}`, {
+      bypassCache: true // Always get fresh round data
+    });
+  }
+
+  async submitBattleRoyaleAnswer(sessionId, roundNumber, answer) {
+    const result = await this.request('/battle-royale/answer', {
+      method: 'POST',
+      body: JSON.stringify({
+        session_id: sessionId,
+        round_number: roundNumber,
+        answer
+      }),
+      bypassCache: true
+    });
+
+    console.log('🎮 [BattleRoyale] Submitted answer for round', roundNumber);
+
+    return result;
+  }
+
+  async getBattleRoyaleResult(sessionId) {
+    return this.request(`/battle-royale/result/${sessionId}`, {
+      bypassCache: true // Always get fresh final results
+    });
+  }
+
+  async addBattleRoyaleSurvivorsToRecommendations(sessionId) {
+    const result = await this.request(`/battle-royale/add-to-recommendations/${sessionId}`, {
+      method: 'POST',
+      bypassCache: true
+    });
+
+    // Invalidate recommendations cache after adding survivors
+    this.invalidateCache('recommendations');
+    console.log('🎮 [BattleRoyale] Added survivors to recommendations, invalidated cache');
+
+    return result;
+  }
+
   // Points API
   async getMyPoints() {
     return this.request('/points/me/points');
