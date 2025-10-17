@@ -140,6 +140,25 @@ router.post('/me/photos/upload', authenticateToken, asyncHandler(async (
     userId
   });
 
+  // ✅ FIX: Update user's profile_image_url if this is a PROFILE photo
+  if (role === 'PROFILE') {
+    // Check if user has existing profile_image_url
+    const [user] = await db.query(
+      'SELECT profile_image_url FROM users WHERE id = $1',
+      [userId]
+    );
+
+    // If no profile image set, set this as the profile image
+    if (!user || !user.profile_image_url || user.profile_image_url.includes('/images/profiles/user')) {
+      const profileImageUrl = `/uploads/${storageKey}`;
+      await db.query(
+        'UPDATE users SET profile_image_url = $1, updated_at = NOW() WHERE id = $2',
+        [profileImageUrl, userId]
+      );
+      console.log(`✅ [Photos] Updated profile_image_url for user ${userId}: ${profileImageUrl}`);
+    }
+  }
+
   const response: ApiResponse<PhotoPresignResponse> = {
     success: true,
     data: {
