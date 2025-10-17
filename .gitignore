@@ -146,6 +146,7 @@ public/styles/signup-v2.css
 /*.css
 /*.md
 !README.md
+!README_*.md
 !CLAUDE.md
 !MASTER.md
 !PROJECT.md
