@@ -33,8 +33,8 @@
       this.mockUsers = [];
       this.modalOpenTime = 0; // ✅ FIX: 모달 타이밍 보호
 
-      // Ring 화폐 시스템 참조
-      this.ringSystem = window.RingSystem;
+      // Ring 화폐 시스템 참조 (인스턴스)
+      this.ringSystem = window.ringSystem;
     }
 
     /**
@@ -282,18 +282,31 @@
       // Mock: Ring 지급
       const rewardAmount = 50;
 
-      if (this.ringSystem) {
-        await this.ringSystem.earnRings(rewardAmount, '사진 맡기기');
+      // Ring 시스템 참조 업데이트 (늦게 초기화될 수 있음)
+      const ringSystem = window.ringSystem || this.ringSystem;
+
+      if (ringSystem) {
+        console.log('💍 [Pawnshop] Ring system available, earning rings...');
+        await ringSystem.earnRings(rewardAmount, '사진 맡기기');
+      } else {
+        console.warn('⚠️ [Pawnshop] Ring system not available yet');
       }
 
       // Mock: 거래 내역 추가
       this.addTransaction('사진 맡기기', rewardAmount, 'earned');
 
-      this.showToast(`사진을 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
-      this.clearPhotoPreview();
-      this.closeModal(this.pawnPhotoModal);
+      // 성공 메시지 표시
+      this.showToast(`✅ 사진을 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
 
-      console.log('✅ [Pawnshop] Photo submitted');
+      console.log('✅ [Pawnshop] Photo submitted successfully');
+      console.log(`   Reward: ${rewardAmount} rings`);
+      console.log(`   Ring system: ${ringSystem ? 'Available' : 'Not available'}`);
+
+      // 모달 닫기 전에 잠시 대기 (사용자가 메시지 볼 수 있도록)
+      setTimeout(() => {
+        this.clearPhotoPreview();
+        this.closeModal(this.pawnPhotoModal);
+      }, 1500);
     }
 
     /**
@@ -317,14 +330,25 @@
       };
       const typeName = typeNames[type] || '정보';
 
-      if (this.ringSystem) {
-        await this.ringSystem.earnRings(rewardAmount, `${typeName} 맡기기`);
+      // Ring 시스템 참조 업데이트 (늦게 초기화될 수 있음)
+      const ringSystem = window.ringSystem || this.ringSystem;
+
+      if (ringSystem) {
+        console.log('💍 [Pawnshop] Ring system available, earning rings...');
+        await ringSystem.earnRings(rewardAmount, `${typeName} 맡기기`);
+      } else {
+        console.warn('⚠️ [Pawnshop] Ring system not available yet');
       }
 
       // Mock: 거래 내역 추가
       this.addTransaction(`${typeName} 맡기기`, rewardAmount, 'earned');
 
-      this.showToast(`${typeName}를 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
+      // 성공 메시지 표시
+      this.showToast(`✅ ${typeName}를 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
+
+      console.log('✅ [Pawnshop] Info submitted successfully');
+      console.log(`   Type: ${typeName}`);
+      console.log(`   Reward: ${rewardAmount} rings`);
 
       // 입력 초기화
       const infoTextarea = document.getElementById('info-textarea');
@@ -336,9 +360,10 @@
       infoTypeCards.forEach(c => c.classList.remove('selected'));
       this.selectedInfoType = null;
 
-      this.closeModal(this.pawnInfoModal);
-
-      console.log('✅ [Pawnshop] Info submitted');
+      // 모달 닫기 전에 잠시 대기 (사용자가 메시지 볼 수 있도록)
+      setTimeout(() => {
+        this.closeModal(this.pawnInfoModal);
+      }, 1500);
     }
 
     /**
@@ -569,15 +594,18 @@
       // Mock: Ring 지출
       const cost = 30;
 
-      if (this.ringSystem) {
-        const currentRings = this.ringSystem.getCurrentRings();
+      // Ring 시스템 참조 업데이트 (늦게 초기화될 수 있음)
+      const ringSystem = window.ringSystem || this.ringSystem;
+
+      if (ringSystem) {
+        const currentRings = ringSystem.getCurrentRings();
 
         if (currentRings < cost) {
           this.showToast(`링이 부족합니다! (필요: ${cost}💍, 보유: ${currentRings}💍)`, 'error');
           return;
         }
 
-        const success = await this.ringSystem.spendRings(cost, '다른 유저 정보 열람');
+        const success = await ringSystem.spendRings(cost, '다른 유저 정보 열람');
 
         if (success) {
           this.addTransaction('다른 유저 정보 열람', cost, 'spent');
@@ -611,8 +639,16 @@
       // ✅ FIX: requestAnimationFrame으로 타이밍 개선
       requestAnimationFrame(() => {
         modal.style.display = 'flex';
+        modal.style.zIndex = '10000'; // ✅ FIX: z-index 명시적 설정
+        modal.style.setProperty('opacity', '1', 'important'); // ✅ FIX: CSS 애니메이션보다 우선순위 높게
+        modal.style.setProperty('visibility', 'visible', 'important'); // ✅ FIX: visibility hidden 상태 override
+        modal.setAttribute('aria-hidden', 'false'); // ✅ FIX: 접근성 속성 업데이트
         document.body.style.overflow = 'hidden';
+
         console.log('✅ [Pawnshop] Modal opened:', modal.id);
+        console.log('   Display:', window.getComputedStyle(modal).display);
+        console.log('   Opacity:', window.getComputedStyle(modal).opacity);
+        console.log('   Visibility:', window.getComputedStyle(modal).visibility);
       });
     }
 
@@ -622,6 +658,7 @@
     closeModal(modal) {
       if (!modal) return;
       modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true'); // ✅ FIX: 접근성 속성 업데이트
       document.body.style.overflow = '';
     }
 
@@ -645,24 +682,64 @@
         return;
       }
 
+      // Toast Container 위치 설정 (메인 앱 화면 중앙 상단)
+      if (!toastContainer.style.position) {
+        toastContainer.style.cssText = `
+          position: fixed;
+          top: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 100000;
+          pointer-events: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: auto;
+        `;
+      }
+
       const toast = document.createElement('div');
       toast.className = `toast toast-${type}`;
       toast.textContent = message;
       toast.style.cssText = `
-        padding: 1rem 1.5rem;
+        position: relative;
+        padding: 1.5rem 2.5rem;
         background: ${type === 'error' ? '#d32f2f' : type === 'success' ? '#388e3c' : '#1976d2'};
         color: white;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        animation: slideInRight 0.3s ease;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        font-size: 1.2rem;
+        font-weight: 600;
+        pointer-events: auto;
+        min-width: 300px;
+        max-width: 500px;
+        text-align: center;
+        transform: translateY(-100px);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        opacity: 1 !important;
+        visibility: visible !important;
       `;
+
+      console.log('🍞 [Pawnshop] Toast created:', message);
 
       toastContainer.appendChild(toast);
 
+      // 슬라이드 다운 애니메이션 (위에서 아래로)
       setTimeout(() => {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
+        toast.style.transform = 'translateY(0)';
+        console.log('🍞 [Pawnshop] Toast shown');
+      }, 10);
+
+      // 3초 후 제거
+      setTimeout(() => {
+        toast.style.transform = 'translateY(-100px)';
+        toast.style.opacity = '0';
+        console.log('🍞 [Pawnshop] Toast hiding');
+        setTimeout(() => {
+          toast.remove();
+          console.log('🍞 [Pawnshop] Toast removed');
+        }, 400);
       }, 3000);
     }
   }
