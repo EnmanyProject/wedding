@@ -2,21 +2,51 @@
 
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
-**최종 업데이트**: 2025-10-16
-**현재 Phase**: Battle Royale 및 UI 최적화 진행 중
+**최종 업데이트**: 2025-10-17
+**현재 Phase**: 전당포 시스템 Toast 알림 개선 완료
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: v1.62.48 모바일 터치 이벤트 경고 수정
-**작업**: Battle Royale 모달에서 배경 스크롤 방지
+**Phase**: v1.62.50 전당포 Toast 알림 시스템 완전 수정
+**작업**: Toast 위치/크기 최적화 및 Ring System 통합 완료
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: Battle Royale 추가 UI/UX 개선 및 테스트
+**다음**: 전당포 실제 데이터 저장 구현 (사진/정보 맡기기)
 
 ---
 
 ## ✅ 최근 완료 작업
+
+### v1.62.50: 전당포 Toast 알림 시스템 완전 수정 ✅ (2025-10-17)
+
+**작업 내용**:
+- **문제**: "사진 맡기기" 클릭 시 모달이 보이지 않고, Ring 시스템 에러, Toast 숨김
+- **해결 과정**:
+  1. **Modal Visibility** (pawnshop.js:629-653)
+     - CSS 애니메이션 `opacity: 0` → `setProperty(..., 'important')` 강제 설정
+  2. **Ring System 통합** (pawnshop.js:37, 279-310, 315-367, 591-624)
+     - `window.RingSystem` (클래스) → `window.ringSystem` (인스턴스) 참조 수정
+     - `earnRings()`, `getCurrentRings()` 메서드 추가 (ring-system.js:420-453, 490-493)
+     - Demo 모드도 지원 (ring-system.js:717-722)
+  3. **Toast Container 숨김** (accessibility-improvements.css:549)
+     - `[aria-live="polite"]` → `[aria-live="polite"]:not(.toast-container)` 선택자 수정
+     - Screen reader 전용 숨김에서 Toast 제외
+  4. **Toast 위치/크기 최적화** (pawnshop.js:678-744)
+     - 위치: 우측 상단 구석 → 중앙 상단 (`top: 80px, left: 50%, transform: translateX(-50%)`)
+     - 크기: 50% 증가 (padding: 1.5rem 2.5rem, font-size: 1.2rem)
+     - 애니메이션: 우측 슬라이드 → 위에서 아래로 (`translateY`)
+     - 시각: border-radius 12px, box-shadow 강화
+
+**효과**:
+- ✅ 전당포 모든 기능 정상 작동 (사진/정보 맡기기, 정보 열람)
+- ✅ Toast가 화면 중앙 상단에 크고 명확하게 표시
+- ✅ Ring 시스템 완전 통합 (획득/소비 정상 작동)
+- ✅ 사용자 경험 대폭 개선
+
+**Git**: cf0e137 (코드), b5031cc (문서) ✅
+
+---
 
 ### v1.62.48: Battle Royale 모바일 터치 이벤트 경고 수정 ✅ (2025-10-16)
 
