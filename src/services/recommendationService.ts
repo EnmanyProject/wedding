@@ -27,6 +27,9 @@ interface DailyRecommendation {
   userDisplayName: string;
   userAge: number;
   userRegion: string;
+  reason?: string;
+  metadata?: any;
+  expiresAt?: string;
 }
 
 export class RecommendationService {
@@ -293,6 +296,9 @@ export class RecommendationService {
         dr.recommended_user_id,
         dr.score,
         dr.rank,
+        dr.reason,
+        dr.metadata,
+        dr.expires_at,
         u.name AS user_name,
         u.display_name AS user_display_name,
         u.age AS user_age,
@@ -300,8 +306,8 @@ export class RecommendationService {
        FROM daily_recommendations dr
        JOIN users u ON dr.recommended_user_id = u.id
        WHERE dr.user_id = $1
-       AND dr.recommendation_date = CURRENT_DATE
-       ORDER BY dr.rank ASC`,
+       AND (dr.recommendation_date = CURRENT_DATE OR dr.expires_at > NOW())
+       ORDER BY dr.rank ASC, dr.score DESC`,
       [userId]
     );
 
@@ -310,6 +316,9 @@ export class RecommendationService {
       recommendedUserId: row.recommended_user_id,
       score: row.score,
       rank: row.rank,
+      reason: row.reason,
+      metadata: row.metadata,
+      expiresAt: row.expires_at,
       userName: row.user_name,
       userDisplayName: row.user_display_name,
       userAge: row.user_age,

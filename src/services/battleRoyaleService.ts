@@ -449,17 +449,14 @@ export class BattleRoyaleService {
           // Add to recommendations with special badge metadata
           await client.query(
             `INSERT INTO daily_recommendations
-             (id, user_id, recommended_user_id, score, reason, expires_at, metadata, created_at)
-             VALUES ($1, $2, $3, $4, $5, NOW() + INTERVAL '7 days', $6, NOW())
-             ON CONFLICT (user_id, recommended_user_id)
-             DO UPDATE SET
-               metadata = EXCLUDED.metadata,
-               updated_at = NOW()`,
+             (id, user_id, recommended_user_id, score, rank, reason, expires_at, metadata, recommendation_date, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, NOW() + INTERVAL '7 days', $7, CURRENT_DATE, NOW())`,
             [
               uuidv4(),
               userId,
               survivor.user_id,
               100, // High score for battle royale survivors
+              1,   // Rank 1 for battle royale survivors (high priority)
               'BATTLE_ROYALE_SURVIVOR',
               JSON.stringify({ battle_royale_survivor: true, session_id: sessionId })
             ]

@@ -213,7 +213,19 @@ export class QuizService {
 
       const quizItem = quizItemResult.rows?.[0];
 
-      // Apply points penalty if wrong
+      // 1. 퀴즈 도전 비용: 무조건 1링 차감 (정답/오답 무관)
+      await client.query(
+        'UPDATE user_ring_balances SET balance = balance - 1, updated_at = NOW() WHERE user_id = $1',
+        [session.asker_id]
+      );
+
+      await client.query(
+        `INSERT INTO user_ring_ledger (id, user_id, delta, reason, ref_id, created_at)
+         VALUES ($1, $2, $3, $4, $5, NOW())`,
+        [uuidv4(), session.asker_id, -1, 'QUIZ_ATTEMPT', quizItemId]
+      );
+
+      // 2. 오답 시 추가 패널티 차감
       if (deltaPoints < 0) {
         await client.query(
           'UPDATE user_ring_balances SET balance = balance + $1, updated_at = NOW() WHERE user_id = $2',

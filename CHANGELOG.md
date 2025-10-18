@@ -30,6 +30,53 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.63.3 (2025-10-18) - 퀴즈 링 차감 시스템 수정
+
+**작업 내용**:
+- **문제**: 호감도 퀴즈에서 정답 시 링이 차감되지 않음
+  - 오답 시에만 패널티 차감
+  - 퀴즈 시도 자체에 비용이 없음
+- **해결**:
+  - 2단계 차감 시스템 구현:
+    1. 퀴즈 시도당 무조건 1링 차감 (`QUIZ_ATTEMPT`)
+    2. 오답 시 추가 패널티 차감 (`QUIZ_WRONG`)
+  - `src/services/quizService.ts:216-240` 수정
+
+**기술 상세**:
+```typescript
+// 1. 퀴즈 도전 비용: 무조건 1링 차감 (정답/오답 무관)
+await client.query(
+  'UPDATE user_ring_balances SET balance = balance - 1, updated_at = NOW() WHERE user_id = $1',
+  [session.asker_id]
+);
+
+await client.query(
+  `INSERT INTO user_ring_ledger (id, user_id, delta, reason, ref_id, created_at)
+   VALUES ($1, $2, $3, $4, $5, NOW())`,
+  [uuidv4(), session.asker_id, -1, 'QUIZ_ATTEMPT', quizItemId]
+);
+
+// 2. 오답 시 추가 패널티 차감
+if (deltaPoints < 0) {
+  // 추가 패널티 처리
+}
+```
+
+**검증 완료**:
+- ✅ 정답 시: 1링 차감
+- ✅ 오답 시: 1링 차감 + 추가 패널티
+- ✅ Ring ledger에 `QUIZ_ATTEMPT` 기록
+
+**수정된 파일**:
+- `src/services/quizService.ts` (퀴즈 링 차감 로직)
+
+**비즈니스 영향**:
+- 퀴즈 시도 비용 명확화
+- Ring 경제 시스템 개선
+- 사용자 행동 데이터 수집 강화
+
+---
+
 ### v1.63.2 (2025-10-18) - 프로필 모달 클릭 및 표시 문제 해결
 
 **작업 내용**:
