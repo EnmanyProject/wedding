@@ -325,6 +325,95 @@
     }
 
     /**
+     * 이미 맡긴 사진 확인
+     */
+    async checkExistingPhotos() {
+      try {
+        const response = await window.api.getMyPawnedPhotos();
+
+        if (response.success) {
+          const photos = response.data;
+
+          // face 타입 사진이 있는지 확인
+          const facePhoto = photos.find(p => p.photo_type === 'face');
+
+          const existingPhotoArea = document.getElementById('existing-photo-area');
+          const photoUploadLabel = document.getElementById('photo-upload-label');
+          const submitPhotoBtn = document.getElementById('submit-photo-btn');
+
+          if (facePhoto) {
+            // 이미 맡긴 사진이 있음
+            console.log('⚠️ [Pawnshop] Face photo already exists:', facePhoto.id);
+
+            if (existingPhotoArea) {
+              existingPhotoArea.style.display = 'block';
+              existingPhotoArea.innerHTML = `
+                <div class="warning-box">
+                  <p>⚠️ 이미 얼굴 사진을 맡기셨습니다.</p>
+                  <p class="small-text">삭제 후 다시 맡기실 수 있습니다.</p>
+                  <button class="btn-danger" id="delete-existing-photo-btn" data-photo-id="${facePhoto.id}">
+                    🗑️ 사진 삭제
+                  </button>
+                </div>
+              `;
+
+              // 삭제 버튼 이벤트
+              const deleteBtn = document.getElementById('delete-existing-photo-btn');
+              if (deleteBtn) {
+                deleteBtn.addEventListener('click', async () => {
+                  await this.deletePawnedPhoto(facePhoto.id);
+                });
+              }
+            }
+
+            // 업로드 폼 비활성화
+            if (photoUploadLabel) photoUploadLabel.style.display = 'none';
+            if (submitPhotoBtn) submitPhotoBtn.disabled = true;
+
+          } else {
+            // 맡긴 사진 없음
+            console.log('✅ [Pawnshop] No existing face photo');
+
+            if (existingPhotoArea) {
+              existingPhotoArea.style.display = 'none';
+              existingPhotoArea.innerHTML = '';
+            }
+
+            // 업로드 폼 활성화
+            if (photoUploadLabel) photoUploadLabel.style.display = 'flex';
+          }
+        }
+      } catch (error) {
+        console.error('이미 맡긴 사진 확인 실패:', error);
+      }
+    }
+
+    /**
+     * 맡긴 사진 삭제
+     */
+    async deletePawnedPhoto(photoId) {
+      try {
+        const confirmed = confirm('정말 삭제하시겠습니까?\n삭제 후 Ring은 반환되지 않습니다.');
+
+        if (!confirmed) return;
+
+        const response = await window.api.deletePawnedPhoto(photoId);
+
+        if (response.success) {
+          this.showToast('사진이 삭제되었습니다', 'success');
+
+          // 사진 확인 다시 로드
+          await this.checkExistingPhotos();
+        } else {
+          throw new Error(response.error || '삭제에 실패했습니다');
+        }
+      } catch (error) {
+        console.error('사진 삭제 실패:', error);
+        this.showToast(error.message || '사진 삭제에 실패했습니다', 'error');
+      }
+    }
+
+    /**
      * 정보 제출
      */
     async submitInfo(type, text) {
@@ -561,8 +650,12 @@
     /**
      * 사진 맡기기 모달 열기
      */
-    openPawnPhoto() {
+    async openPawnPhoto() {
       console.log('📸 [Pawnshop] Opening pawn photo modal...');
+
+      // 이미 맡긴 사진 확인
+      await this.checkExistingPhotos();
+
       this.openModal(this.pawnPhotoModal);
     }
 

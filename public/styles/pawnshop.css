@@ -838,3 +838,51 @@
   outline: 3px solid #FFD700;
   outline-offset: 2px;
 }
+
+/* ===== Warning Box (Existing Photo) ===== */
+.warning-box {
+  background: linear-gradient(135deg, #2a1a0a 0%, #1a0a00 100%);
+  border: 2px solid #FFA500;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.3);
+}
+
+.warning-box p {
+  margin: 0.5rem 0;
+  color: #FFD700;
+  font-weight: 500;
+}
+
+.warning-box .small-text {
+  font-size: 0.875rem;
+  color: #cccccc;
+  margin-bottom: 1rem;
+}
+
+/* ===== Danger Button ===== */
+.btn-danger {
+  background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+  color: #ffffff;
+  border: 2px solid #ff6666;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
+  border-color: #ff8888;
+  box-shadow: 0 6px 16px rgba(255, 68, 68, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(255, 68, 68, 0.3);
+}
