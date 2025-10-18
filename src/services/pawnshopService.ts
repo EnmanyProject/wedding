@@ -335,8 +335,7 @@ export class PawnshopService {
         `SELECT COUNT(*) as count
          FROM ab_quiz_responses
          WHERE user_id = $1
-         AND DATE(created_at) = CURRENT_DATE
-         AND metadata->>'source' = 'pawnshop'`,
+         AND DATE(created_at) = CURRENT_DATE`,
         [userId]
       );
 
@@ -418,11 +417,11 @@ export class PawnshopService {
           throw new Error('존재하지 않는 퀴즈입니다.');
         }
 
-        // 4. 답변 저장 (metadata에 source: 'pawnshop' 추가)
+        // 4. 답변 저장
         await client.query(
-          `INSERT INTO ab_quiz_responses (quiz_id, user_id, choice, metadata)
-           VALUES ($1, $2, $3, $4)`,
-          [quizId, userId, choice, JSON.stringify({ source: 'pawnshop' })]
+          `INSERT INTO ab_quiz_responses (quiz_id, user_id, choice)
+           VALUES ($1, $2, $3)`,
+          [quizId, userId, choice]
         );
 
         // 5. Ring 보상 지급

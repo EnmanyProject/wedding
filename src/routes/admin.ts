@@ -2127,36 +2127,28 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
     quizzes = filtered.slice(offset, offset + perPage);
 
   } else {
-    // Real database query (기존 코드 유지)
-    let whereClauseAB = '1=1';
-    let whereClauseTP = '1=1';
+    // Real database query - Now unified in ab_quizzes table
+    let whereClause = '1=1';
     const params: any[] = [];
     let paramIndex = 1;
 
     if (category) {
-      whereClauseAB += ` AND category = $${paramIndex}`;
-      whereClauseTP += ` AND category = $${paramIndex}`;
+      whereClause += ` AND category = $${paramIndex}`;
       params.push(category);
       paramIndex++;
     }
 
     if (active !== undefined) {
-      whereClauseAB += ` AND is_active = $${paramIndex}`;
-      whereClauseTP += ` AND is_active = $${paramIndex}`;
+      whereClause += ` AND is_active = $${paramIndex}`;
       params.push(active === 'true');
       paramIndex++;
     }
 
     if (search) {
-      whereClauseAB += ` AND (
+      whereClause += ` AND (
         title ILIKE $${paramIndex} OR
         option_a_title ILIKE $${paramIndex} OR
         option_b_title ILIKE $${paramIndex}
-      )`;
-      whereClauseTP += ` AND (
-        key ILIKE $${paramIndex} OR
-        left_label ILIKE $${paramIndex} OR
-        right_label ILIKE $${paramIndex}
       )`;
       params.push(`%${search}%`);
       paramIndex++;
@@ -2164,43 +2156,30 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
 
     const allParams = [...params, perPage, offset];
 
+    // All quizzes are now in ab_quizzes table
+    // source column indicates origin: 'admin_created' or 'trait_pair_migration'
     const unifiedQuery = `
-      WITH unified_quizzes AS (
-        SELECT
-          id,
-          'ab_quiz' as quiz_type,
-          'User Created' as source,
-          category,
-          title,
-          option_a_title as left_option,
-          option_b_title as right_option,
-          option_a_image as left_image,
-          option_b_image as right_image,
-          is_active,
-          created_at,
-          (SELECT email FROM admin_users WHERE id = created_by) as creator_info
-        FROM ab_quizzes
-        WHERE ${whereClauseAB}
-
-        UNION ALL
-
-        SELECT
-          id,
-          'trait_pair' as quiz_type,
-          'System Generated' as source,
-          category,
-          key as title,
-          left_label as left_option,
-          right_label as right_option,
-          left_image,
-          right_image,
-          is_active,
-          created_at,
-          NULL as creator_info
-        FROM trait_pairs
-        WHERE ${whereClauseTP}
-      )
-      SELECT * FROM unified_quizzes
+      SELECT
+        id,
+        CASE
+          WHEN source = 'trait_pair_migration' THEN 'trait_pair'
+          ELSE 'ab_quiz'
+        END as quiz_type,
+        CASE
+          WHEN source = 'trait_pair_migration' THEN 'System Generated'
+          ELSE 'User Created'
+        END as source,
+        category,
+        title,
+        option_a_title as left_option,
+        option_b_title as right_option,
+        option_a_image as left_image,
+        option_b_image as right_image,
+        is_active,
+        created_at,
+        (SELECT email FROM admin_users WHERE id = created_by) as creator_info
+      FROM ab_quizzes
+      WHERE ${whereClause}
       ORDER BY created_at DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
@@ -2208,12 +2187,7 @@ router.get('/all-quizzes', authenticateAdmin, asyncHandler(async (
     quizzes = await db.query(unifiedQuery, allParams);
 
     const countQuery = `
-      WITH unified_quizzes AS (
-        SELECT id FROM ab_quizzes WHERE ${whereClauseAB}
-        UNION ALL
-        SELECT id FROM trait_pairs WHERE ${whereClauseTP}
-      )
-      SELECT COUNT(*) as count FROM unified_quizzes
+      SELECT COUNT(*) as count FROM ab_quizzes WHERE ${whereClause}
     `;
 
     const [total] = await db.query(countQuery, params);

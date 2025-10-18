@@ -30,6 +30,64 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.63.0 (2025-10-18) - A&B 퀴즈 시스템 완전 통합 (trait_pairs → ab_quizzes)
+
+**작업 내용**:
+- **배경**: 사용자 선호도 데이터 수집이 핵심 비즈니스 모델
+  - A&B 질문은 관리자/시스템이 생성하는 근본 선택 데이터
+  - 유저 응답을 매칭 데이터와 퀴즈 생성에 동시 활용
+  - 지속적인 선호도 데이터 수집 체계
+
+- **데이터베이스 통합**:
+  1. **테이블 통합**:
+     - `trait_pairs` → `ab_quizzes` (52개 마이그레이션)
+     - `user_traits` → `ab_quiz_responses` (6,240개 응답 마이그레이션)
+     - 총 98개 퀴즈 (46개 관리자 + 52개 마이그레이션)
+     - 총 6,250개 응답 (10개 신규 + 6,240개 마이그레이션)
+
+  2. **스키마 변경**:
+     - `ab_quizzes.created_by` → nullable (시스템 생성 퀴즈 허용)
+     - `ab_quizzes.source` 컬럼 추가 ('admin_created', 'trait_pair_migration')
+     - `ab_quizzes.original_trait_pair_id` 추가 (추적용)
+     - `choice` 변환: 'left'/'right' → 'A'/'B'
+
+  3. **안전한 마이그레이션**:
+     - 기존 테이블 보존: `trait_pairs_deprecated`, `user_traits_deprecated`
+     - 중복 방지 로직 (ON CONFLICT DO NOTHING)
+     - 임시 매핑 테이블로 데이터 무결성 보장
+
+- **코드 업데이트**:
+  - `/admin/all-quizzes` 엔드포인트 단순화 (UNION ALL → 단일 테이블 쿼리)
+  - source 기반 퀴즈 타입 구분
+
+- **검증 결과**:
+  - ✅ 중복 응답 없음
+  - ✅ NULL 값 없음
+  - ✅ 120명의 유니크 유저 응답 확인
+  - ✅ 10개 카테고리 정상 분포
+  - ✅ 랜덤 퀴즈 조회, 카테고리별 조회, 유저 응답 조회 모두 정상 작동
+
+- **생성된 파일**:
+  - `migrations/015_unify_ab_quiz_system.sql` - 통합 마이그레이션 스크립트
+  - `scripts/preview-migration.ts` - 마이그레이션 미리보기
+  - `scripts/run-migration.ts` - 마이그레이션 실행
+  - `scripts/verify-unification.ts` - 통합 검증
+  - `scripts/test-unified-system.ts` - 기능 테스트
+  - `scripts/compare-quiz-types.ts` - 시스템 비교 분석
+
+**영향**:
+- ✅ 단일 A&B 질문 관리 시스템으로 통합
+- ✅ 코드 중복 제거 및 단순화
+- ✅ 데이터 일관성 향상
+- ✅ 향후 확장성 개선
+- ⚠️ `trait_pairs` 관련 엔드포인트 추가 업데이트 필요 (향후 작업)
+
+**다음 단계**:
+- 나머지 `trait_pairs` 참조 코드 업데이트
+- deprecated 테이블 삭제 (충분한 테스트 후)
+
+---
+
 ### v1.62.50 (2025-10-17) - Toast 알림을 메인 앱 화면 중앙 상단에 크게 표시
 
 **작업 내용**:

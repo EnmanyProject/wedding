@@ -41,16 +41,16 @@ export class RingService {
 
   // Add rings to user's balance
   async addRings(
-    userId: string, 
-    amount: number, 
-    transactionType: string, 
+    userId: string,
+    amount: number,
+    transactionType: string,
     description?: string,
     metadata?: any
   ): Promise<boolean> {
     try {
       const result = await db.queryOne<{ update_ring_balance: boolean }>(
-        'SELECT update_ring_balance($1, $2, $3, $4, $5) as update_ring_balance',
-        [userId, amount, transactionType, description, metadata ? JSON.stringify(metadata) : null]
+        'SELECT update_ring_balance($1, $2, $3, $4, $5::jsonb) as update_ring_balance',
+        [userId, amount, transactionType, description || null, metadata ? JSON.stringify(metadata) : null]
       );
       return result?.update_ring_balance || false;
     } catch (error) {

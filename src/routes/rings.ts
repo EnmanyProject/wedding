@@ -19,12 +19,12 @@ router.get('/test', async (req: Request, res: Response) => {
   try {
     const service = getCurrentRingService();
     console.log('🧪 Testing Ring Service...');
-    
+
     // Test basic functionality
     const balance = await service.getRingBalance('demo-user-123');
     const transactions = await service.getTransactionHistory('demo-user-123', 5);
     const rules = await service.getRingEarningRules();
-    
+
     res.json({
       success: true,
       message: 'Ring service test successful',
@@ -42,6 +42,34 @@ router.get('/test', async (req: Request, res: Response) => {
       error: 'Ring service test failed',
       message: error.message
     });
+  }
+});
+
+// Development endpoint: Get ring balance for specific user without auth
+router.get('/balance-dev', async (req: Request, res: Response) => {
+  try {
+    // Only allow in development mode
+    if (process.env.NODE_ENV !== 'development') {
+      return res.status(403).json({ error: 'This endpoint is only available in development mode' });
+    }
+
+    // Default to the test user ID
+    const userId = (req.query.userId as string) || '0049dc08-1b9a-4d2f-88ee-b47024ea4f78';
+    console.log(`💍 Dev endpoint: Getting balance for user ${userId}`);
+
+    const service = getCurrentRingService();
+    let balance = await service.getRingBalance(userId);
+
+    if (!balance) {
+      console.log(`💍 No balance found for user ${userId}, initializing...`);
+      await service.initializeUserRings(userId);
+      balance = await service.getRingBalance(userId);
+    }
+
+    res.json(balance || { balance: 0, total_earned: 0, total_spent: 0 });
+  } catch (error) {
+    console.error('Error getting dev ring balance:', error);
+    res.status(500).json({ error: 'Failed to get ring balance' });
   }
 });
 

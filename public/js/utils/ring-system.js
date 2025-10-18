@@ -692,9 +692,25 @@ class RingSystemDemo extends RingSystem {
     }
 
     async loadBalance() {
-        // Simulate loading balance in demo mode
-        this.updateBalance(150, 200, 50);
-        console.log('💍 Demo: Loaded demo balance - 150 rings');
+        try {
+            // Load real balance from development endpoint
+            const userId = '0049dc08-1b9a-4d2f-88ee-b47024ea4f78';
+            const response = await fetch(`/api/rings/balance-dev?userId=${userId}`);
+
+            if (response.ok) {
+                const data = await response.json();
+                this.updateBalance(data.balance, data.total_earned, data.total_spent);
+                console.log(`💍 Demo: Loaded real balance from DB - ${data.balance} rings`);
+            } else {
+                console.warn('Failed to load real balance, using fallback');
+                this.updateBalance(150, 200, 50);
+            }
+        } catch (error) {
+            console.error('Error loading real balance:', error);
+            // Fallback to demo balance
+            this.updateBalance(150, 200, 50);
+            console.log('💍 Demo: Loaded fallback balance - 150 rings');
+        }
     }
 
     async checkDailyLogin() {

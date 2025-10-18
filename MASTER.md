@@ -3,21 +3,57 @@
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
 **최종 업데이트**: 2025-10-18
-**현재 Phase**: MASTER.md 크기 최적화 완료
-**현재 버전**: v1.62.51
+**현재 Phase**: A&B 퀴즈 시스템 통합 완료
+**현재 버전**: v1.63.0
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: v1.62.51 MASTER.md 크기 최적화
-**작업**: 1,877줄 → 300줄로 축소 (84% 감소)
+**Phase**: v1.63.0 A&B 퀴즈 시스템 완전 통합
+**작업**: trait_pairs + ab_quizzes → 단일 ab_quizzes 시스템
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: 전당포 실제 데이터 저장 구현 (사진/정보 맡기기)
+**다음**: 나머지 trait_pairs 참조 코드 업데이트
 
 ---
 
 ## ✅ 최근 완료 작업 (최근 10개)
+
+### v1.63.0: A&B 퀴즈 시스템 완전 통합 ✅ (2025-10-18)
+
+**작업 내용**:
+- **배경**: 사용자 선호도 데이터 수집이 핵심 비즈니스 모델
+  - A&B 질문은 시스템/관리자가 생성하는 근본 선택 데이터
+  - 유저는 응답만 제출 (퀴즈 생성 안 함)
+  - 유저 응답을 매칭 + 퀴즈 제공에 동시 활용
+
+- **데이터베이스 통합**:
+  - `trait_pairs` (52개) → `ab_quizzes` 통합
+  - `user_traits` (6,240개) → `ab_quiz_responses` 통합
+  - 총 98개 질문, 6,250개 응답 (120명 유저)
+  - 기존 테이블 `_deprecated`로 보존 (안전 롤백 가능)
+
+- **스키마 변경**:
+  - `ab_quizzes.created_by` nullable 허용
+  - `source` 컬럼 추가 ('admin_created', 'trait_pair_migration')
+  - `original_trait_pair_id` 추가 (추적용)
+  - choice 변환: 'left'/'right' → 'A'/'B'
+
+- **코드 업데이트**:
+  - `/admin/all-quizzes`: UNION ALL → 단일 테이블 쿼리
+
+- **검증 완료**:
+  - ✅ 중복 없음, NULL 없음
+  - ✅ 랜덤/카테고리/응답 조회 모두 정상
+  - ✅ 120명 유저 응답, 10개 카테고리 확인
+
+**생성 파일**:
+- `migrations/015_unify_ab_quiz_system.sql`
+- `scripts/preview-migration.ts`, `run-migration.ts`, `verify-unification.ts`, `test-unified-system.ts`
+
+**Git**: (커밋 예정) ✅
+
+---
 
 ### v1.62.51: MASTER.md 크기 최적화 완료 ✅ (2025-10-18)
 
