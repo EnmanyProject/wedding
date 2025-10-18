@@ -279,34 +279,49 @@
     async submitPhoto() {
       console.log('📸 [Pawnshop] Submitting photo...');
 
-      // Mock: Ring 지급
-      const rewardAmount = 50;
-
-      // Ring 시스템 참조 업데이트 (늦게 초기화될 수 있음)
-      const ringSystem = window.ringSystem || this.ringSystem;
-
-      if (ringSystem) {
-        console.log('💍 [Pawnshop] Ring system available, earning rings...');
-        await ringSystem.earnRings(rewardAmount, '사진 맡기기');
-      } else {
-        console.warn('⚠️ [Pawnshop] Ring system not available yet');
+      if (!this.selectedPhoto || !this.selectedPhoto.file) {
+        this.showToast('사진을 선택해주세요', 'error');
+        return;
       }
 
-      // Mock: 거래 내역 추가
-      this.addTransaction('사진 맡기기', rewardAmount, 'earned');
+      try {
+        // 사진 타입 결정 (기본값: face)
+        const photoType = 'face'; // TODO: UI에서 선택 가능하도록 개선
 
-      // 성공 메시지 표시
-      this.showToast(`✅ 사진을 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
+        // API 호출
+        const response = await window.api.pawnPhoto(this.selectedPhoto.file, photoType);
 
-      console.log('✅ [Pawnshop] Photo submitted successfully');
-      console.log(`   Reward: ${rewardAmount} rings`);
-      console.log(`   Ring system: ${ringSystem ? 'Available' : 'Not available'}`);
+        if (response.success) {
+          const { ringsEarned, message } = response.data;
 
-      // 모달 닫기 전에 잠시 대기 (사용자가 메시지 볼 수 있도록)
-      setTimeout(() => {
-        this.clearPhotoPreview();
-        this.closeModal(this.pawnPhotoModal);
-      }, 1500);
+          // 성공 메시지 표시
+          this.showToast(message, 'success');
+
+          // Mock 거래 내역 추가 (UI 업데이트용)
+          this.addTransaction('사진 맡기기', ringsEarned, 'earned');
+
+          // Ring 시스템 참조 업데이트 (UI 반영)
+          const ringSystem = window.ringSystem || this.ringSystem;
+          if (ringSystem) {
+            // Ring 잔액 다시 로드
+            await ringSystem.loadRingBalance();
+          }
+
+          console.log('✅ [Pawnshop] Photo submitted successfully');
+          console.log(`   Reward: ${ringsEarned} rings`);
+
+          // 모달 닫기 전에 잠시 대기
+          setTimeout(() => {
+            this.clearPhotoPreview();
+            this.closeModal(this.pawnPhotoModal);
+          }, 1500);
+        } else {
+          throw new Error(response.error || '사진 맡기기에 실패했습니다');
+        }
+      } catch (error) {
+        console.error('사진 제출 실패:', error);
+        this.showToast(error.message || '사진 맡기기에 실패했습니다', 'error');
+      }
     }
 
     /**
@@ -315,55 +330,69 @@
     async submitInfo(type, text) {
       console.log(`📝 [Pawnshop] Submitting info (${type}):`, text);
 
-      // Mock: Ring 지급
-      const rewards = {
-        'ideal-type': 50,
-        'career': 30,
-        'hobbies': 20
-      };
-      const rewardAmount = rewards[type] || 20;
+      try {
+        // 타입 매핑 (UI 타입 → API 타입)
+        const typeMapping = {
+          'ideal-type': 'ideal_type',
+          'career': 'job',
+          'hobbies': 'hobby'
+        };
+        const infoType = typeMapping[type];
 
-      const typeNames = {
-        'ideal-type': '이상형 정보',
-        'career': '직업 & 학력 정보',
-        'hobbies': '취미 & 관심사'
-      };
-      const typeName = typeNames[type] || '정보';
+        if (!infoType) {
+          throw new Error('올바르지 않은 정보 타입입니다');
+        }
 
-      // Ring 시스템 참조 업데이트 (늦게 초기화될 수 있음)
-      const ringSystem = window.ringSystem || this.ringSystem;
+        // API 호출
+        const response = await window.api.pawnInfo(infoType, text);
 
-      if (ringSystem) {
-        console.log('💍 [Pawnshop] Ring system available, earning rings...');
-        await ringSystem.earnRings(rewardAmount, `${typeName} 맡기기`);
-      } else {
-        console.warn('⚠️ [Pawnshop] Ring system not available yet');
+        if (response.success) {
+          const { ringsEarned, message } = response.data;
+
+          // 성공 메시지 표시
+          this.showToast(message, 'success');
+
+          // Mock 거래 내역 추가 (UI 업데이트용)
+          const typeNames = {
+            'ideal-type': '이상형 정보',
+            'career': '직업 정보',
+            'hobbies': '취미 정보'
+          };
+          const typeName = typeNames[type] || '정보';
+          this.addTransaction(`${typeName} 맡기기`, ringsEarned, 'earned');
+
+          // Ring 시스템 참조 업데이트 (UI 반영)
+          const ringSystem = window.ringSystem || this.ringSystem;
+          if (ringSystem) {
+            // Ring 잔액 다시 로드
+            await ringSystem.loadRingBalance();
+          }
+
+          console.log('✅ [Pawnshop] Info submitted successfully');
+          console.log(`   Type: ${typeName}`);
+          console.log(`   Reward: ${ringsEarned} rings`);
+
+          // 입력 초기화
+          const infoTextarea = document.getElementById('info-textarea');
+          const infoInputArea = document.getElementById('info-input-area');
+          const infoTypeCards = document.querySelectorAll('.info-type-card');
+
+          if (infoTextarea) infoTextarea.value = '';
+          if (infoInputArea) infoInputArea.style.display = 'none';
+          infoTypeCards.forEach(c => c.classList.remove('selected'));
+          this.selectedInfoType = null;
+
+          // 모달 닫기 전에 잠시 대기
+          setTimeout(() => {
+            this.closeModal(this.pawnInfoModal);
+          }, 1500);
+        } else {
+          throw new Error(response.error || '정보 맡기기에 실패했습니다');
+        }
+      } catch (error) {
+        console.error('정보 제출 실패:', error);
+        this.showToast(error.message || '정보 맡기기에 실패했습니다', 'error');
       }
-
-      // Mock: 거래 내역 추가
-      this.addTransaction(`${typeName} 맡기기`, rewardAmount, 'earned');
-
-      // 성공 메시지 표시
-      this.showToast(`✅ ${typeName}를 맡기고 ${rewardAmount}💍을 받았어요!`, 'success');
-
-      console.log('✅ [Pawnshop] Info submitted successfully');
-      console.log(`   Type: ${typeName}`);
-      console.log(`   Reward: ${rewardAmount} rings`);
-
-      // 입력 초기화
-      const infoTextarea = document.getElementById('info-textarea');
-      const infoInputArea = document.getElementById('info-input-area');
-      const infoTypeCards = document.querySelectorAll('.info-type-card');
-
-      if (infoTextarea) infoTextarea.value = '';
-      if (infoInputArea) infoInputArea.style.display = 'none';
-      infoTypeCards.forEach(c => c.classList.remove('selected'));
-      this.selectedInfoType = null;
-
-      // 모달 닫기 전에 잠시 대기 (사용자가 메시지 볼 수 있도록)
-      setTimeout(() => {
-        this.closeModal(this.pawnInfoModal);
-      }, 1500);
     }
 
     /**

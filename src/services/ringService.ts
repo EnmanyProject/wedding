@@ -299,7 +299,7 @@ export class RingService {
   async getLeaderboard(limit: number = 10): Promise<any[]> {
     try {
       const result = await db.query(
-        `SELECT u.name, u.id, urb.total_earned 
+        `SELECT u.name, u.id, urb.total_earned
          FROM user_ring_balance urb
          JOIN users u ON u.id = urb.user_id
          WHERE u.is_active = true
@@ -311,6 +311,68 @@ export class RingService {
     } catch (error) {
       console.error('Error getting leaderboard:', error);
       throw new Error('Failed to get leaderboard');
+    }
+  }
+
+  // =====================================================
+  // Pawnshop System Methods
+  // =====================================================
+
+  /**
+   * 전당포 Ring 지급
+   *
+   * @param userId - 사용자 ID
+   * @param amount - Ring 금액
+   * @param category - 카테고리 (PAWN_PHOTO, PAWN_INFO, VIEW_REWARD 등)
+   * @param description - 설명
+   * @param metadata - 추가 메타데이터
+   * @returns Ring 거래 성공 여부
+   */
+  async earnPawnshopRing(
+    userId: string,
+    amount: number,
+    category: string,
+    description: string,
+    metadata?: any
+  ): Promise<boolean> {
+    try {
+      // addRings 메서드를 그대로 사용 (이미 ring_transactions에 기록됨)
+      return await this.addRings(userId, amount, category, description, metadata);
+    } catch (error) {
+      console.error('Error earning pawnshop ring:', error);
+      throw new Error('Failed to earn pawnshop ring');
+    }
+  }
+
+  /**
+   * 전당포 Ring 차감 (Phase 2용이지만 미리 추가)
+   *
+   * @param userId - 사용자 ID
+   * @param amount - Ring 금액
+   * @param category - 카테고리 (VIEW_PHOTO, VIEW_INFO 등)
+   * @param description - 설명
+   * @param metadata - 추가 메타데이터
+   * @returns Ring 거래 성공 여부
+   */
+  async spendPawnshopRing(
+    userId: string,
+    amount: number,
+    category: string,
+    description: string,
+    metadata?: any
+  ): Promise<boolean> {
+    try {
+      // 잔액 확인
+      const canAfford = await this.canAfford(userId, amount);
+      if (!canAfford) {
+        throw new Error('Insufficient ring balance');
+      }
+
+      // spendRings는 내부적으로 addRings를 음수로 호출
+      return await this.spendRings(userId, amount, category, description, metadata);
+    } catch (error) {
+      console.error('Error spending pawnshop ring:', error);
+      throw new Error('Failed to spend pawnshop ring');
     }
   }
 }

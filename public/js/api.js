@@ -745,6 +745,78 @@ class APIService {
   clearAdminToken() {
     this.adminToken = null;
   }
+
+  // =====================================================
+  // Pawnshop API
+  // =====================================================
+
+  /**
+   * 사진 맡기기
+   * @param {File} photoFile - 사진 파일
+   * @param {string} photoType - 사진 타입 (face, body, hobby, lifestyle)
+   * @returns {Promise}
+   */
+  async pawnPhoto(photoFile, photoType) {
+    const formData = new FormData();
+    formData.append('photo', photoFile);
+    formData.append('photoType', photoType);
+
+    return this.requestWithFile('/pawnshop/pawn-photo', {
+      method: 'POST',
+      body: formData
+    });
+  }
+
+  /**
+   * 정보 맡기기
+   * @param {string} infoType - 정보 타입 (ideal_type, job, hobby)
+   * @param {string} content - 정보 내용
+   * @returns {Promise}
+   */
+  async pawnInfo(infoType, content) {
+    return this.request('/pawnshop/pawn-info', {
+      method: 'POST',
+      body: JSON.stringify({ infoType, content })
+    });
+  }
+
+  /**
+   * 내가 맡긴 사진 목록 조회
+   * @returns {Promise}
+   */
+  async getMyPawnedPhotos() {
+    return this.request('/pawnshop/my-photos');
+  }
+
+  /**
+   * 내가 맡긴 정보 목록 조회
+   * @returns {Promise}
+   */
+  async getMyPawnedInfo() {
+    return this.request('/pawnshop/my-info');
+  }
+
+  /**
+   * 맡긴 사진 삭제
+   * @param {number} photoId - 사진 ID
+   * @returns {Promise}
+   */
+  async deletePawnedPhoto(photoId) {
+    return this.request(`/pawnshop/photos/${photoId}`, {
+      method: 'DELETE'
+    });
+  }
+
+  /**
+   * 맡긴 정보 삭제
+   * @param {number} infoId - 정보 ID
+   * @returns {Promise}
+   */
+  async deletePawnedInfo(infoId) {
+    return this.request(`/pawnshop/info/${infoId}`, {
+      method: 'DELETE'
+    });
+  }
 }
 
 // Create global API instance
