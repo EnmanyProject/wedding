@@ -30,7 +30,9 @@ CREATE TABLE ring_transactions (
         'PREMIUM_FEATURE',        -- 프리미엄 기능 이용 비용
         'GIFT_RING',              -- 링 선물하기
         'PURCHASE_ITEM',          -- 아이템 구매
-        'ADMIN_ADJUST'            -- 관리자 조정
+        'ADMIN_ADJUST',           -- 관리자 조정
+        'PAWN_PHOTO',             -- 전당포 사진 맡기기
+        'PAWN_INFO'               -- 전당포 정보 맡기기
     )),
     description TEXT,
     balance_after INTEGER NOT NULL,
