@@ -69,6 +69,11 @@ if (deltaPoints < 0) {
 
 **수정된 파일**:
 - `src/services/quizService.ts` (퀴즈 링 차감 로직)
+- `sql/migrations/009_add_quiz_attempt_reason.sql` (DB 제약조건 업데이트)
+- `scripts/run-quiz-attempt-migration.ts` (마이그레이션 실행 스크립트)
+
+**데이터베이스 변경**:
+- `user_ring_ledger` 테이블의 CHECK 제약조건에 `QUIZ_ATTEMPT` reason 추가
 
 **비즈니스 영향**:
 - 퀴즈 시도 비용 명확화
