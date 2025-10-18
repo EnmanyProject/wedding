@@ -48,7 +48,7 @@ export class PawnshopService {
    * @returns 사진 맡기기 결과
    */
   async pawnPhoto(
-    userId: number,
+    userId: string,
     file: Buffer,
     photoType: string,
     mimeType: string,
@@ -139,7 +139,7 @@ export class PawnshopService {
    * @returns 정보 맡기기 결과
    */
   async pawnInfo(
-    userId: number,
+    userId: string,
     infoType: 'ideal_type' | 'job' | 'hobby',
     content: string
   ): Promise<PawnInfoResult> {
@@ -237,7 +237,7 @@ export class PawnshopService {
    * @param userId - 사용자 ID
    * @returns 맡긴 사진 목록
    */
-  async getMyPawnedPhotos(userId: number): Promise<any[]> {
+  async getMyPawnedPhotos(userId: string): Promise<any[]> {
     try {
       const photos = await db.query(
         `SELECT id, photo_type, rings_earned, view_count, created_at
@@ -260,7 +260,7 @@ export class PawnshopService {
    * @param userId - 사용자 ID
    * @returns 맡긴 정보 목록
    */
-  async getMyPawnedInfo(userId: number): Promise<any[]> {
+  async getMyPawnedInfo(userId: string): Promise<any[]> {
     try {
       const info = await db.query(
         `SELECT id, info_type, content, rings_earned, view_count, created_at
@@ -283,7 +283,7 @@ export class PawnshopService {
    * @param userId - 사용자 ID
    * @param photoId - 사진 ID
    */
-  async deletePawnedPhoto(userId: number, photoId: number): Promise<void> {
+  async deletePawnedPhoto(userId: string, photoId: number): Promise<void> {
     try {
       const result = await db.query(
         `UPDATE pawnshop_photos
@@ -307,7 +307,7 @@ export class PawnshopService {
    * @param userId - 사용자 ID
    * @param infoId - 정보 ID
    */
-  async deletePawnedInfo(userId: number, infoId: number): Promise<void> {
+  async deletePawnedInfo(userId: string, infoId: number): Promise<void> {
     try {
       const result = await db.query(
         `UPDATE pawnshop_info

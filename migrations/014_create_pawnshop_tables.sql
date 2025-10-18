@@ -8,7 +8,7 @@
 -- 1. 맡긴 사진 테이블
 CREATE TABLE IF NOT EXISTS pawnshop_photos (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   storage_key VARCHAR(500) NOT NULL,
   photo_type VARCHAR(50) NOT NULL CHECK (photo_type IN ('face', 'body', 'hobby', 'lifestyle')),
   file_size INTEGER NOT NULL,
@@ -34,7 +34,7 @@ COMMENT ON COLUMN pawnshop_photos.view_count IS '다른 사용자들이 열람�
 -- 2. 맡긴 정보 테이블
 CREATE TABLE IF NOT EXISTS pawnshop_info (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   info_type VARCHAR(50) NOT NULL CHECK (info_type IN ('ideal_type', 'job', 'hobby')),
   content TEXT NOT NULL,
   rings_earned INTEGER NOT NULL,
@@ -59,8 +59,8 @@ COMMENT ON COLUMN pawnshop_info.view_count IS '다른 사용자들이 열람한 
 -- 3. 열람 기록 테이블
 CREATE TABLE IF NOT EXISTS pawnshop_views (
   id SERIAL PRIMARY KEY,
-  viewer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  owner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  viewer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   item_type VARCHAR(50) NOT NULL CHECK (item_type IN ('photo', 'info')),
   item_id INTEGER NOT NULL,
   rings_spent INTEGER NOT NULL DEFAULT 30,
@@ -84,7 +84,7 @@ COMMENT ON COLUMN pawnshop_views.rings_spent IS '열람에 사용한 Ring 금액
 -- 4. 전당포 전용 거래 내역 테이블
 CREATE TABLE IF NOT EXISTS pawnshop_transactions (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   transaction_type VARCHAR(50) NOT NULL CHECK (transaction_type IN ('PAWN_PHOTO', 'PAWN_INFO', 'VIEW_PHOTO', 'VIEW_INFO', 'VIEW_REWARD')),
   amount INTEGER NOT NULL,
   description TEXT,

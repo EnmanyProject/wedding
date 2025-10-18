@@ -83,7 +83,7 @@ router.post('/pawn-photo', upload.single('photo'), async (req: Request, res: Res
 
     // 서비스 호출
     const result = await pawnshopService.pawnPhoto(
-      parseInt(userId),
+      userId,
       file,
       photoType,
       mimeType,
@@ -148,7 +148,7 @@ router.post('/pawn-info', async (req: Request, res: Response) => {
 
     // 서비스 호출
     const result = await pawnshopService.pawnInfo(
-      parseInt(userId),
+      userId,
       infoType,
       content
     );
@@ -184,7 +184,7 @@ router.get('/my-photos', async (req: Request, res: Response) => {
       });
     }
 
-    const photos = await pawnshopService.getMyPawnedPhotos(parseInt(userId));
+    const photos = await pawnshopService.getMyPawnedPhotos(userId);
 
     res.json({
       success: true,
@@ -217,7 +217,7 @@ router.get('/my-info', async (req: Request, res: Response) => {
       });
     }
 
-    const info = await pawnshopService.getMyPawnedInfo(parseInt(userId));
+    const info = await pawnshopService.getMyPawnedInfo(userId);
 
     res.json({
       success: true,
@@ -259,7 +259,7 @@ router.delete('/photos/:photoId', async (req: Request, res: Response) => {
       });
     }
 
-    await pawnshopService.deletePawnedPhoto(parseInt(userId), photoId);
+    await pawnshopService.deletePawnedPhoto(userId, photoId);
 
     res.json({
       success: true,
@@ -301,7 +301,7 @@ router.delete('/info/:infoId', async (req: Request, res: Response) => {
       });
     }
 
-    await pawnshopService.deletePawnedInfo(parseInt(userId), infoId);
+    await pawnshopService.deletePawnedInfo(userId, infoId);
 
     res.json({
       success: true,
