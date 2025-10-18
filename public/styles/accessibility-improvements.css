@@ -546,7 +546,7 @@ img::after {
 }
 
 /* Ensure loading states are announced */
-[aria-live="polite"] {
+[aria-live="polite"]:not(.toast-container) {
   position: absolute;
   left: -10000px;
   width: 1px;

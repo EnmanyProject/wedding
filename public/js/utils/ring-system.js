@@ -417,6 +417,41 @@ class RingSystem {
         }, 3000);
     }
 
+    // Earn rings (general purpose)
+    async earnRings(amount, description, transactionType = 'PAWNSHOP_EARN', metadata = {}) {
+        try {
+            const response = await fetch('/api/rings/earn', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount,
+                    transaction_type: transactionType,
+                    description,
+                    metadata
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.updateBalance(data.balance.balance, data.balance.total_earned, data.balance.total_spent);
+                    return true;
+                }
+            } else {
+                const error = await response.json();
+                this.showError(error.error || 'Failed to earn rings');
+            }
+        } catch (error) {
+            console.error('Error earning rings:', error);
+            this.showError('Network error occurred');
+        }
+
+        return false;
+    }
+
     // Spend rings
     async spendRings(amount, transactionType, description = '', metadata = {}) {
         try {
@@ -450,6 +485,11 @@ class RingSystem {
         }
 
         return false;
+    }
+
+    // Get current ring balance
+    getCurrentRings() {
+        return this.balance;
     }
 
     // Check if user can afford something
@@ -677,6 +717,13 @@ class RingSystemDemo extends RingSystem {
         this.showQuizReward(amount);
         console.log('💍 Demo: Quiz reward awarded - 5 rings');
         return amount;
+    }
+
+    async earnRings(amount, description, transactionType = 'PAWNSHOP_EARN', metadata = {}) {
+        // Simulate earning rings in demo mode
+        this.updateBalance(this.balance + amount, this.totalEarned + amount, this.totalSpent);
+        console.log(`💍 Demo: Earned ${amount} rings for ${description}`);
+        return true;
     }
 
     async spendRings(amount, transactionType, description = '', metadata = {}) {
