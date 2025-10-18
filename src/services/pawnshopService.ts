@@ -322,6 +322,135 @@ export class PawnshopService {
       throw error;
     }
   }
+
+  /**
+   * 오늘 전당포에서 응답한 A&B 퀴즈 수 조회
+   *
+   * @param userId - 사용자 ID
+   * @returns 오늘 응답한 퀴즈 수
+   */
+  async getTodayPawnshopQuizCount(userId: string): Promise<number> {
+    try {
+      const result = await db.query(
+        `SELECT COUNT(*) as count
+         FROM ab_quiz_responses
+         WHERE user_id = $1
+         AND DATE(created_at) = CURRENT_DATE
+         AND metadata->>'source' = 'pawnshop'`,
+        [userId]
+      );
+
+      return parseInt(result[0]?.count || '0');
+    } catch (error) {
+      console.error('오늘 퀴즈 응답 수 조회 실패:', error);
+      throw new Error('오늘 퀴즈 응답 수 조회에 실패했습니다.');
+    }
+  }
+
+  /**
+   * 미응답 A&B 퀴즈 랜덤 조회
+   *
+   * @param userId - 사용자 ID
+   * @returns 미응답 퀴즈 1개 (없으면 null)
+   */
+  async getUnansweredQuiz(userId: string): Promise<any | null> {
+    try {
+      const result = await db.query(
+        `SELECT q.id, q.category, q.title, q.option_a_title, q.option_b_title,
+                q.option_a_image, q.option_b_image
+         FROM ab_quizzes q
+         WHERE q.is_active = true
+         AND NOT EXISTS (
+           SELECT 1 FROM ab_quiz_responses r
+           WHERE r.quiz_id = q.id AND r.user_id = $1
+         )
+         ORDER BY RANDOM()
+         LIMIT 1`,
+        [userId]
+      );
+
+      return result[0] || null;
+    } catch (error) {
+      console.error('미응답 퀴즈 조회 실패:', error);
+      throw new Error('미응답 퀴즈 조회에 실패했습니다.');
+    }
+  }
+
+  /**
+   * A&B 퀴즈 답변 제출 (전당포)
+   *
+   * @param userId - 사용자 ID
+   * @param quizId - 퀴즈 ID
+   * @param choice - 선택지 ('A' or 'B')
+   * @returns 결과 정보
+   */
+  async submitPawnshopQuizAnswer(
+    userId: string,
+    quizId: string,
+    choice: 'A' | 'B'
+  ): Promise<{ success: boolean; ringsEarned: number; message: string }> {
+    return await db.transaction(async (client) => {
+      try {
+        // 1. 오늘 응답 수 확인 (10개 제한)
+        const todayCount = await this.getTodayPawnshopQuizCount(userId);
+        if (todayCount >= 10) {
+          throw new Error('오늘은 더 이상 퀴즈에 답변할 수 없습니다. (하루 10개 제한)');
+        }
+
+        // 2. 이미 응답한 퀴즈인지 확인
+        const existing = await client.query(
+          `SELECT id FROM ab_quiz_responses
+           WHERE quiz_id = $1 AND user_id = $2`,
+          [quizId, userId]
+        );
+
+        if (existing.rows.length > 0) {
+          throw new Error('이미 응답한 퀴즈입니다.');
+        }
+
+        // 3. 퀴즈 존재 여부 확인
+        const quiz = await client.query(
+          `SELECT id, title FROM ab_quizzes WHERE id = $1 AND is_active = true`,
+          [quizId]
+        );
+
+        if (quiz.rows.length === 0) {
+          throw new Error('존재하지 않는 퀴즈입니다.');
+        }
+
+        // 4. 답변 저장 (metadata에 source: 'pawnshop' 추가)
+        await client.query(
+          `INSERT INTO ab_quiz_responses (quiz_id, user_id, choice, metadata)
+           VALUES ($1, $2, $3, $4)`,
+          [quizId, userId, choice, JSON.stringify({ source: 'pawnshop' })]
+        );
+
+        // 5. Ring 보상 지급
+        const ringsEarned = 5;
+        const ringSuccess = await ringService.addRings(
+          userId,
+          ringsEarned,
+          'PAWN_AB_QUIZ',
+          `취향 정보 맡기기 (${quiz.rows[0].title})`,
+          { quiz_id: quizId, choice }
+        );
+
+        if (!ringSuccess) {
+          throw new Error('Ring 지급에 실패했습니다.');
+        }
+
+        return {
+          success: true,
+          ringsEarned,
+          message: `취향 정보를 맡기고 ${ringsEarned}💍을 받았습니다!`
+        };
+
+      } catch (error) {
+        console.error('퀴즈 답변 제출 실패:', error);
+        throw error;
+      }
+    });
+  }
 }
 
 export const pawnshopService = new PawnshopService();

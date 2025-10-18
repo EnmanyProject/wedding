@@ -319,4 +319,125 @@ router.delete('/info/:infoId', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /api/pawnshop/ab-quiz/unanswered
+ * 미응답 A&B 퀴즈 조회 (전당포용)
+ */
+router.get('/ab-quiz/unanswered', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 오늘 응답 수 확인
+    const todayCount = await pawnshopService.getTodayPawnshopQuizCount(userId);
+    const remainingCount = Math.max(0, 10 - todayCount);
+
+    if (remainingCount === 0) {
+      return res.json({
+        success: true,
+        data: null,
+        todayCount,
+        remainingCount: 0,
+        message: '오늘은 더 이상 퀴즈에 답변할 수 없습니다. (하루 10개 제한)',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 미응답 퀴즈 조회
+    const quiz = await pawnshopService.getUnansweredQuiz(userId);
+
+    res.json({
+      success: true,
+      data: quiz,
+      todayCount,
+      remainingCount,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('미응답 퀴즈 조회 실패:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || '미응답 퀴즈 조회에 실패했습니다.',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/pawnshop/ab-quiz/answer
+ * A&B 퀴즈 답변 제출 (전당포용)
+ */
+const abQuizAnswerSchema = z.object({
+  quizId: z.string().uuid(),
+  choice: z.enum(['A', 'B']),
+});
+
+router.post('/ab-quiz/answer', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'User not authenticated',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // 요청 검증
+    const validation = abQuizAnswerSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: '올바르지 않은 요청입니다.',
+        details: validation.error.errors,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const { quizId, choice } = validation.data;
+
+    console.log('🎯 [Pawnshop] A&B 퀴즈 답변 제출:', {
+      userId,
+      quizId,
+      choice
+    });
+
+    // 서비스 호출
+    const result = await pawnshopService.submitPawnshopQuizAnswer(
+      userId,
+      quizId,
+      choice
+    );
+
+    // 남은 횟수 계산
+    const todayCount = await pawnshopService.getTodayPawnshopQuizCount(userId);
+    const remainingCount = Math.max(0, 10 - todayCount);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        ...result,
+        todayCount,
+        remainingCount
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error: any) {
+    console.error('A&B 퀴즈 답변 제출 실패:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'A&B 퀴즈 답변 제출에 실패했습니다.',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 export default router;

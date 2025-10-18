@@ -558,33 +558,56 @@
                 <button class="pawnshop-modal-close" aria-label="닫기">&times;</button>
             </div>
             <div class="pawnshop-modal-body">
-                <!-- Info Type Selection -->
-                <div class="pawn-info-types">
-                    <div class="info-type-card" data-type="ideal-type">
-                        <div class="info-type-icon">💝</div>
-                        <div class="info-type-title">이상형 정보</div>
-                        <div class="info-type-reward">50 💍</div>
+                <!-- A&B Quiz Container -->
+                <div id="pawn-info-quiz-container" style="display: block;">
+                    <!-- D-Bety Message -->
+                    <div class="bety-container">
+                        <div class="bety-avatar">
+                            <img src="/images/d-bety.png" alt="D-Bety" style="width: 60px; height: 60px;">
+                        </div>
+                        <p class="bety-message">네가 좋아하는 걸 말해줄래?</p>
                     </div>
-                    <div class="info-type-card" data-type="career">
-                        <div class="info-type-icon">🎓</div>
-                        <div class="info-type-title">직업 & 학력</div>
-                        <div class="info-type-reward">30 💍</div>
+
+                    <!-- Quiz Counter -->
+                    <div class="quiz-counter">
+                        오늘 0/10 완료 (남은 횟수: 10)
                     </div>
-                    <div class="info-type-card" data-type="hobbies">
-                        <div class="info-type-icon">🎨</div>
-                        <div class="info-type-title">취미 & 관심사</div>
-                        <div class="info-type-reward">20 💍</div>
+
+                    <!-- Quiz Question -->
+                    <h3 class="quiz-title">뭐가 더 좋아?</h3>
+
+                    <!-- A/B Options -->
+                    <div class="quiz-options">
+                        <button class="quiz-option quiz-option-a" data-quiz-id="" data-choice="A">
+                            <img class="option-image" src="" alt="Option A" style="display: none;">
+                            <span class="option-text">옵션 A</span>
+                        </button>
+                        <button class="quiz-option quiz-option-b" data-quiz-id="" data-choice="B">
+                            <img class="option-image" src="" alt="Option B" style="display: none;">
+                            <span class="option-text">옵션 B</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Info Input Area (dynamically populated) -->
-                <div id="info-input-area" class="info-input-area" style="display: none;">
-                    <textarea id="info-textarea" class="info-textarea" placeholder="정보를 입력해주세요..." maxlength="500"></textarea>
-                    <div class="char-counter">
-                        <span id="char-count">0</span> / 500
+                <!-- Reward Container (initially hidden) -->
+                <div id="pawn-info-reward-container" style="display: none;">
+                    <!-- Reward Message -->
+                    <div class="reward-message-container">
+                        <div class="bety-avatar">
+                            <img src="/images/d-bety.png" alt="D-Bety" style="width: 60px; height: 60px;">
+                        </div>
+                        <p class="reward-message">취향 정보를 맡기고 5💍을 받았습니다!</p>
+                        <div class="reward-rings">+5 💍</div>
                     </div>
-                    <button id="submit-info-btn" class="pawnshop-submit-btn">
-                        정보 맡기기
+
+                    <!-- Reward Counter -->
+                    <div class="reward-counter">
+                        오늘 1/10 완료 (남은 횟수: 9)
+                    </div>
+
+                    <!-- Continue Button -->
+                    <button id="pawn-info-continue-btn" class="pawnshop-submit-btn">
+                        계속 ➡️
                     </button>
                 </div>
             </div>

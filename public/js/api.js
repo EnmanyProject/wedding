@@ -817,6 +817,36 @@ class APIService {
       method: 'DELETE'
     });
   }
+
+  /**
+   * 미응답 A&B 퀴즈 조회 (전당포용)
+   * @returns {Promise} - { data: quiz, todayCount, remainingCount }
+   */
+  async getUnansweredPawnshopQuiz() {
+    return this.request('/pawnshop/ab-quiz/unanswered', {
+      bypassCache: true // Always get fresh quiz
+    });
+  }
+
+  /**
+   * A&B 퀴즈 답변 제출 (전당포용)
+   * @param {string} quizId - 퀴즈 ID (UUID)
+   * @param {string} choice - 선택지 ('A' or 'B')
+   * @returns {Promise}
+   */
+  async submitPawnshopQuizAnswer(quizId, choice) {
+    const result = await this.request('/pawnshop/ab-quiz/answer', {
+      method: 'POST',
+      body: JSON.stringify({ quizId, choice }),
+      bypassCache: true
+    });
+
+    // Ring 잔액 캐시 무효화
+    this.invalidateCache('balance');
+    console.log('🗑️ [Cache] Invalidated balance cache after pawnshop quiz answer');
+
+    return result;
+  }
 }
 
 // Create global API instance

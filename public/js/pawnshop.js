@@ -190,47 +190,35 @@
     }
 
     /**
-     * 정보 맡기기 이벤트 설정
+     * 정보 맡기기 이벤트 설정 (A&B 퀴즈)
      */
     setupInfoPawn() {
-      const infoTypeCards = document.querySelectorAll('.info-type-card');
-      const infoInputArea = document.getElementById('info-input-area');
-      const infoTextarea = document.getElementById('info-textarea');
-      const charCount = document.getElementById('char-count');
-      const submitInfoBtn = document.getElementById('submit-info-btn');
+      // A/B 옵션 버튼 이벤트 (Event Delegation 사용)
+      document.addEventListener('click', async (e) => {
+        // A 또는 B 옵션 버튼 클릭 감지
+        const optionBtn = e.target.closest('.quiz-option-a, .quiz-option-b');
+        if (optionBtn) {
+          e.stopPropagation();
 
-      if (!infoInputArea || !infoTextarea || !charCount || !submitInfoBtn) return;
+          const quizId = optionBtn.dataset.quizId;
+          const choice = optionBtn.dataset.choice;
 
-      // 정보 타입 선택
-      infoTypeCards.forEach(card => {
-        card.addEventListener('click', () => {
-          // 선택 상태 업데이트
-          infoTypeCards.forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
+          if (quizId && choice) {
+            console.log(`🎯 [Pawnshop] Option ${choice} clicked for quiz ${quizId}`);
+            await this.submitQuizChoice(quizId, choice);
+          }
+        }
 
-          // 선택된 타입 저장
-          this.selectedInfoType = card.dataset.type;
-
-          // 입력 영역 표시
-          infoInputArea.style.display = 'block';
-          infoTextarea.focus();
-        });
-      });
-
-      // 글자 수 카운터
-      infoTextarea.addEventListener('input', () => {
-        charCount.textContent = infoTextarea.value.length;
-      });
-
-      // 정보 제출
-      submitInfoBtn.addEventListener('click', () => {
-        const text = infoTextarea.value.trim();
-        if (text && this.selectedInfoType) {
-          this.submitInfo(this.selectedInfoType, text);
-        } else {
-          this.showToast('정보를 입력해주세요', 'error');
+        // "계속" 버튼 클릭 감지
+        const continueBtn = e.target.closest('#pawn-info-continue-btn');
+        if (continueBtn) {
+          e.stopPropagation();
+          console.log('➡️ [Pawnshop] Continue button clicked');
+          await this.continueToNextQuiz();
         }
       });
+
+      console.log('✅ [Pawnshop] A&B Quiz event listeners set up');
     }
 
     /**
@@ -660,11 +648,208 @@
     }
 
     /**
-     * 정보 맡기기 모달 열기
+     * 정보 맡기기 모달 열기 (A&B 퀴즈)
      */
-    openPawnInfo() {
-      console.log('📝 [Pawnshop] Opening pawn info modal...');
+    async openPawnInfo() {
+      console.log('📝 [Pawnshop] Opening pawn info modal (A&B Quiz)...');
       this.openModal(this.pawnInfoModal);
+
+      // 첫 퀴즈 로드
+      await this.loadNextQuiz();
+    }
+
+    /**
+     * 다음 A&B 퀴즈 로드
+     */
+    async loadNextQuiz() {
+      try {
+        console.log('🎯 [Pawnshop] Loading next A&B quiz...');
+
+        const response = await window.api.getUnansweredPawnshopQuiz();
+
+        if (!response.success) {
+          throw new Error(response.error || '퀴즈 로드 실패');
+        }
+
+        const { data: quiz, todayCount, remainingCount, message } = response;
+
+        // 남은 횟수가 0이면 안내 메시지 표시
+        if (remainingCount === 0 || !quiz) {
+          this.displayNoMoreQuizzes(message || '오늘은 더 이상 퀴즈에 답변할 수 없습니다.');
+          return;
+        }
+
+        // 퀴즈 표시
+        this.displayQuiz(quiz, todayCount, remainingCount);
+
+      } catch (error) {
+        console.error('❌ [Pawnshop] Failed to load quiz:', error);
+        this.showToast('퀴즈를 불러오는데 실패했습니다.', 'error');
+      }
+    }
+
+    /**
+     * 퀴즈 UI 표시
+     */
+    displayQuiz(quiz, todayCount, remainingCount) {
+      console.log('🎨 [Pawnshop] Displaying quiz:', quiz);
+
+      const quizContainer = document.getElementById('pawn-info-quiz-container');
+      const rewardContainer = document.getElementById('pawn-info-reward-container');
+
+      if (!quizContainer || !rewardContainer) {
+        console.error('❌ [Pawnshop] Quiz container not found');
+        return;
+      }
+
+      // 보상 컨테이너 숨기기
+      rewardContainer.style.display = 'none';
+      quizContainer.style.display = 'block';
+
+      // D-Bety 메시지
+      const betyMessage = quizContainer.querySelector('.bety-message');
+      if (betyMessage) {
+        betyMessage.textContent = '네가 좋아하는 걸 말해줄래?';
+      }
+
+      // 남은 횟수 표시
+      const counterElement = quizContainer.querySelector('.quiz-counter');
+      if (counterElement) {
+        counterElement.textContent = `오늘 ${todayCount}/10 완료 (남은 횟수: ${remainingCount})`;
+      }
+
+      // 퀴즈 제목
+      const titleElement = quizContainer.querySelector('.quiz-title');
+      if (titleElement) {
+        titleElement.textContent = quiz.title || '뭐가 더 좋아?';
+      }
+
+      // A/B 옵션 표시
+      const optionA = quizContainer.querySelector('.quiz-option-a');
+      const optionB = quizContainer.querySelector('.quiz-option-b');
+
+      if (optionA) {
+        optionA.querySelector('.option-text').textContent = quiz.option_a_title;
+        optionA.dataset.quizId = quiz.id;
+        optionA.dataset.choice = 'A';
+      }
+
+      if (optionB) {
+        optionB.querySelector('.option-text').textContent = quiz.option_b_title;
+        optionB.dataset.quizId = quiz.id;
+        optionB.dataset.choice = 'B';
+      }
+
+      // 이미지가 있으면 표시
+      if (quiz.option_a_image) {
+        optionA.querySelector('.option-image').src = quiz.option_a_image;
+        optionA.querySelector('.option-image').style.display = 'block';
+      } else {
+        optionA.querySelector('.option-image').style.display = 'none';
+      }
+
+      if (quiz.option_b_image) {
+        optionB.querySelector('.option-image').src = quiz.option_b_image;
+        optionB.querySelector('.option-image').style.display = 'block';
+      } else {
+        optionB.querySelector('.option-image').style.display = 'none';
+      }
+
+      console.log('✅ [Pawnshop] Quiz displayed successfully');
+    }
+
+    /**
+     * 더 이상 퀴즈 없음 메시지 표시
+     */
+    displayNoMoreQuizzes(message) {
+      const quizContainer = document.getElementById('pawn-info-quiz-container');
+      const rewardContainer = document.getElementById('pawn-info-reward-container');
+
+      if (quizContainer) {
+        quizContainer.innerHTML = `
+          <div class="no-more-quizzes">
+            <div class="bety-avatar">🤖</div>
+            <p class="bety-message">${message}</p>
+            <p class="sub-message">내일 다시 와주세요! 💜</p>
+          </div>
+        `;
+      }
+
+      if (rewardContainer) {
+        rewardContainer.style.display = 'none';
+      }
+    }
+
+    /**
+     * A/B 선택 제출
+     */
+    async submitQuizChoice(quizId, choice) {
+      try {
+        console.log(`🎯 [Pawnshop] Submitting choice: ${choice} for quiz ${quizId}`);
+
+        const response = await window.api.submitPawnshopQuizAnswer(quizId, choice);
+
+        if (!response.success) {
+          throw new Error(response.error || '답변 제출 실패');
+        }
+
+        const { data } = response;
+        console.log('✅ [Pawnshop] Quiz answer submitted successfully:', data);
+
+        // 보상 표시
+        this.showReward(data);
+
+        // Ring 잔액 업데이트
+        if (window.ringSystem) {
+          window.ringSystem.loadBalance();
+        }
+
+      } catch (error) {
+        console.error('❌ [Pawnshop] Failed to submit quiz answer:', error);
+        this.showToast(error.message || '답변 제출에 실패했습니다.', 'error');
+      }
+    }
+
+    /**
+     * 보상 표시
+     */
+    showReward(data) {
+      const quizContainer = document.getElementById('pawn-info-quiz-container');
+      const rewardContainer = document.getElementById('pawn-info-reward-container');
+
+      if (!quizContainer || !rewardContainer) return;
+
+      // 퀴즈 컨테이너 숨기기
+      quizContainer.style.display = 'none';
+      rewardContainer.style.display = 'block';
+
+      // 보상 메시지
+      const messageElement = rewardContainer.querySelector('.reward-message');
+      if (messageElement) {
+        messageElement.textContent = data.message || `${data.ringsEarned}💍을 받았습니다!`;
+      }
+
+      // Ring 애니메이션 (optional)
+      const ringsElement = rewardContainer.querySelector('.reward-rings');
+      if (ringsElement) {
+        ringsElement.textContent = `+${data.ringsEarned} 💍`;
+      }
+
+      // 남은 횟수 표시
+      const counterElement = rewardContainer.querySelector('.reward-counter');
+      if (counterElement) {
+        counterElement.textContent = `오늘 ${data.todayCount}/10 완료 (남은 횟수: ${data.remainingCount})`;
+      }
+
+      console.log('✅ [Pawnshop] Reward displayed');
+    }
+
+    /**
+     * 계속 버튼 클릭 (다음 퀴즈)
+     */
+    async continueToNextQuiz() {
+      console.log('➡️ [Pawnshop] Continue to next quiz...');
+      await this.loadNextQuiz();
     }
 
     /**
