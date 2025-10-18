@@ -28,11 +28,31 @@ export class RingService {
   // Get user's ring balance
   async getRingBalance(userId: string): Promise<RingBalance | null> {
     try {
-      const result = await db.queryOne<RingBalance>(
-        'SELECT balance, total_earned, total_spent FROM user_ring_balance WHERE user_id = $1',
+      const result = await db.queryOne<{ balance: number }>(
+        'SELECT balance FROM user_ring_balances WHERE user_id = $1',
         [userId]
       );
-      return result;
+
+      if (!result) {
+        return null;
+      }
+
+      // Calculate total_earned and total_spent from ledger
+      const earnedResult = await db.queryOne<{ total: number }>(
+        'SELECT COALESCE(SUM(delta), 0)::int as total FROM user_ring_ledger WHERE user_id = $1 AND delta > 0',
+        [userId]
+      );
+
+      const spentResult = await db.queryOne<{ total: number }>(
+        'SELECT COALESCE(ABS(SUM(delta)), 0)::int as total FROM user_ring_ledger WHERE user_id = $1 AND delta < 0',
+        [userId]
+      );
+
+      return {
+        balance: result.balance,
+        total_earned: earnedResult?.total || 0,
+        total_spent: spentResult?.total || 0
+      };
     } catch (error) {
       console.error('Error getting ring balance:', error);
       throw new Error('Failed to get ring balance');
@@ -97,8 +117,8 @@ export class RingService {
     try {
       // Insert ring balance if not exists
       await db.query(
-        `INSERT INTO user_ring_balance (user_id, balance, total_earned, total_spent) 
-         VALUES ($1, 100, 100, 0) 
+        `INSERT INTO user_ring_balances (user_id, balance)
+         VALUES ($1, 100)
          ON CONFLICT (user_id) DO NOTHING`,
         [userId]
       );
@@ -299,11 +319,16 @@ export class RingService {
   async getLeaderboard(limit: number = 10): Promise<any[]> {
     try {
       const result = await db.query(
-        `SELECT u.name, u.id, urb.total_earned
-         FROM user_ring_balance urb
+        `SELECT
+           u.name,
+           u.id,
+           COALESCE(SUM(CASE WHEN l.delta > 0 THEN l.delta ELSE 0 END), 0)::int as total_earned
+         FROM user_ring_balances urb
          JOIN users u ON u.id = urb.user_id
+         LEFT JOIN user_ring_ledger l ON l.user_id = urb.user_id
          WHERE u.is_active = true
-         ORDER BY urb.total_earned DESC
+         GROUP BY u.name, u.id
+         ORDER BY total_earned DESC
          LIMIT $1`,
         [limit]
       );

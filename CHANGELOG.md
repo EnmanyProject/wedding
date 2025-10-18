@@ -30,6 +30,68 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.63.4 (2025-10-18) - Ring 잔액 표시 오류 수정
+
+**작업 내용**:
+- **문제**: 프론트엔드 Ring 잔액이 350으로 멈추고, 실제 잔액(7262)이 표시되지 않음
+  - API 엔드포인트가 잘못된 테이블 이름 사용 (`user_ring_balance` vs `user_ring_balances`)
+  - 존재하지 않는 컬럼(`total_earned`, `total_spent`) 조회 시도
+  - 쿼리 실패로 인해 프론트엔드가 fallback 값(350) 사용
+- **해결**:
+  - `ringService.ts`의 모든 테이블 이름을 `user_ring_balances` (복수형)로 수정
+  - `getRingBalance()` 메서드: `total_earned`, `total_spent`를 `user_ring_ledger`에서 동적 계산
+  - `initializeUserRings()` 메서드: 존재하지 않는 컬럼 제거
+  - `getLeaderboard()` 메서드: `total_earned`를 JOIN으로 계산
+
+**기술 상세**:
+```typescript
+// getRingBalance() - 동적 계산 구현
+async getRingBalance(userId: string): Promise<RingBalance | null> {
+  // 1. balance 조회
+  const result = await db.queryOne<{ balance: number }>(
+    'SELECT balance FROM user_ring_balances WHERE user_id = $1',
+    [userId]
+  );
+
+  // 2. total_earned 계산 (delta > 0)
+  const earnedResult = await db.queryOne<{ total: number }>(
+    'SELECT COALESCE(SUM(delta), 0)::int as total FROM user_ring_ledger WHERE user_id = $1 AND delta > 0',
+    [userId]
+  );
+
+  // 3. total_spent 계산 (delta < 0)
+  const spentResult = await db.queryOne<{ total: number }>(
+    'SELECT COALESCE(ABS(SUM(delta)), 0)::int as total FROM user_ring_ledger WHERE user_id = $1 AND delta < 0',
+    [userId]
+  );
+
+  return {
+    balance: result.balance,
+    total_earned: earnedResult?.total || 0,
+    total_spent: spentResult?.total || 0
+  };
+}
+```
+
+**검증 완료**:
+- ✅ API 엔드포인트 정상 작동: `{"balance":7262,"total_earned":0,"total_spent":2738}`
+- ✅ 프론트엔드에서 정확한 잔액 표시 가능
+- ✅ `total_earned`, `total_spent` 동적 계산 성공
+
+**수정된 파일**:
+- `src/services/ringService.ts` (테이블 이름 수정 및 동적 계산 구현)
+
+**테이블 스키마 확인**:
+- `user_ring_balances`: `user_id`, `balance`, `updated_at` (3개 컬럼만 존재)
+- `user_ring_ledger`: 거래 내역에서 `total_earned`, `total_spent` 계산
+
+**비즈니스 영향**:
+- 사용자에게 정확한 Ring 잔액 표시
+- Ring 시스템 신뢰성 향상
+- 프론트엔드-백엔드 데이터 정합성 확보
+
+---
+
 ### v1.63.3 (2025-10-18) - 퀴즈 링 차감 시스템 수정
 
 **작업 내용**:
