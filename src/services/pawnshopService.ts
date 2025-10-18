@@ -278,7 +278,7 @@ export class PawnshopService {
   }
 
   /**
-   * 사진 삭제 (비활성화)
+   * 사진 삭제 (완전 삭제)
    *
    * @param userId - 사용자 ID
    * @param photoId - 사진 ID
@@ -286,8 +286,7 @@ export class PawnshopService {
   async deletePawnedPhoto(userId: string, photoId: number): Promise<void> {
     try {
       const result = await db.query(
-        `UPDATE pawnshop_photos
-         SET is_active = false, updated_at = NOW()
+        `DELETE FROM pawnshop_photos
          WHERE id = $1 AND user_id = $2`,
         [photoId, userId]
       );
@@ -302,7 +301,7 @@ export class PawnshopService {
   }
 
   /**
-   * 정보 삭제 (비활성화)
+   * 정보 삭제 (완전 삭제)
    *
    * @param userId - 사용자 ID
    * @param infoId - 정보 ID
@@ -310,8 +309,7 @@ export class PawnshopService {
   async deletePawnedInfo(userId: string, infoId: number): Promise<void> {
     try {
       const result = await db.query(
-        `UPDATE pawnshop_info
-         SET is_active = false, updated_at = NOW()
+        `DELETE FROM pawnshop_info
          WHERE id = $1 AND user_id = $2`,
         [infoId, userId]
       );
