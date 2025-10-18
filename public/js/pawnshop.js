@@ -304,7 +304,7 @@
           const ringSystem = window.ringSystem || this.ringSystem;
           if (ringSystem) {
             // Ring 잔액 다시 로드
-            await ringSystem.loadRingBalance();
+            await ringSystem.loadBalance();
           }
 
           console.log('✅ [Pawnshop] Photo submitted successfully');
@@ -365,7 +365,7 @@
           const ringSystem = window.ringSystem || this.ringSystem;
           if (ringSystem) {
             // Ring 잔액 다시 로드
-            await ringSystem.loadRingBalance();
+            await ringSystem.loadBalance();
           }
 
           console.log('✅ [Pawnshop] Info submitted successfully');
