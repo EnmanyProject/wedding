@@ -30,6 +30,37 @@
 
 > 🚨 **중요**: 새 버전 추가 시 항상 이 목록 **맨 위**에 추가하세요!
 
+### v1.63.1 (2025-10-18) - 누락된 데이터베이스 컬럼 수정
+
+**작업 내용**:
+- **문제**: `daily_recommendations` 테이블에 컬럼 누락으로 Battle Royale 기능 에러 발생
+  - `expires_at` 컬럼 없음 → INSERT 실패
+  - `reason`, `metadata` 컬럼 없음
+- **해결**:
+  1. **Migration 016 생성**: `016_fix_missing_columns.sql`
+  2. **컬럼 추가**:
+     - `expires_at` (timestamp) - 추천 만료 시각 (7일)
+     - `reason` (text) - 추천 이유 (Battle Royale 생존자 등)
+     - `metadata` (jsonb) - 추가 메타데이터 (배지, 특별 속성)
+     - `updated_at` (timestamp) - 업데이트 시각
+  3. **기존 데이터 처리**: 기존 행의 expires_at을 created_at + 7일로 설정
+  4. **인덱스 추가**:
+     - `idx_daily_recommendations_expires_at` - 만료 쿼리 최적화
+     - `idx_daily_recommendations_metadata` (GIN) - JSONB 쿼리 최적화
+  5. **트리거 추가**: `updated_at` 자동 업데이트
+
+**검증 완료**:
+- ✅ 225명 유저 Daily Recommendations 생성 성공 (에러 없음)
+- ✅ Battle Royale 추천 목록 기능 정상 작동
+- ✅ 모든 4개 컬럼 추가 확인
+
+**생성된 파일**:
+- `migrations/016_fix_missing_columns.sql`
+- `scripts/run-fix-migration.ts`
+- `scripts/check-all-schemas.ts`
+
+---
+
 ### v1.63.0 (2025-10-18) - A&B 퀴즈 시스템 완전 통합 (trait_pairs → ab_quizzes)
 
 **작업 내용**:

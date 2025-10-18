@@ -3,21 +3,48 @@
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
 **최종 업데이트**: 2025-10-18
-**현재 Phase**: A&B 퀴즈 시스템 통합 완료
-**현재 버전**: v1.63.0
+**현재 Phase**: 데이터베이스 스키마 수정 완료
+**현재 버전**: v1.63.1
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: v1.63.0 A&B 퀴즈 시스템 완전 통합
-**작업**: trait_pairs + ab_quizzes → 단일 ab_quizzes 시스템
+**Phase**: v1.63.1 누락된 DB 컬럼 수정 완료
+**작업**: daily_recommendations 테이블 컬럼 추가
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: 나머지 trait_pairs 참조 코드 업데이트
+**다음**: 서버 정상 작동 확인 완료
 
 ---
 
 ## ✅ 최근 완료 작업 (최근 10개)
+
+### v1.63.1: 누락된 데이터베이스 컬럼 수정 ✅ (2025-10-18)
+
+**작업 내용**:
+- **문제 발견**: 서버 재시작 후 Battle Royale 기능 에러
+  - `daily_recommendations.expires_at` 컬럼 없음
+  - `daily_recommendations.reason`, `metadata` 컬럼 없음
+  - INSERT 쿼리 실패로 추천 생성 불가
+
+- **수정 완료**:
+  - Migration 016 생성 및 실행
+  - 4개 컬럼 추가: expires_at, reason, metadata, updated_at
+  - 기존 데이터 처리 (expires_at = created_at + 7일)
+  - 인덱스 및 트리거 추가
+
+- **검증 완료**:
+  - ✅ 225명 유저 Daily Recommendations 생성 성공
+  - ✅ Battle Royale 추천 목록 정상 작동
+  - ✅ 서버 에러 없음 확인
+
+**생성 파일**:
+- `migrations/016_fix_missing_columns.sql`
+- `scripts/run-fix-migration.ts`, `check-all-schemas.ts`
+
+**Git**: (커밋 예정) ✅
+
+---
 
 ### v1.63.0: A&B 퀴즈 시스템 완전 통합 ✅ (2025-10-18)
 
