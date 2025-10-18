@@ -545,14 +545,13 @@ router.get('/stats', authenticateAdmin, asyncHandler(async (
     };
   } else {
     const stats = await Promise.all([
-      db.queryOne('SELECT COUNT(*) as count FROM trait_pairs WHERE is_active = true'),
-      db.queryOne('SELECT COUNT(*) as count FROM trait_visuals'),
+      db.queryOne('SELECT COUNT(*) as count FROM ab_quizzes WHERE is_active = true'),
       db.queryOne('SELECT COUNT(*) as count FROM users WHERE is_active = true'),
       db.queryOne('SELECT COUNT(*) as count FROM quiz_sessions'),
-      db.queryOne('SELECT COUNT(*) as count FROM user_traits'),
+      db.queryOne('SELECT COUNT(*) as count FROM ab_quiz_responses'),
       db.queryOne(`
         SELECT category, COUNT(*) as count
-        FROM trait_pairs
+        FROM ab_quizzes
         WHERE is_active = true
         GROUP BY category
         ORDER BY count DESC
@@ -566,12 +565,12 @@ router.get('/stats', authenticateAdmin, asyncHandler(async (
 
     responseData = {
       active_trait_pairs: stats[0]?.count || 0,
-      trait_visuals: stats[1]?.count || 0,
-      active_users: stats[2]?.count || 0,
-      quiz_sessions: stats[3]?.count || 0,
-      trait_responses: stats[4]?.count || 0,
-      top_categories: stats[5] || [],
-      user_stats: stats[6] || {}
+      trait_visuals: 0, // Deprecated - now integrated into ab_quizzes
+      active_users: stats[1]?.count || 0,
+      quiz_sessions: stats[2]?.count || 0,
+      trait_responses: stats[3]?.count || 0,
+      top_categories: stats[4] || [],
+      user_stats: stats[5] || {}
     };
   }
 

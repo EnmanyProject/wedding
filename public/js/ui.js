@@ -1628,9 +1628,17 @@ class UIManager {
     // Show modal using requestAnimationFrame for reliable timing
     requestAnimationFrame(() => {
       modal.classList.add('active');
-      modal.classList.add('show'); // ✅ FIX: Add 'show' class for opacity animation
+      modal.setAttribute('aria-hidden', 'false'); // ✅ FIX: Set aria-hidden to false
       document.body.style.overflow = 'hidden';
       console.log('✅ [Profile Modal] 모달 표시 완료');
+
+      // 🔍 [DEBUG] Modal state after showing
+      console.log('🔍 [Profile Modal Debug] State after showing:', {
+        modalIsActive: modal.classList.contains('active'),
+        modalDisplay: window.getComputedStyle(modal).display,
+        modalOpacity: window.getComputedStyle(modal).opacity,
+        modalAriaHidden: modal.getAttribute('aria-hidden')
+      });
     });
   }
 

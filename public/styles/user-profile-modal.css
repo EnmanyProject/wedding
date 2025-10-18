@@ -15,11 +15,13 @@
     align-items: center;
     justify-content: center;
     z-index: 10001; /* Quiz modal보다 높게 */
-    animation: modalFadeIn 0.3s ease-out;
+    opacity: 0; /* 초기 상태 */
+    transition: opacity 0.3s ease-out; /* 부드러운 전환 */
 }
 
 .profile-modal.active {
     display: flex;
+    opacity: 1; /* ✅ FIX: active 상태에서 명시적으로 opacity 1 설정 */
 }
 
 @keyframes modalFadeIn {

@@ -6,7 +6,7 @@ import crypto from 'crypto';
 
 export interface SeedOptions {
   userCount?: number;
-  traitPairs?: number;
+  abQuizzes?: number;
   photosPerUser?: number;
   quizSessions?: number;
   resetFirst?: boolean;
@@ -16,7 +16,7 @@ export interface SeedOptions {
 export interface SeedStats {
   usersCreated: number;
   photosCreated: number;
-  traitPairsCreated: number;
+  abQuizzesCreated: number;
   quizSessionsCreated: number;
   quizItemsCreated: number;
   affinitiesCreated: number;
@@ -46,7 +46,7 @@ export class SeedService {
 
     const defaults: Required<SeedOptions> = {
       userCount: 30,
-      traitPairs: 50,
+      abQuizzes: 50,
       photosPerUser: 4,
       quizSessions: 50,
       resetFirst: false
@@ -61,7 +61,7 @@ export class SeedService {
     const stats: SeedStats = {
       usersCreated: 0,
       photosCreated: 0,
-      traitPairsCreated: 0,
+      abQuizzesCreated: 0,
       quizSessionsCreated: 0,
       quizItemsCreated: 0,
       affinitiesCreated: 0,
@@ -69,7 +69,7 @@ export class SeedService {
     };
 
     // Run seeding steps
-    await this.seedTraitPairs(opts.traitPairs, stats);
+    await this.seedABQuizzes(opts.abQuizzes, stats);
     const users = await this.seedUsers(opts.userCount, stats, options.gender);
     await this.seedUserPhotos(users, opts.photosPerUser, stats);
     await this.seedUserTraits(users, stats);
@@ -103,9 +103,8 @@ export class SeedService {
         'user_ring_balances',
         'user_skills',
         'affinity',
-        'user_traits',
-        'trait_visuals',
-        'trait_pairs',
+        'ab_quiz_responses',
+        'ab_quizzes',
         'oauth_providers',
         'users',
         'seed_runs'
@@ -120,66 +119,63 @@ export class SeedService {
   }
 
   /**
-   * Seed trait pairs with Korean wedding/dating context
+   * Seed A&B quizzes with Korean wedding/dating context
    */
-  private async seedTraitPairs(count: number, stats: SeedStats): Promise<void> {
-    console.log(`Seeding ${count} trait pairs...`);
+  private async seedABQuizzes(count: number, stats: SeedStats): Promise<void> {
+    console.log(`Seeding ${count} A&B quizzes...`);
 
-    const traitPairs = [
-      { key: 'communication_style', left: '많은 대화', right: '조용한 시간', category: 'communication' },
-      { key: 'date_preference', left: '야외 활동', right: '실내 활동', category: 'lifestyle' },
-      { key: 'food_style', left: '한식', right: '양식', category: 'food' },
-      { key: 'weekend_style', left: '활동적인', right: '휴식', category: 'lifestyle' },
-      { key: 'social_energy', left: '외향적', right: '내향적', category: 'personality' },
-      { key: 'planning_style', left: '계획적', right: '즉흥적', category: 'personality' },
-      { key: 'decision_making', left: '신중한', right: '빠른', category: 'personality' },
-      { key: 'living_space', left: '깔끔한', right: '편안한', category: 'lifestyle' },
-      { key: 'fashion_style', left: '클래식', right: '트렌디', category: 'style' },
-      { key: 'travel_style', left: '계획 여행', right: '배낭 여행', category: 'lifestyle' },
-      { key: 'career_priority', left: '일 우선', right: '균형', category: 'values' },
-      { key: 'financial_style', left: '저축', right: '소비', category: 'values' },
-      { key: 'hobby_type', left: '창작', right: '감상', category: 'interests' },
-      { key: 'exercise_type', left: '개인 운동', right: '팀 스포츠', category: 'lifestyle' },
-      { key: 'conflict_style', left: '직접 대화', right: '시간 두고', category: 'communication' },
-      { key: 'gift_preference', left: '실용적', right: '로맨틱', category: 'love_language' },
-      { key: 'family_time', left: '자주', right: '가끔', category: 'family' },
-      { key: 'future_planning', left: '구체적', right: '유연한', category: 'values' },
-      { key: 'learning_style', left: '독서', right: '체험', category: 'interests' },
-      { key: 'pet_preference', left: '강아지', right: '고양이', category: 'lifestyle' }
+    const abQuizzes = [
+      { title: 'communication_style', optionA: '많은 대화', optionB: '조용한 시간', category: 'communication', description: '대화 스타일 선호도' },
+      { title: 'date_preference', optionA: '야외 활동', optionB: '실내 활동', category: 'lifestyle', description: '데이트 장소 선호도' },
+      { title: 'food_style', optionA: '한식', optionB: '양식', category: 'food', description: '음식 취향' },
+      { title: 'weekend_style', optionA: '활동적인', optionB: '휴식', category: 'lifestyle', description: '주말 보내는 방식' },
+      { title: 'social_energy', optionA: '외향적', optionB: '내향적', category: 'personality', description: '성격 유형' },
+      { title: 'planning_style', optionA: '계획적', optionB: '즉흥적', category: 'personality', description: '계획 스타일' },
+      { title: 'decision_making', optionA: '신중한', optionB: '빠른', category: 'personality', description: '결정 방식' },
+      { title: 'living_space', optionA: '깔끔한', optionB: '편안한', category: 'lifestyle', description: '생활 공간 스타일' },
+      { title: 'fashion_style', optionA: '클래식', optionB: '트렌디', category: 'style', description: '패션 스타일' },
+      { title: 'travel_style', optionA: '계획 여행', optionB: '배낭 여행', category: 'lifestyle', description: '여행 스타일' },
+      { title: 'career_priority', optionA: '일 우선', optionB: '균형', category: 'values', description: '일과 삶의 우선순위' },
+      { title: 'financial_style', optionA: '저축', optionB: '소비', category: 'values', description: '금전 관리 스타일' },
+      { title: 'hobby_type', optionA: '창작', optionB: '감상', category: 'interests', description: '취미 유형' },
+      { title: 'exercise_type', optionA: '개인 운동', optionB: '팀 스포츠', category: 'lifestyle', description: '운동 선호도' },
+      { title: 'conflict_style', optionA: '직접 대화', optionB: '시간 두고', category: 'communication', description: '갈등 해결 방식' },
+      { title: 'gift_preference', optionA: '실용적', optionB: '로맨틱', category: 'love_language', description: '선물 선호도' },
+      { title: 'family_time', optionA: '자주', optionB: '가끔', category: 'family', description: '가족과 보내는 시간' },
+      { title: 'future_planning', optionA: '구체적', optionB: '유연한', category: 'values', description: '미래 계획 스타일' },
+      { title: 'learning_style', optionA: '독서', optionB: '체험', category: 'interests', description: '학습 방식' },
+      { title: 'pet_preference', optionA: '강아지', optionB: '고양이', category: 'lifestyle', description: '반려동물 선호도' }
     ];
 
-    // Add more random pairs to reach desired count
-    while (traitPairs.length < count) {
+    // Add more random quizzes to reach desired count
+    while (abQuizzes.length < count) {
       const categories = ['personality', 'lifestyle', 'values', 'interests', 'communication'];
       const category = categories[Math.floor(Math.random() * categories.length)];
 
-      traitPairs.push({
-        key: `trait_${traitPairs.length + 1}`,
-        left: `선택 A`,
-        right: `선택 B`,
-        category
+      abQuizzes.push({
+        title: `quiz_${abQuizzes.length + 1}`,
+        optionA: `선택 A`,
+        optionB: `선택 B`,
+        category,
+        description: `선택 질문 ${abQuizzes.length + 1}`
       });
     }
 
-    for (const pair of traitPairs.slice(0, count)) {
-      const pairId = uuidv4();
+    for (const quiz of abQuizzes.slice(0, count)) {
+      const quizId = uuidv4();
       await this.db.query(
-        `INSERT INTO trait_pairs (id, key, left_label, right_label, category, weight, entropy, is_active, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [pairId, pair.key, pair.left, pair.right, pair.category, 1.0, 0.5, true]
+        `INSERT INTO ab_quizzes (
+          id, category, title, description,
+          option_a_title, option_b_title,
+          is_active, created_by, created_at, updated_at, source
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9)`,
+        [quizId, quiz.category, quiz.title, quiz.description, quiz.optionA, quiz.optionB, true, null, 'system_generated']
       );
 
-      // Add visual assets (placeholder)
-      await this.db.query(
-        `INSERT INTO trait_visuals (id, pair_id, left_asset_id, right_asset_id, locale, is_default, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-        [uuidv4(), pairId, `asset_${pair.key}_left`, `asset_${pair.key}_right`, 'ko', true]
-      );
-
-      stats.traitPairsCreated++;
+      stats.abQuizzesCreated++;
     }
 
-    console.log(`Created ${stats.traitPairsCreated} trait pairs`);
+    console.log(`Created ${stats.abQuizzesCreated} A&B quizzes`);
   }
 
   /**
@@ -301,29 +297,28 @@ export class SeedService {
   }
 
   /**
-   * Seed user trait responses
+   * Seed user A&B quiz responses
    */
   private async seedUserTraits(userIds: string[], stats: SeedStats): Promise<void> {
-    console.log('Seeding user trait responses...');
+    console.log('Seeding user A&B quiz responses...');
 
-    // Get all trait pairs
-    const traitPairs = await this.db.query('SELECT id FROM trait_pairs WHERE is_active = true');
+    // Get all A&B quizzes
+    const abQuizzes = await this.db.query('SELECT id FROM ab_quizzes WHERE is_active = true');
 
     for (const userId of userIds) {
-      // Each user answers ALL trait pairs to ensure quiz compatibility
-      for (const pair of traitPairs) {
-        const choice = Math.random() > 0.5 ? 'left' : 'right';
-        const confidence = 0.6 + Math.random() * 0.4; // 0.6-1.0
+      // Each user answers ALL quizzes to ensure matching compatibility
+      for (const quiz of abQuizzes) {
+        const choice = Math.random() > 0.5 ? 'A' : 'B';
 
         await this.db.query(
-          `INSERT INTO user_traits (id, user_id, pair_id, choice, confidence, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-          [uuidv4(), userId, pair.id, choice, confidence]
+          `INSERT INTO ab_quiz_responses (id, quiz_id, user_id, choice, created_at)
+           VALUES ($1, $2, $3, $4, NOW())`,
+          [uuidv4(), quiz.id, userId, choice]
         );
       }
     }
 
-    console.log('Seeded user trait responses');
+    console.log('Seeded user A&B quiz responses');
   }
 
   /**
@@ -388,7 +383,7 @@ export class SeedService {
   private async seedQuizSessions(userIds: string[], sessionCount: number, stats: SeedStats): Promise<void> {
     console.log(`Seeding ${sessionCount} quiz sessions...`);
 
-    const traitPairs = await this.db.query('SELECT id FROM trait_pairs WHERE is_active = true LIMIT 20');
+    const abQuizzes = await this.db.query('SELECT id FROM ab_quizzes WHERE is_active = true LIMIT 20');
 
     for (let i = 0; i < sessionCount; i++) {
       const askerId = userIds[Math.floor(Math.random() * userIds.length)];
@@ -409,7 +404,7 @@ export class SeedService {
       // Add 3-5 quiz items per session
       const itemCount = 3 + Math.floor(Math.random() * 3);
       for (let j = 0; j < itemCount; j++) {
-        const pairId = traitPairs[Math.floor(Math.random() * traitPairs.length)].id;
+        const quizId = abQuizzes[Math.floor(Math.random() * abQuizzes.length)].id;
         const guess = Math.random() > 0.5 ? 'LEFT' : 'RIGHT';
         const correct = Math.random() > 0.3; // 70% accuracy
         const targetChoice = correct ? guess : (guess === 'LEFT' ? 'RIGHT' : 'LEFT');
@@ -420,7 +415,7 @@ export class SeedService {
           [
             uuidv4(),
             sessionId,
-            pairId,
+            quizId,
             targetChoice,
             guess,
             correct,
@@ -622,7 +617,7 @@ export class SeedService {
     const counts = await Promise.all([
       this.db.queryOne('SELECT COUNT(*) as count FROM users'),
       this.db.queryOne('SELECT COUNT(*) as count FROM user_photos'),
-      this.db.queryOne('SELECT COUNT(*) as count FROM trait_pairs'),
+      this.db.queryOne('SELECT COUNT(*) as count FROM ab_quizzes'),
       this.db.queryOne('SELECT COUNT(*) as count FROM quiz_sessions'),
       this.db.queryOne('SELECT COUNT(*) as count FROM quiz_items'),
       this.db.queryOne('SELECT COUNT(*) as count FROM affinity'),
@@ -644,7 +639,7 @@ export class SeedService {
       currentCounts: {
         users: counts[0]?.count || 0,
         photos: counts[1]?.count || 0,
-        traitPairs: counts[2]?.count || 0,
+        abQuizzes: counts[2]?.count || 0,
         quizSessions: counts[3]?.count || 0,
         quizItems: counts[4]?.count || 0,
         affinities: counts[5]?.count || 0,

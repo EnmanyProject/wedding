@@ -178,15 +178,15 @@ router.get('/:userId', authenticateAdmin, asyncHandler(async (
     `;
     const photos = await db.query(photosQuery, [userId]);
 
-    // Get user trait responses
+    // Get user A&B quiz responses
     const traitsQuery = `
       SELECT
-        ut.id, ut.choice, ut.created_at,
-        tp.left_label, tp.right_label, tp.key
-      FROM user_traits ut
-      JOIN trait_pairs tp ON ut.pair_id = tp.id
-      WHERE ut.user_id = $1
-      ORDER BY ut.created_at DESC
+        qr.id, qr.choice, qr.created_at,
+        aq.option_a_title, aq.option_b_title, aq.title
+      FROM ab_quiz_responses qr
+      JOIN ab_quizzes aq ON qr.quiz_id = aq.id
+      WHERE qr.user_id = $1
+      ORDER BY qr.created_at DESC
       LIMIT 10
     `;
     const traits = await db.query(traitsQuery, [userId]);

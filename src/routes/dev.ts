@@ -216,7 +216,7 @@ router.get('/health', checkDevMode, asyncHandler(async (
   // Check basic data integrity
   const counts = await Promise.all([
     seedService.db.queryOne('SELECT COUNT(*) as count FROM users'),
-    seedService.db.queryOne('SELECT COUNT(*) as count FROM trait_pairs'),
+    seedService.db.queryOne('SELECT COUNT(*) as count FROM ab_quizzes'),
     seedService.db.queryOne('SELECT COUNT(*) as count FROM user_photos'),
   ]);
 
@@ -225,7 +225,7 @@ router.get('/health', checkDevMode, asyncHandler(async (
     database: dbStatus,
     data_counts: {
       users: counts[0]?.count || 0,
-      trait_pairs: counts[1]?.count || 0,
+      ab_quizzes: counts[1]?.count || 0,
       photos: counts[2]?.count || 0
     },
     config: {
