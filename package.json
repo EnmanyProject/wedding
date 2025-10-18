@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "A&B Meeting and Wedding Info App with Photo-based Quiz System",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "npm run validate:quick && tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "validate": "tsx scripts/validate-project.ts",
+    "validate:quick": "tsx scripts/validate-project.ts --quick",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
