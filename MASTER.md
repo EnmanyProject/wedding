@@ -3,21 +3,96 @@
 > 📚 **문서 역할**: 현재 작업 상태 + 핵심 작업 내용 (계속 업데이트)
 
 **최종 업데이트**: 2025-10-18
-**현재 Phase**: 데이터베이스 스키마 수정 완료
-**현재 버전**: v1.63.1
+**현재 Phase**: Ring 시스템 완전 정상화 완료
+**현재 버전**: v1.63.4
 
 ---
 
 ## 🎯 현재 상태
 
-**Phase**: v1.63.1 누락된 DB 컬럼 수정 완료
-**작업**: daily_recommendations 테이블 컬럼 추가
+**Phase**: v1.63.4 Ring 시스템 수정 완료
+**작업**: Ring 잔액 표시 오류 수정 및 퀴즈 차감 시스템 개선
 **진행률**: 100% 🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦
-**다음**: 서버 정상 작동 확인 완료
+**다음**: Ring 시스템 정상 작동 확인 완료
 
 ---
 
 ## ✅ 최근 완료 작업 (최근 10개)
+
+### v1.63.4: Ring 잔액 표시 오류 수정 ✅ (2025-10-18)
+
+**작업 내용**:
+- **문제**: 프론트엔드 Ring 잔액이 350으로 멈추고, 실제 잔액(7262)이 표시되지 않음
+  - API 엔드포인트가 잘못된 테이블 이름 사용 (`user_ring_balance` vs `user_ring_balances`)
+  - 존재하지 않는 컬럼(`total_earned`, `total_spent`) 조회 시도
+  - 쿼리 실패로 인해 프론트엔드가 fallback 값(350) 사용
+
+- **해결 완료**:
+  - `ringService.ts`의 모든 테이블 이름을 `user_ring_balances` (복수형)로 수정
+  - `getRingBalance()`: `total_earned`, `total_spent`를 `user_ring_ledger`에서 동적 계산
+  - `initializeUserRings()`: 존재하지 않는 컬럼 제거
+  - `getLeaderboard()`: `total_earned`를 JOIN으로 계산
+
+- **검증 완료**:
+  - ✅ API 정상 작동: `{"balance":7262,"total_earned":0,"total_spent":2738}`
+  - ✅ 프론트엔드에서 정확한 잔액 표시
+  - ✅ `total_earned`, `total_spent` 동적 계산 성공
+
+**수정 파일**:
+- `src/services/ringService.ts` (테이블 이름 및 동적 계산)
+
+**Git**: 4f38ee9 ✅
+
+---
+
+### v1.63.3: 퀴즈 링 차감 시스템 수정 ✅ (2025-10-18)
+
+**작업 내용**:
+- **문제**: 호감도 퀴즈에서 정답 시 링이 차감되지 않음
+  - 오답 시에만 패널티 차감
+  - 퀴즈 시도 자체에 비용이 없음
+
+- **해결 완료**:
+  - 2단계 차감 시스템 구현:
+    1. 퀴즈 시도당 무조건 1링 차감 (`QUIZ_ATTEMPT`)
+    2. 오답 시 추가 패널티 차감 (`QUIZ_WRONG`)
+  - `src/services/quizService.ts:216-240` 수정
+  - 데이터베이스 제약조건에 `QUIZ_ATTEMPT` reason 추가
+
+- **검증 완료**:
+  - ✅ 정답 시: 1링 차감
+  - ✅ 오답 시: 1링 차감 + 추가 패널티
+  - ✅ Ring ledger에 `QUIZ_ATTEMPT` 기록
+
+**생성 파일**:
+- `sql/migrations/009_add_quiz_attempt_reason.sql`
+- `scripts/run-quiz-attempt-migration.ts`
+
+**Git**: (커밋 완료) ✅
+
+---
+
+### v1.63.2: 프로필 모달 클릭 및 표시 문제 해결 ✅ (2025-10-18)
+
+**작업 내용**:
+- **문제**: 스와이프 후 파트너 카드 클릭 시 프로필 모달이 표시되지 않음
+  - 로딩 오버레이가 `hidden` 상태에서도 클릭 차단
+  - 모달 `opacity`가 0으로 유지되어 보이지 않음
+
+- **해결 완료**:
+  1. `elegant-loading.css` 수정: `pointer-events: none !important`, `visibility: hidden` 추가
+  2. `user-profile-modal.css` 수정: animation 기반 → transition 기반으로 변경
+  3. `ui.js` 개선: `aria-hidden` 속성 명시적 설정
+
+- **검증 완료**:
+  - ✅ 파트너 스와이프 정상 작동
+  - ✅ 스와이프 후 클릭 시 모달 정상 표시
+  - ✅ 모달 opacity transition 정상 작동
+  - ✅ 로딩 오버레이 클릭 차단 해제
+
+**Git**: (커밋 완료) ✅
+
+---
 
 ### v1.63.1: 누락된 데이터베이스 컬럼 수정 ✅ (2025-10-18)
 
